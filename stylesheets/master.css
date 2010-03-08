@@ -13,6 +13,10 @@ a:visited {
   font-weight: normal;
 }
 
+a:hover {
+  color: black;
+}
+
 #wrapper {
   width: 960px;
   border: 1px solid #DFDFDF;
@@ -87,9 +91,9 @@ a:visited {
 
 span.date {
   padding: 0.2em;
-  font-weight: bold;
   color: white;
-  border-bottom: 3px solid #0E51A7;
+  color: dimgray;
+  font-size: 80%;
 }
 
 
@@ -105,10 +109,8 @@ div.post {
   text-decoration: underline;
   clear: left;
   display: block;
-  color: black;
   padding: 0.3em 0;
   margin: 0 0 0.2em 0;
-  border-bottom: 1px dashed #dba;
   font-weight: bold;
 }
 
@@ -202,7 +204,7 @@ div.related {
 }
 
 #home_left {
-  width: 29em;
+  width: 100%;
 }
 
 .clearfix { clear: both;}
@@ -210,10 +212,6 @@ div.related {
 #footer a {
   color: #353b40;
   font-weight: normal;
-}
-
-.home_box .post h1 a {
-  font-size: 0.7em;
 }
 
 .home_box #search {
