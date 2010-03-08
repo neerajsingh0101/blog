@@ -1,0 +1,15 @@
+---
+layout: post
+title: Typing Less in Irb with method_missing
+keywords: method_missing tips, type less, irb shortcuts, efficient ruby console, ruby shortcuts, instant aliasing, underscore search, textmate search
+description: Being the console-efficient prick I am, let's look at a <code>method_missing</code> that let's us type less where underscored methods are involved. This means that instead of typing <code>some_really_long_ass_method</code> we can type the shortcut method <code>s_r_l_a_s</code>.
+---
+First off, Happy New Year! Now back to our regularly scheduled program.
+
+{{page.description}} Instant aliasing! As you can see this works by typing the beginning letter of each word separated by underscores.
+
+So why do this if we have autocompletion? For starters, try typing the @Object@ method @instance_variable_get@ in five keystrokes (tabs included). Or for more inefficiency, try typing @ActiveRecord@ class methods that start with @before_*@ and @validate_*@.
+
+h2. Explanation
+
+HIR stuff

@@ -1,0 +1,25 @@
+---
+layout: post
+keywords: ruby rocks
+title: ruby rocks
+description: ruby rocks
+---
+
+{{ page.description }}
+
+h2. Intro
+
+ruby rocks
+
+{% highlight ruby %}
+  def foo
+    puts 'foo'
+  end
+{% endhighlight %}
+
+{% highlight js %}
+  var foo = function(){
+    a = 2;
+  };
+{% endhighlight %}
+
