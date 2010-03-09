@@ -1,0 +1,43 @@
+---
+layout: post
+title: How to handle exception while developing api in ruby on rails
+---
+Let's jump into the code.
+
+{% highlight ruby %}
+# users_controller.rb
+
+def show
+  @user = User.find(params[:id])
+
+  respond_to do |format|
+    format.html # show.html.erb
+    format.xml  { render :xml => @user }
+  end
+end
+{% endhighlight %}
+
+
+The above method would fine if everything goes fine. However if a request is made for a user id that does not exist then <tt>User.find</tt> will throw an exception.
+
+
+If the request was made for an html page then rails will handle the exception and will show the appropriate error page depending on if you are running in development or production mode.
+
+However for .xml there is an issue. If it is an API request then ,in the case of an error, you still need to send an xml response with the error message. Question is how to handle exception in a generic way.
+
+h2. rescue_from is the solution
+
+If you don't know what <tt>rescue_from</tt> is then read "this blog about rescue_from":http://ryandaigle.com/articles/2007/9/24/what-s-new-in-edge-rails-better-exception-handling .
+
+{% highlight ruby %}
+rescue_from Exception, :with => :all_exception_catch
+def all_exception_catch(e)
+  if params[:format] == 'xml'
+     render :text => '<xml><error>There was an error processing the request</error></xml>' 
+  else
+    rescue_action_without_handler(e)
+  end
+end
+{% endhighlight %}
+
+In the above code, you are asking Rails to catch all the exception with the method <tt>all_exception_catch</tt>. In that method if the format is xml then an xml response is sent. If the format is not xml then you would like the request to travel the path it was travelling. This is important because a lot of plugins like hoptoad latches onto method <tt>rescue_action_in_public</tt>. You don't want the exception propogation to halt with method <tt>all_exception_catch</tt> . <br />

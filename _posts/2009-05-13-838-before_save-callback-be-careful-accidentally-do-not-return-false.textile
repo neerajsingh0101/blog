@@ -1,0 +1,122 @@
+---
+layout: post
+title: before_save callback  be careful accidentally do not return false
+---
+<i>Following code has been tested with Rails 2.3.2 </i>
+
+You have an app with User model. The model has only two columns: salary (integer) , eligible_for_loan(boolean).
+
+The business logic is that if user is earning more than $150,000 then user is not eligible for bonus. You might code like this.
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  
+  before_save :set_eligible_for_loan_status
+  
+  private
+  
+  def set_eligible_for_loan_status
+    if self.salary > 150000
+      self.eligible_for_loan = false
+    else
+      self.eligible_for_loan = true      
+    end
+  end
+  
+end
+{% endhighlight %}
+
+Do you see anything wrong with the above code? 
+
+{% highlight ruby %}
+> sc
+Loading development environment (Rails 2.3.2)
+>> User.create(:salary => 32000)
+  User Create (0.4ms)   INSERT INTO "users" ("updated_at", "salary", "eligible_for_loan", "created_at") VALUES('2009-05-13 18:16:53', 32000, 't', '2009-05-13 18:16:53')
+=> #<User id: 2, salary: 32000, eligible_for_loan: true, created_at: "2009-05-13 18:16:53", updated_at: "2009-05-13 18:16:53">
+>> User.create(:salary => 232000)
+=> #<User id: nil, salary: 232000, eligible_for_loan: false, created_at: nil, updated_at: nil> 
+{% endhighlight %}
+
+Notice that no user record was created for the user earning $232000. However use record was created for the user earning $32000.
+
+The thing is that looking at the errors does not help either. Errors is empty.
+
+{% highlight ruby %}
+>> u = User.create(:salary => 232000)
+=> #<User id: nil, salary: 232000, eligible_for_loan: false, created_at: nil, updated_at: nil>
+>> u.errors.full_messages
+{% endhighlight %}
+
+h2. Explanation
+
+ActiveRecord provides <tt>before_save</tt> callback which is immensely useful. As per the "Rails guide":http://guides.rubyonrails.org/activerecord_validations_callbacks.html there are two ways to stop the operation from before_save. 
+
+One way is to explicitly return <tt>false</tt>. If you return <tt>nil</tt> then the operation will continue to proceed. To stop the operation you must return false. In this case returning false is not the same as returning true.
+
+The other way to stop the operation it to raise an exception.
+
+In ruby any operation must return something. Check out in irb .
+
+{% highlight ruby %}
+> irb
+>> foo = 'ruby on rails'
+=> "ruby on rails"
+>> foo = 5
+=> 5
+{% endhighlight %}
+
+In the first case foo was assigned a value of 'ruby on rails' and the operation returned a string with the value of 'ruby on rails'. When foo is assigned a value of 5 then the operation returns a value of 5.
+
+Guess what will the operation return if I assign <tt>false</tt> to foo.
+
+{% highlight ruby %}
+>> foo = false
+=> false
+{% endhighlight %}
+
+h2. Back to original problem
+
+The original code was 
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  
+  before_save :set_eligible_for_loan_status
+  
+  private
+  
+  def set_eligible_for_loan_status
+    if self.salary > 150000
+      self.eligible_for_loan = false
+    else
+      self.eligible_for_loan = true      
+    end
+  end
+  
+end
+{% endhighlight %}
+
+In the above case when the salary is greater than 150000 then expression <tt>self.eligible_for_loan = false</tt> is evaluated. The return value of this expression is <tt>false</tt> as it was discussed earlier.
+
+Notice that the evaluation of expression <tt>self.eligible_for_loan = false</tt> also happens to be the last expression in that method. The end result is that the method set_eligible_for_loan_status returns a value of false if the salary is greater then 150000.
+
+As it was discussed when false is returned from a before_save callback then the whole transaction is aborted.
+
+h2. Solution
+
+The solution is to not to return false. Adding nil at the very end of the method is one way to fix this problem.
+
+{% highlight ruby %}
+def set_eligible_for_loan_status
+  if self.salary > 150000
+    self.eligible_for_loan = false
+  else
+    self.eligible_for_loan = true      
+  end
+  nil
+end
+{% endhighlight %}
+
+
+ <br />

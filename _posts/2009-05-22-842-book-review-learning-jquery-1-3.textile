@@ -1,0 +1,37 @@
+---
+layout: post
+title: Book Review  Learning jQuery 1.3
+---
+<i>
+Disclosure: I received a free copy of the e-book in exchange for this review. 
+</i>
+
+
+<div style="margin:0em 1em 1em 0pt;float:left;"> 
+!http://images.packtpub.com/images/100x123/1847192505.png!:http://www.packtpub.com/learning-jquery-1.3/book/mid/220409c024ep
+</div>
+
+
+"Learning jQuery 1.3":http://www.packtpub.com/learning-jquery-1.3/book/mid/220409c024ep is written by "Karl Swedberg":http://www.packtpub.com/author_view_profile/id/133 and "Jonathan Chaffer":http://www.packtpub.com/author_view_profile/id/134 .
+
+
+First let's get through the question a lot of people asked me: what book they should buy to learn jQuery.
+Besides this book there is also "jQuery in Action":http://www.manning.com/bibeault/ published by Manning. I have read both the books and I can confidently say that this book is a much easier read. 
+
+I felt that this book was holding my hand and guiding me through as the authors built up the knowledge level chapter by chapter. I found jQuery in Action to be a bit jumpy and not-so-smooth.
+
+This books is filled with lot and lots of examples. That's a good thing. Because in order to understand all the nitty gritty details you want to see a lot of examples which is exactly what is provided in this book.
+
+I really liked that at the end of the book they not only discussed a few plugins, but also devoted a full chapter on how to go about building plugins using the jQuery best practices. 
+
+Even if you have not worked much on Javascript this book can be a good read. Also this book presents the things that are possible in Javascript which I would never think of before. For example if you have FAQ page then at the end of the each answer, you might want to have 'back to top' link. Well these 'back to top links' can be put statically in the html or those links could be dynamically generated via jQuery. As a developer I not only want to learn new technology but I also want to see a few use cases where the newly learned technology could be put to use.
+
+The other possibility is hijacking a form and turning the form into an AJAX form. If the user's browser is Javascript enabled then form will be submitted via AJAX otherwise it will do a regular submit. That's how Javascript should be coded anyway. All the Javascript coolness should be unobtrusive and the application should degrade gracefully.
+
+All in all this book is a gentle read packed with lots of information.
+
+"Click here to get full table of contents of the book":http://www.packtpub.com/article/learning-jquery-1.3-table-of-contents  
+
+"Click here to get a free chapter":http://www.packtpub.com/files/learning-jquery-1-3-sample-chapter-4-effects.pdf
+
+ <br />

@@ -1,0 +1,17 @@
+---
+layout: post
+title: Plugin admin_data for browsing, searching, editing and managing database records
+---
+In almost all Rails projects, I needed an easy to way to look at data and to be able to search through them easily. Writing advance search for each table in each Rails project is painful. So I created this plugin.
+
+Out of the box, this plugin allows you to not only browse the records but also do quick and advance search on all of your tables.
+
+Also when you are viewing a record it will also display the count of associated records ( belongs_to, has_many, has_one) and in one click you can get all the associated records.
+
+There is a lot more. For a complete list of features go to the bottom of "this page":http://github.com/neerajdotname/admin_data/tree/master .
+
+The only requirement is that you must be using Rails 2.2 or higher.
+
+"Install this plugin":http://github.com/neerajdotname/admin_data/tree/master from github and do let me know your feedback.
+
+There is also a "live DEMO":http://www.neeraj.name/admin_data of this plugin right here at my blog. Please note the in this DEMO you will not have ability to edit any record. In your application if you have sufficient privilege you would be able to edit records too. <br />

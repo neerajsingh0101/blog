@@ -1,0 +1,53 @@
+---
+layout: post
+title: JSON formatting that is easy on eyes
+---
+ActiveRecord makes it easy to get JSON output. All you need to do is to call <tt>to_json</tt> on the model.
+
+Here is the snippet of the code from the blog engine that powers this blog.
+
+{% highlight ruby %}
+def show
+  @article = Article.find(params[:id], :include => :comments)
+  respond_to do |format|
+    format.html
+    format.rss
+    format.js do
+      render :text => @article.to_json, :layout => false
+    end
+  end
+end
+{% endhighlight %}
+
+You can see the output "here":http://www.neeraj.name/blog/articles/834-how-cookie-stores-session-data-in-rails.js .
+
+If you are working on an API or if you need to refer to the JSON output time and again then the horizontal scrolling becomes a pain point. It would be really nice if the JSON output had line break "like this":http://www.eventsinindia.com/states.js .
+
+Rails makes use of <tt>to_json</tt> method added to Hash in ActiveSupport. You can overwrite <tt>to_json</tt> method to get the desired output. This is what I have.
+
+{% highlight ruby %}
+class Hash
+  def to_json(options = {}) #:nodoc:
+    options.reverse_merge! :spacer_size => 1    
+    hash_keys = self.keys
+
+    if except = options[:except]
+      hash_keys = hash_keys - Array.wrap(except)
+    elsif only = options[:only]
+      hash_keys = hash_keys & Array.wrap(only)
+    end
+
+    spacer = ' '
+    result = "\r\n #{spacer * options[:spacer_size]}{"
+    result << hash_keys.map do |key|
+      "#{ActiveSupport::JSON.encode(key.to_s)}: #{ActiveSupport::JSON.encode(self[key], options.merge(:spacer_size => options[:spacer_size]+7))}"
+    end * " ,\r\n #{spacer * (options[:spacer_size]+1)}"
+    
+    result << '}'
+    
+  end
+end
+{% endhighlight %}
+
+
+Now all json outputs are nicely displayed on the browser. No horizontal scrolling. <br />

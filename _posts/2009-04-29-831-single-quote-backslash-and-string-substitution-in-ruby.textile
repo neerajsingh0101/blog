@@ -1,0 +1,89 @@
+---
+layout: post
+title: Single quote, backslash and string substitution in ruby
+---
+h2. Problem Defintion
+
+Perform a gsub on the string <tt>Ruby's gem</tt> to get the result <tt>Ruby\'s gem</tt>
+
+h2. Solution
+
+{% highlight ruby %}
+str2 = "Ruby's gem" 
+puts str2.gsub(/'/,"\\\\'") 
+{% endhighlight %}
+
+h2. Analysis
+
+If you look at the solution you will notice that there are four back slashes in the substitution string. Question is why four of them are needed.
+
+h3. Use Double backslash in substitution string 
+
+While performing substitution if you need backslash then one single slash like <tt>\</tt> will not work. You will need to use double backslash like this <tt>\\</tt>.
+
+{% highlight ruby %}
+str1 = 'foo bar baz'
+puts str1.gsub(/bar/,'\')
+
+#results in syntax error
+/Users/nkumar/Desktop/untitled.rb:17: syntax error, unexpected tIDENTIFIER, expecting ')'
+puts str1.gsub(/bar/,'hello')
+                           ^
+/Users/nkumar/Desktop/untitled.rb:21: syntax error, unexpected $undefined, expecting $end
+puts str1.gsub(/bar/,"\\")
+{% endhighlight %}
+
+As stated you need to have double backslash.
+
+{% highlight ruby %}
+str1 = 'foo bar baz'
+puts str1.gsub(/bar/,'\\') #=> foo \ baz
+{% endhighlight %}
+
+h3. Pre and Post match
+
+In the substitution string if you use  <tt>\'</tt> then it is treated as post match. The pattern <tt>\`</tt> is treated as pre-match in the substitution string as "mentioned here":http://www.rubycentral.com/pickaxe/language.html .
+
+{% highlight ruby %}
+str1 = 'foo bar baz'
+puts str1.gsub(/bar/,"\\'") #=>foo  baz baz
+{% endhighlight %}
+
+As mentioned pattern <tt>\'</tt> is treated as post-match. However in the substitution string a backslash must be doubled up so you are seeing <tt>\\'</tt> in the example above. In the above case after the match of string 'bar' string 'baz' is the post-match. That is why you are getting the final result as 'foo baz baz' .
+
+Same goes for the pre-match.
+
+{% highlight ruby %}
+str1 = 'foo bar baz'
+puts str1.gsub(/bar/,"\\`") #=> foo foo  baz
+{% endhighlight %}
+
+h2. Coming back to the main issue of why four backslashes are needed
+
+{% highlight ruby %}
+str2 = "Ruby's gem" # substitue ' with \'
+puts str2.gsub(/'/,"\\\\'") #=> Ruby\'s gem
+{% endhighlight %}
+
+A person might start with something like this if asked to replace <tt>'</tt> with <tt>\'</tt> .
+
+{% highlight ruby %}
+str2.gsub(/'/,"\'") #=>Ruby's gem
+{% endhighlight %}
+
+Since in substitution string a backslash must be doubled , it should be changed to.
+
+{% highlight ruby %}
+str2.gsub(/'/,"\\'") #=> Rubys gems gem
+{% endhighlight %}
+
+
+Look at the substitution string. It is <tt>\'</tt> which has a special meaning of post-match. That is why in the result you are seeing the string <tt>Rubys gems gem</tt> because <tt>s gem</tt> is the post-match.
+
+
+In order to escape that and to tell ruby to not to use the special meaning, you need to escape it one more time. However a single backslash does not work in the substitution string as you saw before. So in order to escape it the string must be escaped with two back slashes. This results in
+
+{% highlight ruby %}
+str2.gsub(/'/,"\\\\'")
+{% endhighlight %}
+ <br />

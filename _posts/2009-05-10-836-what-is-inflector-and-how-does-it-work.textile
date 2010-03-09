@@ -1,0 +1,218 @@
+---
+layout: post
+title: What is Inflector and how does it work
+---
+I am using Rails 2.3.2 and all the code mentioned in this article are tested with Rails 2.3.2 .
+
+h2. What is Inflector 
+
+Inflector is the backbone of the Rails code that converts a string from singular to plural and from plural to singular. This functionality is most commonly needed to find out the table name of a given model. It is Inflector that says that the table name for the model 'Person' will be 'People'.
+
+h2. How do I use this feature
+
+If you have a special case where you want to control the mapping from singular to plural then Rails provides you a hook. You will find a file called <tt>config/initializers/inflections.rb</tt> . This file looks something like this
+
+{% highlight ruby %}
+# Add new inflection rules using the following format 
+# (all these examples are active by default):
+# ActiveSupport::Inflector.inflections do |inflect|
+#   inflect.plural /^(ox)$/i, '\1en'
+#   inflect.singular /^(ox)en/i, '\1'
+#   inflect.irregular 'person', 'people'
+#   inflect.uncountable %w( fish sheep )
+# end
+{% endhighlight %}
+
+If I want the plural of 'car' to be 'carz' then this is the place to make that change.
+
+{% highlight ruby %}
+ActiveSupport::Inflector.inflections do |inflect|
+    inflect.irregular 'car', 'carz'
+end
+{% endhighlight %}
+
+You can test it in script/console .
+
+{% highlight ruby %}
+>> 'car'.pluralize
+=> "carz"
+{% endhighlight %}
+
+h2. How is Inflector implemented
+
+In short inflector.rb has following code
+
+{% highlight ruby %}
+module ActiveSupport
+  module Inflector
+    extend self
+
+    class Inflections
+      include Singleton
+
+      def plural(rule, replacement)
+      end
+
+      def singular(rule, replacement)
+      end
+    end
+
+    def pluralize(word)
+    end
+
+    def singularize(word)
+    end
+
+  end
+end
+{% endhighlight %}
+
+A few things to notice here. First is the usage of <tt>extend self</tt>. Secondly module <tt>Singleton</tt> is being included. 
+
+h2. What does 'extend self' do ?
+
+A module can have instance methods and class methods. 
+
+{% highlight ruby %}
+module Foo
+ def hi
+  puts 'hi'
+ end
+
+ def self.hello
+  puts 'hello'
+ end
+end
+{% endhighlight %}
+
+You already know that a module can not be instantiated. 
+
+{% highlight ruby %}
+f = Foo.new
+unndefined method ‘new’ for Foo:Module
+{% endhighlight %}
+
+However you can invoke a class method directly on a module. Invoking an instance method will raise error.
+
+{% highlight ruby %}
+module Foo
+ def hi
+  puts 'hi'
+ end
+
+ def self.hello
+  puts 'hello'
+ end
+end
+
+
+Foo.hello #=> 'hello'
+
+Foo.hi #=> undefined method ‘hi’ for Foo:Module
+{% endhighlight %}
+
+You can see that invocation of instance method <tt>hi</tt> resulted in a error. What is the solution to this problem. Solution is <tt>extend self</tt>. Inside the module self is the module Foo itself and if that module is extended then the instance methods become directly available on Foo object.
+
+{% highlight ruby %}
+module Foo
+ def hi
+  puts 'hi'
+ end
+
+ def self.hello
+  puts 'hello'
+ end
+ extend self
+end
+
+
+Foo.hello #=> 'hello'
+
+Foo.hi #=> 'hi'
+{% endhighlight %}
+
+In the above case <tt>extend self</tt> was added and both the methods 'hi' and 'hello' worked fine. Back to the main topic. The inflector code is this
+
+{% highlight ruby %}
+module ActiveSupport
+  module Inflector
+    extend self
+
+    class Inflections
+      include Singleton
+
+      def plural(rule, replacement)
+      end
+
+      def singular(rule, replacement)
+      end
+    end
+
+    def pluralize(word)
+    end
+
+    def singularize(word)
+    end
+
+  end
+end
+{% endhighlight %}
+
+In the script/console try this
+
+{% highlight ruby %}
+>> ActiveSupport::Inflector.pluralize('cat')
+=> "cats"
+{% endhighlight %}
+
+
+Notice that 'Inflector' is a module and method <tt>pluralize</tt> is an instance method. Invocation of instance method on a module results in error. However in this case <tt>extend self</tt> was done so that instance methods are directly available to the module. 
+
+h2. What does 'include Singleton' do ?
+
+The rule to find plural of a string or singular value of a string is defined in <tt>active_support/inflections.rb</tt>. "Click here to look":http://gist.github.com/109468 at the rules.
+
+You will notice that the default rule to add 's' to add any string is defined at the very top. The way it works is that the rules defined at the bottom override the rules defined at the top. So if all rules matching fails then the default rule to add 's' to the string will kick in.
+
+In this case <tt>inflections.rb</tt> is like a configuration file. The class that will read this file is a good candidate for singleton. You don't want two instances of a class to read a configuration file. In this case methods <tt>plural, singular, irregular and uncountable</tt> are being called on <tt> Inflector.inflections</tt>. 
+
+{% highlight ruby %}
+def inflections
+  if block_given?
+    yield Inflections.instance
+  else
+    Inflections.instance
+  end
+end
+{% endhighlight %}
+
+As you can see method <tt>inflections</tt> returns <tt>Inflections.instance</tt>.  Class Inflections has <tt>include Singleton</tt> and hence every single time <tt>Inflections.instance</tt> is called same instance of the class is returned.
+
+
+h2. Changing the singular/plural rule
+
+Changing the rule of how singular or plural value is calculated is pretty easy.
+
+{% highlight ruby %}
+ActiveSupport::Inflector.inflections do |inflect|
+    inflect.irregular 'car', 'carz'
+end
+{% endhighlight %}
+
+Add another rule for 'car'.
+
+{% highlight ruby %}
+ActiveSupport::Inflector.inflections do |inflect|
+    inflect.irregular 'car', 'carz'
+    inflect.irregular 'car', 'carzz'
+end
+{% endhighlight %}
+
+In script/console
+
+{% highlight ruby %}
+>> 'car'.pluralize
+=> "carzz"
+{% endhighlight %}
+
+You can see that the rules that are defined at the top are overridden by the rules defined below them. Just keep that in mind if you are changing the rule. <br />

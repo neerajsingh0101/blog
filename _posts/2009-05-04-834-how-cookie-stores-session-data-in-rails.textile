@@ -1,0 +1,152 @@
+---
+layout: post
+title: How cookie stores session data in Rails
+---
+I am using Rails 2.3.2 and all the instructions mentioned here are tested with Rails 2.3.2 .
+
+Sometime back Rails changed the default storage of session data from database to the cookies. Since then a lot of articles have discussed how secure or unsecure it is to store session data in cookies. In this article you are going to see how Rails goes about storing session information in cookies. Once you understand the whole process you will be able to draw your own conclusion about how secure the whole process is.
+
+h2. Setting up the application
+
+{% highlight ruby %}
+rails demo
+cd demo
+ruby script/generate scaffold User name:string
+rake db:create
+rake db:migrate
+rake rails:freeze:gems
+
+# open up demo/app/controllers/users_controller.rb and add the following line
+# to the action 'index'
+session[:name] = 'Matz'
+{% endhighlight %}
+
+Now the action looks like this
+
+{% highlight ruby %}
+def index
+  session[:name] = 'Matz'
+  @users = User.all
+
+  respond_to do |format|
+    format.html # index.html.erb
+    format.xml  { render :xml => @users }
+  end
+end
+{% endhighlight %}
+
+Start the server and go to http://localhost:3000/users . Now search for cookies in your browser for the url localhost. "This is what":http://gist.github.com/106443 I got on my browser. You might see a different content value .
+
+h2. Behind the scene action that produced the cookie content 
+
+If there is no existing session and a new session is created then Rails invokes a method called <tt>generate_sid</tt> .
+
+{% highlight ruby %}
+# actionpack/lib/action_controller/session/cookie_store.rb
+def generate_sid
+  ActiveSupport::SecureRandom.hex(16)
+end
+{% endhighlight %}
+
+A call to <tt>ActiveSupport::SecureRandom.hex(16)</tt> returns a 16 digit random characters. For me right now the <tt>session_id</tt> value is <tt>126f788e4629755e12041cf9d53dfd5b</tt> .
+
+Now that Rails has a session_id, it will not invoke method <tt>generate_sid</tt> to  create another session_id as long as this session is alive.
+
+h2. Message Verifier
+
+In order to generate the value for the cookie, Rails creates an instance of ActiveSupport::MessageVerifier. Message verifier does two things - it generates the message. And it adds something called message digest at the end of the message. So the final message that is created by MessageVerifier has both the message and the digest of the message. These two messages are separated by '--'. If you and look at the content "here":http://gist.github.com/106443 you will notice that '--' is present in the content. 
+
+The main code of MessageVerifier is 
+
+{% highlight ruby %}
+def generate(value)
+  data = ActiveSupport::Base64.encode64s(Marshal.dump(value))
+  "#{data}--#{generate_digest(data)}"
+end
+{% endhighlight %}
+
+You can produce the message yourself in script/console. 
+
+{% highlight ruby %}
+>> h = {}
+=> {}
+>> h.merge!(:name => 'Matz')
+=> {:name=>"Matz"}
+>> h.merge!(:session_id => '126f788e4629755e12041cf9d53dfd5b')
+=> {:session_id=>"126f788e4629755e12041cf9d53dfd5b", :name=>"Matz"}
+>> h.merge!('flash' => {})
+=> {:session_id=>"126f788e4629755e12041cf9d53dfd5b", :name=>"Matz", "flash"=>{}}
+>> data = ActiveSupport::Base64.encode64s(Marshal.dump(h))
+=> "BAh7CDoPc2Vzc2lvbl9pZCIlMTI2Zjc4OGU0NjI5NzU1ZTEyMDQxY2Y5ZDUzZGZkNWI6CW5hbWUiCU1hdHoiCmZsYXNoewA="
+>> Rack::Utils.escape(data)
+=> "BAh7CDoPc2Vzc2lvbl9pZCIlMTI2Zjc4OGU0NjI5NzU1ZTEyMDQxY2Y5ZDUzZGZkNWI6CW5hbWUiCU1hdHoiCmZsYXNoewA%3D"
+{% endhighlight %}
+
+Notice that the final data you get in script/console is the same data that you got for content in the cookie. Now you need to add digest of this data.
+
+h2. Adding digest of data
+
+In order to create the digest you need a long secret key. Rails has already created a secret key for you when you generated the application.
+
+{% highlight ruby %}
+# demo/initializers/session_store.rb
+ActionController::Base.session = {
+  :key         => '_demo_session',
+  :secret      => 'b310d66449b3a453e46e7e82dfae5ef5a73df9dd47636a5eb9cb1fcdf1763a98c83db8542e93a2f383c053683d9eddf0fc0dda859fed83bd314e941f3c6ea158'
+}
+{% endhighlight %}
+
+You might have a different secret key.
+
+Back to script/console to create the digest. 
+
+{% highlight ruby %}
+>> h = {}
+=> {}
+>> h.merge!(:name => 'Matz')
+=> {:name=>"Matz"}
+>> h.merge!(:session_id => '126f788e4629755e12041cf9d53dfd5b')
+=> {:session_id=>"126f788e4629755e12041cf9d53dfd5b", :name=>"Matz"}
+>> h.merge!('flash' => {})
+=> {:session_id=>"126f788e4629755e12041cf9d53dfd5b", :name=>"Matz", "flash"=>{}}
+>> data = ActiveSupport::Base64.encode64s(Marshal.dump(h))
+=> "BAh7CDoPc2Vzc2lvbl9pZCIlMTI2Zjc4OGU0NjI5NzU1ZTEyMDQxY2Y5ZDUzZGZkNWI6CW5hbWUiCU1hdHoiCmZsYXNoSUM6J0FjdGlvbkNvbnRyb2xsZXI6OkZsYXNoOjpGbGFzaEhhc2h7AAY6CkB1c2VkewA="
+>> digest = 'SHA1'
+=> "SHA1"
+>> digest_value = OpenSSL::HMAC.hexdigest(OpenSSL::Digest::Digest.new(digest), secret, data)
+=> "b3bcba15977d97931e93c20ae5c6bd8a59423b21"
+>> escaped_data_value = Rack::Utils.escape(data)
+=> "BAh7CDoPc2Vzc2lvbl9pZCIlMTI2Zjc4OGU0NjI5NzU1ZTEyMDQxY2Y5ZDUzZGZkNWI6CW5hbWUiCU1hdHoiCmZsYXNoSUM6J0FjdGlvbkNvbnRyb2xsZXI6OkZsYXNoOjpGbGFzaEhhc2h7AAY6CkB1c2VkewA%3D"
+>> final_output = "#{escaped_data_value}--#{digest_value}"
+=> "BAh7CDoPc2Vzc2lvbl9pZCIlMTI2Zjc4OGU0NjI5NzU1ZTEyMDQxY2Y5ZDUzZGZkNWI6CW5hbWUiCU1hdHoiCmZsYXNoSUM6J0FjdGlvbkNvbnRyb2xsZXI6OkZsYXNoOjpGbGFzaEhhc2h7AAY6CkB1c2VkewA%3D--b3bcba15977d97931e93c20ae5c6bd8a59423b21"
+{% endhighlight %}
+
+Notice that this final_output is same as the content value that was found on the cookie.
+
+It is clear that session values are not encrypted. The session values are stored in plain text although it is Base64 encoded. 
+
+"Base64 encoding":http://en.wikipedia.org/wiki/Base64 is just the tranformation of data and it is very easy to get the real data back from the Base64 encoded data.
+
+h2. Reversing the process
+
+How about getting the cookie value back from the content value. It is easy.
+
+{% highlight ruby %}
+>> Marshal.load(ActiveSupport::Base64.decode64(data))
+=> {:session_id=>"126f788e4629755e12041cf9d53dfd5b", :name=>"Matz", "flash"=>{}}
+{% endhighlight %}
+
+As you can see it is very easy to decode Base64 encoded data. Also it is clear that you should not store business sensitive data in cookie since the user can decode the data. Please note that for decoding the data you do not need the secret key.
+
+The role of secret key in the application is to make sure that no one tampers with the cookie data. Yes someone can look at the sensitive data but ,after having seen the sensitive data, if the person attempts to modify the data then cookie would have been tampered with and Rails will reject the request.
+
+h2. Changing the secret key
+
+If for some reason you need to change the secret key just run following rake task
+
+{% highlight ruby %}
+rake secret
+{% endhighlight %}
+
+It would produce a long secret key that should be substituted in <tt>demo/config/initializers/session_store.rb</tt> . Changing the secret key will also invalidate all the existing cookies.
+ <br />
