@@ -2,6 +2,7 @@
 layout: post
 title: Do not pass 'false' as a paramter
 ---
+
 I found this code in one of the projects.
 
 {% highlight ruby %}
@@ -43,4 +44,3 @@ Fix is simple. Do not pass 'false' string rather pass false , the boolean. The m
 {% highlight ruby %}
 <%= link_to 'Info', :controller => 'users', :action => 'lab', :show_info => false %>
 {% endhighlight %}
- <br />

@@ -117,7 +117,6 @@ end
 {% endhighlight %}
 
 With the above code both the assertions pass
-
 {% highlight ruby %}
 should_assign_to_value :page_tile, 'Profile of #{assigns(:user).name}'
 should_assign_to_value :page_title, 'new members'

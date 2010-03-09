@@ -49,7 +49,7 @@ I need to use interactive rebase feature to merge three commits into one single 
 Above command will show a screen which will look something like this.
 It lists all the three commits.
 
-{% highlight sh %}
+<pre>
 pick 9fcbb0b comments for file1
 pick 7bc760e comments for file2
 pick 0260346 comments for file3
@@ -64,16 +64,15 @@ pick 0260346 comments for file3
 # If you remove a line here THAT COMMIT WILL BE LOST.
 # However, if you remove everything, the rebase will be aborted.
 #
-
-{% endhighlight %}
+</pre>
 
 In order to merge the commits, leave the first commit as 'pick' but change the rest of the commits as 'squash'. Given below is the snapshot how it might look like after changing 'pick' to 'squash'.
 
-{% highlight sh %}
+<pre>
 pick 9fcbb0b comments for file1
 squash 7bc760e comments for file2
 squash 0260346 comments for file3
-{% endhighlight %}
+</pre>
 
 Save the file and  another screen will come up which will ask to put the message for the combined commit. I put in following message.
 
@@ -83,15 +82,15 @@ This is a combination of all commits for experiment branch.
 
 Now let's look at the log in experiment branch.
 
-{% highlight sh %}
+<pre>
 > git log --pretty=oneline
 a2eb6a2e9282b1f6451a430e79894edae9b765d0 This is a combination of all commits for experiment branch. 
 6c99e3911df8feb631a009ca6d14719732499515 initial commit
-{% endhighlight %}
+</pre>
 
 Next I will merge this branch to master.
 
-{% highlight sh %}
+<pre>
 > git co master
 Switched to branch "master"
 
@@ -106,8 +105,7 @@ Fast forward
 > git log --pretty=oneline
 a2eb6a2e9282b1f6451a430e79894edae9b765d0 This is a combination of all commits for experiment branch. comments for f
 6c99e3911df8feb631a009ca6d14719732499515 initial commit
-
-{% endhighlight %}
+</pre>
 
 
 As you can see the master branch is clean with only one single commit from experiment branch. Had we not done the interactive rebasing, master would have had three commits.
@@ -118,9 +116,9 @@ The other advantage is that if this experiment does not work as expected then it
 
 In order to revert all the changes from the experiment branch all I need to do is 
 
-{% highlight sh %}
-> git revert a2eb6a2e9282b1f6451a430e79894edae9b765d0
-{% endhighlight %}
+<pre>
+git revert a2eb6a2e9282b1f6451a430e79894edae9b765d0
+</pre>
 
 For such cases, it is a really good idea to consolidate all changes from other branches into one single commit.
 
@@ -128,5 +126,7 @@ h2. Trouble in interactive rebasing
 
 Notice that while peforming interactive rebasing, I left the first commit as 'pick'. If you choose wrong options then you might get 'interactive rebase already started' error. If you get this error then the fix is
 
+{% highlight sh %}
 cd .git
 rm -rf .dotest-merge
+{% endhighlight %}
