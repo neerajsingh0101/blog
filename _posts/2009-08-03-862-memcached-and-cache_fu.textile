@@ -1,0 +1,366 @@
+---
+layout: post
+title: memcached and cache_fu
+---
+__Following code has been tested with Rails 2.3 .__
+
+memcached is a popular caching solution in Rails community.  "cache_fu":http://github.com/defunkt/cache_fu/tree/master is an excellent plugin that makes it a breeze to deal with memcached. However going through the README of this plugin does not tell you much if you are new to this plugin. 
+
+h2. Basics of memcached
+
+memcached is a big topic. Here is "an excellent resource":http://code.google.com/p/memcached/wiki/FAQ#What_is_memcached to get started. Here I am going to discuss some basic things about memcached.
+
+memcached is extremely popular and stable. Sites like facebook and flick use memcached. 
+
+memcached is like a big hash table. What you store is name value pair. The key must of 250 characters or less. The data could be text or binary. The max size of the data is 1MB . While storing the value you can mention when the data should be expired. The maximum duration for which data can be kept is "30 days":http://code.google.com/p/memcached/wiki/FAQ#What_are_the_limits_on_setting_expire_time?_(why_is_there_a_30_d .  
+
+memcached does not support namespacing natively. If you want namespacing then add namespace to your key.
+
+When you start memcached then the default port it uses is 11211. The default memory is 64MB. You can find out the memcached version and more options by running 
+
+{% highlight ruby %}
+memcaced -h
+{% endhighlight %}
+
+h2. How does expiration work in memcached
+
+<blockquote>
+memcached uses a lazy expiration, which means it uses no extra cpu expiring items. When an item is requested (a get request) it checks the expiration time to see if the item is still valid before returning it to the client.
+
+Similarly when adding a new item to the cache, if the cache is full, it will look at for expired items to replace before replacing the least used items in the cache. 
+</blockquote>
+
+
+h2. cache_fu
+
+cache_fu is an excellent plugin to manage memcached. To explore cache_fu I will create a simple application.
+
+I am using ruby 1.8.6 and Rails 2.3 .
+
+{% highlight ruby %}
+rails cache_fu_lab
+cd cache_fu_lab
+ruby script/generate scaffold User name:string email:string
+rake db:create
+rake db:migrate
+{% endhighlight %}
+
+In development environment caching is turned off by default. In order to turn caching ON open 'config/environements/development.rb' and change the value from 'false' to 'true' for 'config.action_controller.perform_caching'
+
+{% highlight ruby %}
+config.action_controller.perform_caching             = true #false
+{% endhighlight %}
+
+Install memcache-client. Please note that ActiveSupport ships with memcache-client too. If you look under vendor directory you will find memcache-client-1.6.5 .
+
+{% highlight ruby %}
+> sudo gem install memcache-client
+{% endhighlight %}
+
+Install plugin
+
+{% highlight ruby %}
+ruby script/plugin install git://github.com/defunkt/cache_fu.git 
+{% endhighlight %}
+
+
+Now you can manage memcached by following rake tasks
+
+{% highlight ruby %}
+rake memcached:start
+rake memcached:stop
+rake memcached:restart
+{% endhighlight %}
+
+Let's create a user
+
+{% highlight ruby %}
+>> User.create(:email => 'john@example.com', :name => 'John')
+  User Create (0.8ms)   INSERT INTO "users" ("name", "updated_at", "email", "created_at") VALUES('John', '2009-08-01 17:27:49', 'john@example.com', '2009-08-01 17:27:49')
+=> #<User id: 1, name: "John", email: "john@example.com", created_at: "2009-08-01 17:27:49", updated_at: "2009-08-01 17:27:49">
+{% endhighlight %}
+
+Add caching capability to the model.
+
+{% highlight ruby %}
+#user.rb
+class User < ActiveRecord::Base
+  acts_as_cached
+end
+{% endhighlight %}
+
+In users_controller.rb file replace this line
+
+{% highlight ruby %}
+@user = User.find(params[:id])
+{% endhighlight %}
+
+with this line
+
+{% highlight ruby %}
+@user = User.get_cache(params[:id])
+{% endhighlight %}
+
+
+Now visit http://localhost:3000/users/1
+
+You will see something like this in the log
+
+{% highlight ruby %}
+==> Got User:1 from cache. (0.00073)
+  User Load (0.2ms)   SELECT * FROM "users" WHERE ("users"."id" = 1) 
+==> Set User:1 to cache. (0.00107)
+{% endhighlight %}
+
+Although the first line says "Got". That was actually a miss. That is why sql statement was executed and the result of the sql was stored in memcached. If you refresh the page then you will see something like this in the log.
+
+{% highlight ruby %}
+==> Got User:1 from cache. (0.00041)
+{% endhighlight %}
+
+This time you won't see any sql statements. That is because this data was retrieved from cache.
+
+memcached server is running and it's doing its job. It would be nice if we have a client using which we could get and set data on the server.  This can be done like this.
+
+{% highlight ruby %}
+>ruby script/console
+> User.find(1) # to check that we have a record with id 1
+> CACHE = MemCache.new 'localhost:11211'
+=> MemCache: 1 servers, ns: nil, ro: false
+>> CACHE.active?
+=> true
+>> CACHE.get('app-development:User:1')
+=> #<User id: 1, name: "John", email: "john@example.com", created_at: "2009-08-01 17:27:49", updated_at: "2009-08-01 17:27:49">
+>> CACHE.get('app-development:User:100')
+=> nil
+{% endhighlight %}
+
+As you can see above we created an instance of <tt>MemCache</tt> with <tt>localhost:11211</tt>. <tt>active?</tt> method is called to see if this server is active or not. And then we passed a key to server to see if there is a record for <tt>app-development:User:1</tt>. And we got our record.
+
+You might be wondering what's up with the key 'app-development:User:1'. Well 'app' is the namespace defined in config/memcached.yml. cache_fu automatically adds Rails.env value to the namespace. In this way we got 'app-development'. Since we stored a user instance in the cache which had the id of '1', the full key formed by cache_fu was 'app-development:User:1'
+
+
+h2. method caches
+
+I added a method called info on user model.
+
+{% highlight ruby %}
+def self.info(id)
+   @user = self.find(id)
+   "name: #{@user.name} email:#{@user.email}"
+end
+{% endhighlight %}
+
+If you want to cache the output of the method then you can invoke it like this
+
+{% highlight ruby %}
+ <%=h User.caches(:info,:with => params[:id]) %>
+{% endhighlight %}
+
+If the params[:id] is '1' then cache_fu will save the result with key 'User:info:1'
+
+h2. fragment caching
+
+If want to use memcached for fragment caching then you need to open up config/memcached.yml and change
+
+<pre>
+fragments: false
+</pre>
+
+to
+
+<pre>
+fragments: true
+</pre>
+
+h2. Example of fragment caching
+
+{% highlight ruby %}
+<% cache('user_info') do %>
+<p>
+  <b>Name:</b>
+  <%=h User.find(params[:id]).name %>
+</p>
+<% end %>
+{% endhighlight %}
+
+First time when you visit the page you will get this message in the log
+
+{% highlight ruby %}
+Cached fragment hit: views/user_info (2.4ms)
+  User Load (0.2ms)   SELECT * FROM "users" WHERE ("users"."id" = 1) 
+Cached fragment miss: views/user_info (0.5ms)
+{% endhighlight %}
+
+It was a miss. And that is why you see sql statement. Subsequent refreshing of the same page will have following message in the log
+
+{% highlight ruby %}
+Cached fragment hit: views/user_info (0.7ms)
+{% endhighlight %}
+
+If you want to view the result using memcached-client then you have to follow the same procedure.
+
+{% highlight ruby %}
+>> CACHE = MemCache.new 'localhost:11211'
+=> MemCache: 1 servers, ns: nil, ro: false
+>> CACHE.get('app-development:views/user_info')
+=> "\n<p>\n  <b>Name:</b>\n  John\n</p>\n"
+{% endhighlight %}
+
+h2. action caching
+
+As of this writing "action caching in cache_fu is broken":http://www.neeraj.name/blog/articles/863-action-caching-in-broken-in-plugin-cache_fu . Hopefully it will be fixed soon. Until the follow the "instructions mentioned":http://www.neeraj.name/blog/articles/863-action-caching-in-broken-in-plugin-cache_fu at the end of the blog to make it work.
+
+action caching internally uses fragment caching with an around-filter. In the last section when we change the settings to use fragment caching we also automatically turned on memcaching for action caching. Let's see it in action
+
+{% highlight ruby %}
+class UsersController < ApplicationController
+  caches_action :index
+  def index
+    @users = User.all
+    respond_to do |format|
+      format.html
+    end
+  end
+end
+{% endhighlight %}
+
+In the log first time we will see the sql statement. Subsequently we will not see any sql statements. Instead we'll get a message like this
+
+{% highlight ruby %}
+Cached fragment hit: views/localhost:3000/users (0.1ms)
+{% endhighlight %}
+
+If you want to verify this cache using the client then you can do like this.
+
+{% highlight ruby %}
+> ruby script/console
+>> CACHE = MemCache.new 'localhost:11211'
+=> MemCache: 1 servers, ns: nil, ro: false
+>> CACHE.active?
+=> true
+>> CACHE.get('app-development:views/localhost:3000/users')
+=> "<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n\n<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n<head>\n  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />\n  <title>Users: index</title>\n  <link href="/stylesheets/scaffold.css?1249146947" media="screen" rel="stylesheet" type="text/css" />\n</head>\n<body>\n\n<p style="color: green"></p>\n\n<h1>Listing users</h1>\n\n<table>\n  <tr>\n    <th>Name</th>\n    <th>Email</th>\n  </tr>\n\n\n  <tr>\n    <td>John</td>\n    <td>john@example.com</td>\n    <td><a href="/users/1">Show</a></td>\n    <td><a href="/users/1/edit">Edit</a></td>\n    <td><a href="/users/1" onclick="if (confirm('Are you sure?')) { var f = document.createElement('form'); f.style.display = 'none'; this.parentNode.appendChild(f); f.method = 'POST'; f.action = this.href;var m = document.createElement('input'); m.setAttribute('type', 'hidden'); m.setAttribute('name', '_method'); m.setAttribute('value', 'delete'); f.appendChild(m);var s = document.createElement('input'); s.setAttribute('type', 'hidden'); s.setAttribute('name', 'authenticity_token'); s.setAttribute('value', 'mqPwXqFLN0pIM1d5m3QfaeWBRqEb/36Dkh4uErIfyG4='); f.appendChild(s);f.submit(); };return false;">Destroy</a></td>\n  </tr>\n\n</table>\n\n<br />\n\n<a href="/users/new">New user</a>\n\n</body>\n</html>\n"
+
+{% endhighlight %}
+
+
+h2. Storing session information on memcached
+
+By default Rails now stores session data as a cookie on client browser. However, if you want memcached to store session data then open config/memcache.yml and change the value for <tt>sessions</tt> from 'false' to 'true'. That's it. Now all session data will be stored on memcached.
+
+
+h2. Expiring cached items
+
+I have action caching for 'index' method which looks like this.
+
+{% highlight ruby %}
+class UsersController < ApplicationController  
+  caches_action :index
+  def index
+    @users = User.all
+    respond_to do |format|
+      format.html
+    end
+  end
+end
+{% endhighlight %}
+
+In order to expire the old pages we need to have sweepeers.
+
+{% highlight ruby %}
+mkdir app/sweepers
+{% endhighlight %}
+
+Create a file called <tt>user_sweeper.rb</tt> with following content.
+
+{% highlight ruby %}
+class UserSweeper < ActionController::Caching::Sweeper
+  
+  observe User
+
+  def after_create(user)
+    expire_cache_for(user)
+  end
+
+  def after_update(user)
+    expire_cache_for(user)
+  end
+
+  def after_destroy(user)
+    expire_cache_for(user)
+  end
+
+  private
+
+  def expire_cache_for(user)
+    #expire the index page that is action cached
+    expire_fragment(:controller => 'users', :action => 'index')
+  end
+end
+{% endhighlight %}
+
+Add app/sweepers to the load path.
+
+{% highlight ruby %}
+# environment.rb
+Rails::Initializer.run do |config|
+  config.load_paths += %W( #{RAILS_ROOT}/app/sweepers )
+  ...
+end
+{% endhighlight %}
+
+Add <tt>cache_sweeper</tt> in the controller.
+
+{% highlight ruby %}
+class UsersController < ApplicationController  
+  caches_action :index
+  cache_sweeper :user_sweeper, :only => [:create,:update,:destroy]
+  def index
+    @users = User.all
+    respond_to do |format|
+      format.html
+    end
+  end
+end
+{% endhighlight %}
+
+Now if you create a new user and then visit the page <tt>http://localhost:3000/users</tt> you will see the updated list.
+
+Now let's look at how to expire_cache for data cached for model. Caching is done like this.
+
+{% highlight ruby %}
+def show
+  @user = User.get_cache(params[:id])
+  respond_to do |format|
+    format.html
+  end
+end
+{% endhighlight %}
+
+In the sweeper, following line should be added for the method <tt>def after_update</tt>
+
+{% highlight ruby %}
+User.expire_cache(user.id)
+{% endhighlight %}
+
+Now let's look at how to expire fragment cache. Code is
+
+{% highlight ruby %}
+<% cache('user_info') do %>
+<p>
+  <b>Name:</b>
+  <%=h User.find(params[:id]).name %>
+</p>
+<% end %>
+{% endhighlight %}
+
+Add following line to method <tt>after_update</tt> in sweeper to expire the fragment cache whenever data is updated
+
+{% highlight ruby %}
+expire_fragment('user_info')
+{% endhighlight %}
+
+h2. Conclusion
+
+cache_fu is an excellent plugin which takes the pain away in dealing with memcached. Hopefully this article will help people get started with cache_fu without much pain.<br />

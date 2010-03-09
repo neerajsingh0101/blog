@@ -1,0 +1,83 @@
+---
+layout: post
+title: Where is the code that actually translates _method value for put and delete requests
+---
+If you have developed RESTful application then you know that for update and delete method <tt>PUT</tt> and <tt>DELETE</tt> is used. Since current browsers do not support method 'put' and 'delete', Rails puts a hiddent variable called <tt>_method</tt>. That's all good.
+
+In the action_controller Rails checks if the method is 'put' or 'delete'.
+
+{% highlight ruby %}
+# actionpack/lib/action_controller/request.rb
+def get?
+  method == :get
+end
+
+def post?
+  request_method == :post
+end
+
+def put?
+  request_method == :put
+end
+
+def delete?
+  request_method == :delete
+end
+{% endhighlight %}
+
+h2. Objective
+
+Where is the code that translates _method into method = 'put' or method = 'delete'.
+
+The code that makes use of _method is not inside Rails. It is packaged as a gem called 'rack'. If you want to look at the code base of this gem then create a Rails 2.3 application and then unpack gem like this.
+
+{% highlight ruby %}
+rails demo
+cd demo
+rake rails:freeze:gems
+{% endhighlight %}
+
+Now go to vendor/rails/actionpack/actioncontroller/vendor/rack/methodoverride.rb . There you will see code like this
+
+{% highlight ruby %}
+module Rack
+  class MethodOverride
+    HTTP_METHODS = %w(GET HEAD PUT POST DELETE OPTIONS)
+
+    METHOD_OVERRIDE_PARAM_KEY = "_method".freeze
+    HTTP_METHOD_OVERRIDE_HEADER = "HTTP_X_HTTP_METHOD_OVERRIDE".freeze
+
+    def initialize(app)
+      @app = app
+    end
+
+    def call(env)
+      if env["REQUEST_METHOD"] == "POST"
+        req = Request.new(env)
+        method = req.POST[METHOD_OVERRIDE_PARAM_KEY] ||
+          env[HTTP_METHOD_OVERRIDE_HEADER]
+        method = method.to_s.upcase
+        if HTTP_METHODS.include?(method)
+          env["rack.methodoverride.original_method"] = env["REQUEST_METHOD"]
+          env["REQUEST_METHOD"] = method
+        end
+      end
+
+      @app.call(env)
+    end
+  end
+end
+{% endhighlight %}
+
+As you can see above if the request method is POST and if there is value for params '_method' then request method is set to 'put' or 'delete'.
+
+As I said this functionality is not directly coded in Rails. This functionality is distributed as rack module which means Sinatra and other ruby frameworks can make use of this feature. When you installed Rails 2.3 then rack gem also gets installed. To see the listing of this gem do this
+
+{% highlight ruby %}
+> gem list rack
+
+*** LOCAL GEMS ***
+
+rack (1.0.0, 0.4.0)
+{% endhighlight %}
+ <br />

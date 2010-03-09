@@ -1,0 +1,109 @@
+---
+layout: post
+title: What is JSONP?
+---
+<i>This is part II of "How to create dynamic javascript widget":http://www.neeraj.name/blog/articles/846-how-to-create-a-dynamic-javascript-widget</i>
+
+h2. What problem JSONP solves?
+
+Browsers do not allow cross-domain Ajax requests. For example if you try to make Ajax request to "http://www.eventsinindia.com/events/14633.js":http://www.eventsinindia.com/events/14633.js to get event data you will get following error.
+
+{% highlight sh %}
+Access to restricted URI denied.
+{% endhighlight %}
+
+In order to get around this security problem you can do any number of things including sending the Ajax request to your server which will get the JSON data from the eventsinindia.com API. Or use iframe. Both of these solutions are implemented and discussed in "this article":http://www.neeraj.name/blog/articles/846 .
+
+However in some cases JSONP solves this problem much more elegantly.
+
+h2. Before we discuss JSONP some basics ?
+
+Before looking at JSONP let's cover some basics. When a html page includes a javascript file then the html code looks something like this.
+
+{% highlight sh %}
+<script src="http://neeraj.name/javascripts/color.js" type="text/javascript"></script>
+{% endhighlight %}
+
+There are two things to notice here. First is that the source of the javascript file could be cross-domain. It means your html page can point the source of your javascript file to "http://neeraj.name/javascripts/cache/all.js" and all.js will be loaded by the browser. This feature which allows cross-domain loading of javascript file is the basis of JSONP.
+
+The second thing to notice is that the javascript written in color.js is immediately evaluated after the source file has been loaded. For example the content of color.js could be this.
+
+{% highlight js %}
+alert('hello');
+{% endhighlight %}
+
+When the html page is loaded you will get an alert.
+
+Let's recap: In the above section I showed you how you can point the source of your javascript file to a domain that is not yours (cross-domain) and the code loaded from the domain is immediately evaluated.
+
+h2. What is JSONP?
+
+From the above section it is clear that if by some means we could dynamically create a <tt>script node</tt> and point the source of that node to cross-domain and if the remote site returns a javascript function then that function will be evaluated.
+
+However in the world of JSON we only get JSON data from the remote server. If we want to stick the returned JSON data on our page then that data needs be used by a javascript function.  And that's where JSONP comes in handy.
+
+Let's take an example. If you make a call to "http://www.eventsinindia.com/events/14633.js":http://www.eventsinindia.com/events/14633.js you will get JSON data back.
+
+{% highlight js %}
+{"name": "Craft Classes" , "start_date": "2009-05-01" , ....}
+{% endhighlight %}
+
+However what you really want is to do is to stick this data on your html page by invoking a javascript function like this
+
+{% highlight js %}
+AddThisDataToPage({"name": "Craft Classes" , "start_date": "2009-05-01" , ....});
+{% endhighlight %}
+
+What needs to be done is while making a call to http://www.eventsinindia.com/events/14633.js pass a paramater called <tt>callback</tt> . So in this case the full url would look something like this
+
+{% highlight sh %}
+http://www.eventsinindia.com/events/14633.js?callback=AddThisDataToPage
+{% endhighlight %}
+
+Remember callback is a special word here. By using callback we are telling API to wrap the response JSON data with a call to function named AddThisDataToPage. 
+
+Click on following two links to see the difference. The first link is returning pure JSON data while the second link will return a javascript function.
+
+"http://www.eventsinindia.com/events/14633.js":http://www.eventsinindia.com/events/14633.js
+
+"http://www.eventsinindia.com/events/14633.js?callback=AddThisDataToPage":http://www.eventsinindia.com/events/14633.js?callback=AddThisDataToPage
+
+
+h2. Using JSONP with jQuery
+
+jQuery makes it easy to use JSONP. Look for documentation on how to use JSONP with jquery "here":http://docs.jquery.com/Ajax/jQuery.getJSON#overview .
+
+h2. callback is not the name everyone uses
+
+Most of the people use <tt>callback</tt> as the key word to identify client is asking for JSONP data. However some people use a different keyword. For example flickr uses the keyword <tt>jsoncallback</tt>
+
+This returns JSON data
+
+"http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json":http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json
+
+In this case callback is being passed but flickr ignores it.
+
+"http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json&callback=show":http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json&callback=show
+
+In this case callback is being passed but the name is jsoncallback.
+
+"http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json&jsoncallback=show":http://api.flickr.com/services/feeds/photos_public.gne?tags=cat&tagmode=any&format=json&jsoncallback=show 
+
+
+h2. Providing support for JSONP
+
+All the APIs should provide support for JSONP. Enabling JSONP support is easy if you are using Rails 2.3 or any Rack compliant framework. In Rails 2.3 all you need to do is stick "this file in lib as jsonp.rb":http://gist.github.com/148419 and then add one line to the environment.rb .
+
+{% highlight ruby %}
+#environment.rb
+Rails::Initializer.run do |config|
+  .....
+  config.middleware.use 'Jsonp'
+end
+{% endhighlight %}
+
+That's it. Now you are providing support of JSONP with the keyword being <tt>callback</tt>.
+
+h2. Security
+
+Since the data from external source is read and then that data is evaluated on run time by Javascript, there is potential for security breach. So be careful when you are using JSONP. Only load data from a trusted source.<br />

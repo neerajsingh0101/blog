@@ -1,0 +1,11 @@
+---
+layout: post
+title: jQuery recommends including stylesheets before including javascripts
+---
+I was going through jQuery documentation and came across this.
+
+<blockquote>
+Note: Please make sure that all stylesheets are included before your scripts (especially those that call the ready function). Doing so will make sure that all element properties are correctly defined before jQuery code begins executing. Failure to do this will cause sporadic problems, especially on WebKit-based browsers such as Safari.
+</blockquote>
+
+So be sure "to include all your stylesheets":http://docs.jquery.com/Events/ready before including javascripts. <br />

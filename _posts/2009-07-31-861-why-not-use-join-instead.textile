@@ -1,0 +1,28 @@
+---
+layout: post
+title: Why not use join instead
+---
+I am looking at the source code of "cache_fu":http://github.com/defunkt/cache_fu/tree/master and this is what I found. 
+
+{% highlight ruby %}
+def config_args
+  args = {
+    '-p' => Array(config['servers']).first.split(':').last,
+    '-c' => config['c_threshold'],
+    '-m' => config['memory'],
+    '-d' => ''
+  }
+
+  args.to_a * ' '
+end
+
+def memcached(*args)
+  `/usr/bin/env memcached #{args * ' '}`
+end
+{% endhighlight %}
+
+For those who are not aware of "*" method from Array "here is the link of documentation":http://ruby-doc.org/core/classes/Array.html#M002210. 
+
+As far as I can remember "join method":http://ruby-doc.org/core/classes/Array.html#M002182 has been there in Array since beginning. 
+
+Anytime I look at code mentioned above my brain goes through a halt. I need to stop to process what the method is doing. I know ruby allows one to achieve same goal through various means but this one is over the top for me. Just use simple code that others can understand. Why complicate things? <br />

@@ -1,0 +1,61 @@
+---
+layout: post
+title: Handling AJAX errors and displaying friendly error messages to users
+---
+__Following code has been tested with Rails 2.3 and jQuery 1.3 .__
+
+AJAX is cool. Except that when it does not work. When an AJAX operation goes wrong then more often than not user continues to see the spinner spinning and no feed back is provided to the user that something has gone wrong.
+
+"Michael Bleigh of Intridea posted a blog":http://www.intridea.com/2008/7/23/using-http-status-codes-for-rails-ajax-error-handling?blog=company sometime ago about the same topic. In that blog it has been suggested to handle exception in the controller. That is all good. However things can really go wrong like (RuntimeError) and there has to be a way to notify the user no matter what goes wrong. Secondly this solution should be generic so that every action does not need to worry about handling all sorts of exceptions.
+
+Here is what I came up with.
+
+Here is the jQuery code that makes AJAX call. Notice that on error I am calling <tt>ajax_processing_error_notification</tt>
+
+{% highlight js %}
+var options = {
+  beforeSubmit: preSubmit,
+  success: postSuccess,
+  error: ajax_processing_error_notification,
+  dataType: 'json'
+};
+
+$('#form').ajaxForm(options);
+{% endhighlight %}
+
+Here is the ajax_processing_error_notification function.
+
+{% highlight js %}
+function ajax_processing_error_notification(){
+  $('.spinner').hide();
+  alert('There was an error processing your request.');
+};
+{% endhighlight %}
+
+Here is the view where form and spinners are declared.
+
+{% highlight ruby %}
+#..form code
+<%= image_tag('spinner.gif', :id => 'spinner', :class => 'spinner', :style => 'display:none;')%>
+{% endhighlight %}
+
+And here is the main code that catches all the exceptions.
+
+{% highlight ruby %}
+# application_controller.rb
+rescue_from Exception, :with => :handler_exception
+def handler_exception(e)
+  rescue_action_without_handler(e) and return if !request.xhr? 
+  respond_to do |format|
+    format.js do
+      notify_hoptoad(e)
+      # text does not matter
+      render  :text =>  'error!!!', :status => :internal_server_error 
+    end
+ end
+end
+{% endhighlight %}
+
+If it is not an AJAX request then raise the exception. Otherwise render some text. But the key is the status code. Any status code other than 2xx will invoke the error callback and that's exactly what we want.
+
+As you can see this solution does not impact any of the existing actions. They continue to be the way they are. Only thing is that all AJAX calls must have an error callback. With this simple solution when AJAX request goes bad then user will be notified of the same.<br />
