@@ -1,0 +1,28 @@
+---
+layout: post
+title: returning keyword
+---
+While browsing through the source code of "Mephisto":http://mephistoblog.com/ I come across following piece of code:
+
+{% highlight ruby %}
+returning find(id) do |comment|
+  comment.approved = false
+  comment.save
+end
+{% endhighlight %}
+
+This made me pause. I am not sure what the returning keyword does.  I looked at the api to see if this is Ruby thing or Rails thing, but none of the api docs mention anything about returning. The book "Ruby way" also doesn't mention anything about returning. Finally by looking at more code this is what I figured out.
+
+returning helps return the object immediately following the "returning keyword" and not necessarily the last action performed in the block.
+
+So in the above example the final returned item will be a comment object and not the value "true or false" of comment.save. This is good. Because in the absence of "returning" the same code would have looked like this.
+
+{% highlight ruby %}
+comm = find(id) do |comment|
+    comment.approved = false
+    comment.save
+end
+return comm
+{% endhighlight %}
+
+Update: Redmar Kerkhoff of Netherlands sent me an email stating that the api could be found at ruby facets. http://facets.rubyforge.org/quick/rdoc/core/classes/Kernel.html#M000358 . Thanks to Redmar now  I am introduced  to "Ruby facets":http://facets.rubyforge.org/index.html . I didn't even know that something like this existed.

@@ -1,0 +1,348 @@
+---
+layout: post
+title: include, extend, module_eval, class_eval
+---
+Ruby is fun. However it took me a while to understand various semantics like include, extend, module_eval, class_eval. It all gets confusing in the beginning. Here are series of cases illustrating the simple concept of having a person with an instance method name and and a class method count.
+
+{% highlight ruby %}
+# Case 1
+# Simple case of a class having an instance method and a class method
+class Person
+  def self.count
+    21
+  end
+
+  def name
+    "Neeraj"
+  end
+end
+
+puts Person.count
+puts Person.new.name
+{% endhighlight %}
+
+{% highlight ruby %}
+# Case 2
+# A class includes a module to have an instance method
+module PersonName
+  def name
+    "Neeraj"
+  end
+end
+
+class Person
+  def self.count
+    21
+  end
+  include PersonName
+end
+
+puts Person.count
+puts Person.new.name
+{% endhighlight %}
+
+{% highlight ruby %}
+# Case 3
+# A module with self.method doesn't become a class method as 
+# it might seem on the surface
+module PersonModule
+  def name
+    "Neeraj"
+  end
+  def self.count
+    21
+  end
+end
+
+class Person
+  include PersonModule
+end
+
+puts Person.new.name
+# Following operation does not work. Exception message is undefined 
+# method `count' for Person:Class (NoMethodError)
+puts Person.count 
+{% endhighlight %}
+
+
+{% highlight ruby %}
+# Case 4
+# Including a module and thus creating a class method is a bit tricky. 
+# Simpler solutions are  presented in next versions.
+module PersonModule
+  def self.included(base_class)
+    base_class.extend(ClassMethods)
+  end
+
+  def name
+      "Neeraj"
+  end
+
+   module ClassMethods
+    def count
+      21
+    end
+  end
+end
+
+class Person
+  include PersonModule
+end
+
+puts Person.new.name
+puts Person.count 
+{% endhighlight %}
+
+{% highlight ruby %}
+# Case 5
+# Extending a module creats the class method. 
+# Contrast it with the include module_name (presented later)
+module PersonModule
+  def count
+    21
+  end
+end
+
+class Person
+  extend PersonModule 
+  def name
+      "Neeraj"
+  end
+end
+
+puts Person.new.name
+puts Person.count 
+{% endhighlight %}
+
+{% highlight ruby %}
+# Case 6
+# Mix and match. Use both include and extend to get instance and class methods.
+module PersonModuleCount
+  def count
+    21
+  end
+end
+
+module PersonModuleName
+  def name
+    "Neeraj"
+  end
+end
+
+class Person  
+  extend PersonModuleCount
+  include PersonModuleName
+end
+
+puts Person.new.name
+puts Person.count 
+
+{% endhighlight %}
+
+{% highlight ruby %}
+# Case 7
+# Accessing the anonymous class to create a class method
+
+module PersonModuleCount
+  def count
+    21
+  end
+end
+
+module PersonModuleName
+  def name
+    "Neeraj"
+  end
+end
+
+class Person  
+  class << self
+    include PersonModuleCount
+  end
+  include PersonModuleName
+end
+
+puts Person.new.name
+puts Person.count 
+{% endhighlight %}
+
+
+{% highlight ruby %}
+# Case 8
+# Another way of creating a class method class << person
+
+module PersonModuleCount
+  def count
+    21
+  end
+end
+
+module PersonModuleName
+  def name
+    "Neeraj"
+  end
+end
+
+class Person  
+  include PersonModuleName
+end
+class << Person 
+    include PersonModuleCount
+end
+
+puts Person.new.name
+puts Person.count 
+{% endhighlight %}
+
+
+{% highlight ruby %}
+# Case 9
+# Usage of class_eval
+
+class Person
+end
+
+Person.class_eval do 
+  def name
+    "Neeraj"
+  end
+  def self.count
+    21
+  end 
+end
+
+puts Person.new.name
+puts Person.count 
+{% endhighlight %}
+
+
+{% highlight ruby %}
+# Case 10
+# Usage of class_eval in different flavor.
+
+class Person
+end
+
+Person.class_eval <<-EOF
+  def name
+    "Neeraj"
+  end
+  
+  def self.count
+    21
+  end 
+EOF
+
+puts Person.new.name
+puts Person.count 
+{% endhighlight %}
+
+
+{% highlight ruby %}
+# Case 11
+# Metaprogramming. Creating methods by defining them on run time.
+
+class_name = "Person"
+klass = Object.const_set(class_name,Class.new)
+klass.class_eval do
+  class << self
+    define_method(:count) do 
+      21
+    end
+  end
+  
+  define_method(:name) do 
+    "Neeraj"    
+  end
+end
+
+puts Person.new.name
+puts Person.count 
+{% endhighlight %}
+
+
+{% highlight ruby %}
+# Case 12
+# Usage of send to include modules. Plugins use this pattern often.
+
+module PersonModuleCount
+  def count
+    21
+  end
+end
+
+module PersonModuleName
+  def name
+    "Neeraj"
+  end
+end
+
+class Person  
+  class << self
+    include PersonModuleCount   
+  end
+  send(:include, include PersonModuleName)
+end
+
+puts Person.new.name
+puts Person.count 
+{% endhighlight %}
+
+
+{% highlight ruby %}
+# Case 13
+# Imagine this case. A class includes a module. An instance of this class is created. 
+# Then a new method is added to the module. Will the object instance willl have 
+# this method  which was added to the module after the object was created.
+module PersonName
+  def name
+    "Neeraj"
+  end
+end
+
+class Person
+  def self.count
+    21
+  end
+  include PersonName
+end
+
+person = Person.new
+
+module PersonName
+  def name2
+    "Neeraj"
+  end
+end
+
+puts person.name2
+
+# it works. It works because when the metho name2 is executed and this method is not 
+# found in the class then control looks for the included module. It means the
+# methods inside module are not embedded in the object when it was created. Rather
+# it was just a soft reference.
+
+# Let's take this case to next level. Let's add a new include to the class after the 
+# object is created. This will tell us if all the list of includes are scanned during
+# run time or the list of includes are embedded inside the object when it was
+# created
+
+module PersonLate
+  def late_name
+    "I was added later"
+  end
+end
+
+class Person
+  include PersonLate
+end
+
+puts person.late_name
+
+# it works. It menas ruby actually scans for the includes during the run time and 
+# creating an object is well, put it simply, just an object.
+
+# include is a method.
+{% endhighlight %}
+
+I don't think I have covered all possible cases. If you can think of a case that is not covered then please write your idea in comments.

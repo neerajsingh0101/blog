@@ -1,0 +1,217 @@
+---
+layout: post
+title: Rails under the hood  How respond_to works
+---
+h3. Objective
+
+To analyze the Rails source to gain an understanding of how *respond_to* works.
+
+h3. Current environment
+
+I am using ruby 1.8.6 and rails 2.0.2 . I am using mysql as the database. I am running mongrel on mac at port 3000.
+
+h3. Getting started
+
+Let's create a new project. 
+
+{% highlight ruby %}
+rails -dmysql learning_respond_to
+ruby script/generate scaffold User name:string email:string
+{% endhighlight %}
+
+Open up create_users.rb and add the following line at the end of create_table block.
+
+{% highlight ruby %}
+User.create(:name => 'Neeraj', :email => 'neeraj@ror.com')
+{% endhighlight %}
+
+If you open up  the users_controller.rb and look at the method show, you will notice code like this.
+
+{% highlight ruby %}
+respond_to do |format|
+  format.html 
+  format.xml  { render :xml => @user }
+end
+{% endhighlight %}
+
+Start your server and hit the following two urls:
+
+{% highlight ruby %}
+http://localhost:3000/users/1
+http://localhost:3000/users/1.xml
+{% endhighlight %}
+
+Nifty right. Without any additional work from us, rails is providing the html and the xml output. The objective of this article is to understand how this feature is brough to us by rails.
+
+h3. Under the hood: Looking at the rails source code.
+
+
+h4. Show method getting invoked
+
+Before the request comes to the method 'show', rails does a lot of stuff and that will be covered in a separate article. Right now let's just start with the code that is executed just before the control is sent to show method.
+
+{% highlight ruby %}
+#ActionController::Base.rb
+def perform_action
+  if self.class.action_methods.include?(action_name)
+    send(action_name)
+    default_render unless performed?
+  elsif respond_to? :method_missing
+    method_missing action_name
+    default_render unless performed?
+  elsif template_exists? && template_public?
+    default_render
+  else
+    raise UnknownAction, "No action responded to #{action_name}", caller
+  end
+end
+{% endhighlight %}
+
+Assume that the variable action_name is set to 'show'. self.class.action_methods is the list of all the methods defined by us in the users_controller.rb . As part of the execution send(action_name) is invoked which executes the 'show' method defined in the controller.
+
+h4. Encountering respond_to block 
+
+Once the control reaches the show method, it performs a database call and creates @user object. Next is the respond_to block. We know that in ruby one can pass block inline using two curly braces { } or one can use a do end block.  respond_to has a do end block, it means we are passing a block to the method respond_to .
+
+{% highlight ruby %}
+respond_to do |format|
+  format.html 
+  format.xml  { render :xml => @user }
+end
+{% endhighlight %}
+
+h4. looking at respond_to source code.
+
+{% highlight ruby %}
+# mime_responds.rb
+def respond_to(*types, &block)
+  raise ArgumentError, "respond_to takes either types or a block, never both" unless types.any? ^ block
+  block ||= lambda { |responder| types.each { |type| puts 'inside type'; responder.send(type) } }
+  responder = Responder.new(self)
+  block.call(responder)
+  responder.respond
+end
+{% endhighlight %}
+
+responds_to takes two parameters: types and block. However we are passing only one parameter. That seems odd. However notice the start(*) before types. That star is called splat operator. *types means zero or more parameters. Notice the word zero. If we do not pass any parameter for types even then the code will work fine.
+
+Okay. So now we have the block inside the method respond_to. Let's see how it is used.
+
+Since we are already passing block so the next code ( block ||= ...) is simply ignored.  Next we create an instance of Responder class.
+
+Responder is a class defined in mime_responds.rb right after the method responds_to . This class has following methods: initialize, custom, any , method_missing and respond.
+
+Next is block.call with responder object as the parameter.
+
+{% highlight ruby %}
+respond_to do |format|
+  format.html 
+  format.xml  { render :xml => @user }
+end
+{% endhighlight %}
+
+Now we know that in the above case format is an instance of Responder class. 
+
+If we look at the code format.html and format.xml , it doesn't look like a code at all. That is because we know that .html and .xml are file extensions. Howerver remembe that in ruby a dot means we are executing a method. So in the above code block we are attempting to perform two executions. The first one is invoking the method 'html' and the second one is invoking the method 'xml'. Yes,  that's right. 'html' and 'xml' are the method names. I know it looks and sounds odd. If you are new to ruby  then it might take a while to digest that .html and .xml are method names. But that is what's happening here.
+
+Now we know that .html and .xml are methods to be executed on the responder instance we look for those methods in the object. However as I listed above the only methods available are: initialize, custom, any , method_missing and respond. Since the method '.html' is missing control goes to 'method_missing' .
+
+h4. looking at method_missing in mime_responds.rb  
+
+{% highlight ruby %}
+def method_missing(symbol, &block)
+  mime_constant = symbol.to_s.upcase
+  if Mime::SET.include?(Mime.const_get(mime_constant))
+    custom(Mime.const_get(mime_constant), &block)
+  else
+    super
+  end
+end
+{% endhighlight %}
+
+Here the value of symbol is 'html'. The value of mime_constant is 'HTML'.  Stop just there and let's backup a little bit.
+
+h4. Mime type registration
+
+When the server boots up as part of server startup certain files are loaded.  If you look at the bottom of mime_type.rb you will see the following code.
+
+{% highlight ruby %}
+require 'action_controller/mime_types'
+{% endhighlight %}
+
+Let's look at mime_types.rb
+
+{% highlight ruby %}
+# Build list of Mime types for HTTP responses
+# http://www.iana.org/assignments/media-types/
+
+Mime::Type.register "*/*", :all
+Mime::Type.register "text/plain", :text, [], %w(txt)
+Mime::Type.register "text/html", :html, %w( application/xhtml+xml ), %w( xhtml )
+Mime::Type.register "text/javascript", :js, %w( application/javascript application/x-javascript )
+Mime::Type.register "text/css", :css
+Mime::Type.register "text/calendar", :ics
+Mime::Type.register "text/csv", :csv
+Mime::Type.register "application/xml", :xml, %w( text/xml application/x-xml )
+Mime::Type.register "application/rss+xml", :rss
+Mime::Type.register "application/atom+xml", :atom
+Mime::Type.register "application/x-yaml", :yaml, %w( text/yaml )
+
+Mime::Type.register "multipart/form-data", :multipart_form
+Mime::Type.register "application/x-www-form-urlencoded", :url_encoded_form
+
+# http://www.ietf.org/rfc/rfc4627.txt
+Mime::Type.register "application/json", :json, %w( text/x-json )
+{% endhighlight %}
+
+As we can see a lot of mime types are being registered during the server startup. The code for Mime::Typer.register looks like this.
+
+{% highlight ruby %}
+def register(string, symbol, mime_type_synonyms = [], extension_synonyms = [], skip_lookup = false)
+  Mime.instance_eval { const_set symbol.to_s.upcase, Type.new(string, symbol, mime_type_synonyms) }
+
+  SET << Mime.const_get(symbol.to_s.upcase)
+
+  ([string] + mime_type_synonyms).each { |string| LOOKUP[string] = SET.last } unless skip_lookup
+  ([symbol.to_s] + extension_synonyms).each { |ext| EXTENSION_LOOKUP[ext] = SET.last }
+end
+{% endhighlight %}
+
+As we can see SET is a constant to which the mime types like html,css etc are being stored. Now that we know what's inside SET let's go back to the original code.
+
+h4. back to the original code
+
+The code we were looking at was
+
+{% highlight ruby %}
+def method_missing(symbol, &block)
+  mime_constant = symbol.to_s.upcase
+  if Mime::SET.include?(Mime.const_get(mime_constant))
+    custom(Mime.const_get(mime_constant), &block)
+  else
+    super
+  end
+end
+{% endhighlight %}
+
+We know that the value of mime_constant is 'HTML'. Now a comparison is done to check if HTML is already registered as a mime type. And since it is a registered mime type, control goes to custom method.
+
+h4. custom method of mime_responds.rb
+
+{% highlight ruby %}
+def custom(mime_type, &block)
+  mime_type = mime_type.is_a?(Mime::Type) ? mime_type : Mime::Type.lookup(mime_type.to_s)
+  @order << mime_type
+  @responses[mime_type] = Proc.new do
+    @response.template.template_format = mime_type.to_sym
+    @response.content_type = mime_type.to_s
+    block_given? ? block.call : @controller.send(:render, :action => @controller.action_name)
+  end
+end
+{% endhighlight %}
+
+The value of derived 'mime_type' is 'text/html'.  Next the template_format is set to the proper mime  type so that during the rendering process rails know which file to show .html or .xml . The 'content type' of the response is also set here. And finally the render method of the controller is invoked with the parameter :action as 'show'. Render method has a lot more logic but it uses the action name 'show' and the mime type which was set in the custom method to determine which file to show.
+
+Rendering process in itself is worthy of another article so I am not going to discuss that here. That will be the subject of the next article. In the next article I will discuss how rendering process works for an html file. The article after that will finish this case by showing how the rendering of .xml file is done.
+
+Do note that when code format.html and format.xml code is invoked, the code lets rails know that I am capable of handling both .html and .xml files. Whether to render .html or .xml is subjected to various factors which will be discussed in the future article.

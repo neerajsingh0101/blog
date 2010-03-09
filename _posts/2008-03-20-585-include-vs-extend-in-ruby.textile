@@ -1,0 +1,156 @@
+---
+layout: post
+title: include vs extend in Ruby
+---
+In ruby there are many ways to achieve the same result and sometimes it gets confusing. First let's set the groundwork.
+
+We are going to have a module and then the same module would be used in a class in two different ways.  The goal is to make the method count be a class method in the including Class.
+
+{% highlight ruby %}
+# make the method count as the class method 
+module Count
+  def count
+    21
+  end
+end
+
+class Person1
+  extend Count
+end
+puts Person1.count
+
+class Person2
+  class << self
+    include Count
+  end
+end
+puts Person2.count
+{% endhighlight %}
+
+We saw two different ways of  having a module method become a class method: Person1 used "extend" and Person2 used "include".
+
+
+Similarly let's see another case where a module method should become instance method for the class.
+
+{% highlight ruby %}
+# the method name should become instance method
+module Name
+  def name
+    "Ruby Rails"
+  end
+end
+
+class Person3
+  include Name
+end
+puts Person3.new.name
+
+class Person4
+end
+p4 = Person4.new
+p4.extend Name
+puts p4.name
+{% endhighlight %}
+
+Here we saw two different ways of making the method "name" as instance method. Person3 used "include" and Person4 used "extend" on objects.
+
+Although both Person3 and Person4 achieved the objective of having "name" as instance methods, there are major differences that should be pointed out.
+
+When a class includes a module then , in a way, a super class is created where the module methods reside. It means if both the module and the class declare method with the same name then the method defined in the class takes precedence. Take a look.
+
+{% highlight ruby %}
+module Name
+  def name
+    "from module"
+  end
+end
+
+class Person
+  include Name
+  def name
+    "from person"
+  end
+end
+
+puts Person.new.name   # output is "from person"
+{% endhighlight %}
+
+We saw that by including a module the existing methods of the class are not threatened. In the above case if the instance method "name" of class "Person" wants to access the method provided by the module then "super" can be used. We can see the same order by asking ruby the order in which it will look into items.
+
+{% highlight ruby %}
+puts Person.new.instance_eval("class << self;self;end;").ancestors
+# [Person,Name,Object,Kernel]
+{% endhighlight %}
+
+The above result indicates that ruby will look in Person class before it looks in Name class.
+
+{% highlight ruby %}
+module Name
+  def name
+    " from module"
+  end
+end
+
+class Person
+  include Name
+  def name
+    "from person " + super
+  end
+end
+
+puts Person.new.name
+# output is "from person  from module"
+{% endhighlight %}
+
+This is not the case with extend. When an object extends a module then the methods of the module takes precedence over the methods of the obj. Take a look.
+
+{% highlight ruby %}
+module Name
+  def name
+    " from module"
+  end
+end
+
+class Person
+  def name
+    "from person " + super
+  end
+end
+
+@person = Person.new
+@person.extend(Name)
+
+puts @person.name # output is "from module"
+{% endhighlight %}
+
+Use "super" to access the class defined method from the module method.
+
+{% highlight ruby %}
+module Name
+  def name
+    " from module " + super
+  end
+end
+
+class Person
+  def name
+    "from person " 
+  end
+end
+
+@person = Person.new
+@person.extend(Name)
+
+puts @person.name # output is " from module from person "
+{% endhighlight %}
+
+Let's ask ruby the order in which things will be searched.
+
+{% highlight ruby %}
+puts @person.instance_eval("class << self;self;end;").ancestors
+# [Name,Person,Object,Kernel]
+{% endhighlight %}
+
+As we can see the module Name will be searched before class Person is looked into.
+
+The best way to code is to avoid any name clash. But the cases where the same name is important then which method takes precedence over what is something important to keep in mind.

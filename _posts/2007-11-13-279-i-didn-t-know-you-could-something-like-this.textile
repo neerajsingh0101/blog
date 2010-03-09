@@ -1,0 +1,29 @@
+---
+layout: post
+title: I didn't know you could something like this
+---
+{% highlight ruby %}
+if event_date >= today
+        @todays_events
+elsif event_date == yesterday
+        @yesterdays_events
+else
+        @events
+end << event
+
+{% endhighlight %}
+
+rather than doing
+
+{% highlight ruby %}
+if event_date >= today
+        @todays_events << event
+elsif event_date == yesterday
+        @yesterdays_events << event
+else
+        @events << event
+end 
+{% endhighlight %}
+
+
+Picked up from the source code of <a href="http://mephistoblog.com/">Mephisto</a>.
