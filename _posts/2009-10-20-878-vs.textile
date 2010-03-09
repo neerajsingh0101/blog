@@ -2,13 +2,13 @@
 layout: post
 title: ||= vs &&=
 ---
-{% highlight ruby %}
+<pre>
 name ||= ' hello world '
 
 name &&= name.strip
 
 puts name == 'hello world' #=> true
-{% endhighlight %}
+</pre>
 
 In the above case I could have used strip! but I just wanted to show a contrived usage of <tt>&&=</tt> .
 

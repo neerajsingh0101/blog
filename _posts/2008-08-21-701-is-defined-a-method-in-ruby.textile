@@ -4,7 +4,7 @@ title: Is defined? a method in ruby
 ---
 defined? is a useful method in many ways.
 
-{% highlight ruby %}
+<pre>
 > irb
 >> x = 100
 => 100
@@ -21,7 +21,7 @@ defined? is a useful method in many ways.
 => nil
 >> defined? Person
 => "constant"
-{% endhighlight %}
+</pre>
 
 defined? can be used to find out if a variable is defined or not? In the above example y is not a defined variable and we got the return value as nil. Notice that for Person class defined? returned it  a constant.
 

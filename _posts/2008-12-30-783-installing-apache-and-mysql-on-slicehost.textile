@@ -6,39 +6,39 @@ This article is part of a series on "Installing a ruby on rails application usin
 
 <h2>Installing apache</h2>
 
-{% highlight sh %}
+<pre>
 sudo aptitude install apache2 apache2.2-common apache2-mpm-prefork apache2-utils libexpat1 ssl-cert
-{% endhighlight %}
+</pre>
 
 you might have gotten some warning. let’s fix that.
 
-{% highlight sh %}
+<pre>
 sudo vi /etc/apache2/apache2.conf
 # at the bottom of the file add the following line
 ServerName myapacheserver
-{% endhighlight %}
+</pre>
 
 restart apache
 
-{% highlight sh %}
+<pre>
 sudo apache2ctl graceful
-{% endhighlight %}
+</pre>
 
 By default apache error log is stored at
 
-{% highlight sh %}
+<pre>
 /var/log/apache2/error.log
-{% endhighlight %}
+</pre>
 
 If you make some apache configuration related changes, then you can avoid restarting apache, by asking it to simply reload its configuration.
 
-{% highlight sh %}
+<pre>
 sudo /etc/init.d/apache2 reload
-{% endhighlight %}
+</pre>
 
 h2. Installing MySQL 
 
-{% highlight sh %}
+<pre>
 sudo aptitude install mysql-server mysql-client libmysqlclient15-dev
 # enter the password
 
@@ -50,23 +50,23 @@ require 'mysql'
 #=> true
 #irb(main):002:0>
 exit
-{% endhighlight %}
+</pre>
 
 we are changing the root password for mysql and not for the root user on the slice.
 
-{% highlight sh %}
+<pre>
 mysqladmin -u root password YOURMYSQLPASSWORD
 # note that there is no space between -p and the password
 mysql -u root -pYOURMYSQLPASSWORD 
 mysql> create database firstdb;
 mysql> exit
-{% endhighlight %}
+</pre>
 
 If for any reason you need to remove mysql and start all over again the you can remove mysql by executing following command
 
-{% highlight sh %}
+<pre>
 sudo apt-get remove --purge mysql-client mysql-server mysql-common
-{% endhighlight %}
+</pre>
 
 h2. Fine tuning MySQL 
 
@@ -74,42 +74,42 @@ Default setting of mysql takes a lot of memory. Before we optimize it let’s se
 
 Now let’s begin optimization. 
 
-{% highlight sh %}
+<pre>
 sudo vi /etc/mysql/my.cnf
-{% endhighlight %}
+</pre>
 
 We’re going to add two lines in the basic setting section. Find the first two lines shown below and add the two lines after that
 
-{% highlight sh %}
+<pre>
 language  = /usr/share/mysql/english
 skip-external-locking
 skip-locking
 skip-innodb
-{% endhighlight %}
+</pre>
 
 Next, find the Fine Tuning section and adjust the settings as shown below
 
-{% highlight sh %}
+<pre>
 # * Fine Tuning
 #
 key_buffer    = 16K
 max_allowed_packet  = 1M
 thread_stack    = 64K
-{% endhighlight %}
+</pre>
 
 add following three lines  after the thread_stack    = 64K statement line
 
-{% highlight sh %}
+<pre>
 thread_cache_size = 4
 sort_buffer=64K
 net_buffer_length=2K
-{% endhighlight %}
+</pre>
 
 restart mysql
 
-{% highlight sh %}
+<pre>
 sudo /etc/init.d/mysql restart
-{% endhighlight %}
+</pre>
 
 After mysql has been restarted repeat the top command , shift + M to find the amount of memory mysql is taking. For me the new value was 2%.
 
@@ -123,14 +123,14 @@ Previously we created database ‘firstdb’ and table ‘users’. Let’s find
 
 Following two commands will get you the engine type.
 
-{% highlight sh %}
+<pre>
 show table status from firstdb like 'users'
 # mysql documentation says
 #SHOW TABLE STATUS [FROM db_name]    [LIKE 'pattern' | WHERE expr]
 
 # another way
 mysqlshow -uUSERNAME -pPASSWORD -i firstdb users
-{% endhighlight %}
+</pre>
 
 As of this writing the default engine being created was MyISAM.
 
@@ -140,7 +140,7 @@ sudo vi /etc/mysql/my.cnf
 
 Browse the content and you will see something like this
 
-{% highlight sh %}
+<pre>
 user          = mysql
 pid-file        = /var/run/mysqld/mysqld.pid
 socket          = /var/run/mysqld/mysqld.sock
@@ -152,23 +152,23 @@ language        = /usr/share/mysql/english
 skip-external-locking 
 skip-locking
 skip-innodb  
-{% endhighlight %}
+</pre>
 
 Notice the last line. That line says “skip-innodb”. If by default you want all your tables to be of type Innodb then comment that line.
 
 Although by mentioning skip-innodb by default MyISAM engines are created, it is a good idea to add following line after skip-innodb line.
 
-{% highlight sh %}
+<pre>
 default-storage-engine = MyISAM
-{% endhighlight %}
+</pre>
 
 If you don’t want innodb then make sure that skip-innodb is there othewise innodb engine will be loaded and will consume extra memory.
 
 <h2>Accessing MySQL from local machine </h2>
 
-{% highlight sh %}
+<pre>
 ssh -N -p 22 -c 3des nkumar@123.45.67.890 -L 3306/127.0.0.1/3306
-{% endhighlight %}
+</pre>
 
 Enter the password you use to log into ssh.
 
@@ -178,10 +178,10 @@ On the mysql client now I can access all the databases by connecting to 127.0.0.
 
 h2. Change MySQL password 
 
-{% highlight sh %}
+<pre>
 mysql -u root -pEXISTING_MYSQL_ROOT_PASSWORD ( no space in between -p and password)
 mysql> use mysql;
 mysql> update user set password=PASSWORD("NEWPASSWORD") where User='root';
 mysql> flush privileges;
 mysql> quit
-{% endhighlight %}
+</pre>

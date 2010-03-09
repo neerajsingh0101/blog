@@ -13,7 +13,7 @@ I have taken a simple case of parent - child relationship. Here are the  mapping
 
 The hibernate mapping file:
 
-{% highlight xml %}
+<pre>
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC"-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
   <hibernate-mapping>
@@ -27,11 +27,11 @@ The hibernate mapping file:
      </set>
   </class>
 </hibernate>
-{% endhighlight %}
+</pre>
 
 Corresponding Java file:
 
-{% highlight xml %}
+<pre>
 package com.neeraj;
 import java.util.Set;
 public class Parent {
@@ -42,13 +42,13 @@ public class Parent {
    public long getId() {return id; }
    public void setId(long id) {this.id = id;}
 }
-{% endhighlight %}
+</pre>
 
 <strong>Child.hbm.xml</strong>
 
 The hibernate mapping file:
 
-{% highlight xml %}
+<pre>
 <?xml  version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC"-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
@@ -60,11 +60,11 @@ The hibernate mapping file:
       <property name="lastName" column="lastName"  />
   </class>
 </hibernate>
-{% endhighlight %}
+</pre>
 
 Corresponding Java file:
 
-{% highlight xml %}
+<pre>
 package com.neeraj;
 public class Child {
   private long id;
@@ -77,13 +77,13 @@ public class Child {
   public String getLastName() {return lastName;}
   public void setLastName(String lastName) {this.lastName = lastName;}
 }
-{% endhighlight %}
+</pre>
 
 <strong>Note: </strong>The code formatter plugin is creating some trouble  here. In the xml hibenate-mapping is shown as hibernate double space mapping. Don't  worry the full source code is provided as a download at the end of the blog.
 
 <strong>DDL</strong>
 
-{% highlight xml %}
+<pre>
 create table child (
    cid bigint not null  auto_increment,
    firstName varchar(12),
@@ -95,7 +95,7 @@ create table parent (
    pid bigint not  null auto_increment,
    primary key (pid)
 );
-{% endhighlight %}
+</pre>
 
 I have given the names parent and child so that it's easy to understand. 'pid' stands for the 'parent id' and 'cid' stands for the child id. In the  Parent.hbm.xml I have explicitly mentioned cascade as 'none' and inverse as 'false'. Both are the default values and I could easily omit them. The reason  they are there is to make it explicit that no cascading and no inverse is being  used. If any setting is changed then it will be explicitly mentioned.Now let's  look at some test scenarios.
 
@@ -109,7 +109,7 @@ In this case  inverse is 'false'. Simply stated it means that the onus of settin
 
 <strong>Source code:</strong>
 
-{% highlight sh %}
+<pre>
 Parent parent = new Parent();
 Child child = new  Child();
 child.setFirstName("John");
@@ -119,15 +119,15 @@ children.add(child);
 parent.setChildren(children);
 session.saveOrUpdate(child);
 session.saveOrUpdate(parent);
-{% endhighlight %}
+</pre>
 
 <strong>Query </strong>
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into child (firstName, lastName) values (?,  ?)
 Hibernate: insert into parent values ( )
 Hibernate: update child set  pid=? where cid=?
-{% endhighlight %}
+</pre>
 
 <strong>Analysis </strong>
 
@@ -137,25 +137,25 @@ The result is an insertion of a record in both the parent and the child  table. 
 
 <strong>Source code:</strong> ( for the sake of brevity I'm not going to put  the whole source code. Majority of the code is same as mentioned in step 1.1.  The changes are mentioned here)
 
-{% highlight java %}
+<pre>
 //  session.saveOrUpdate(child);
 session.saveOrUpdate(parent);
-{% endhighlight %}
+</pre>
 
 <strong>Query:</strong>
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into parent values ( )
 Hibernate: update child  set pid=? where cid=?
-{% endhighlight %}
+</pre>
 
 <strong>Error</strong>
 
-{% highlight sh %}
+<pre>
 SEVERE: Could not synchronize database state with  session
 net.sf.hibernate.TransientObjectException: object references an  unsaved transient instance - save the transient instance before flushing:  example.Child
 at  net.sf.hibernate.impl.SessionImpl.throwTransientObjectException(SessionImpl.java:2788)
-{% endhighlight %}
+</pre>
 
 <strong>Analysis</strong>
 
@@ -165,14 +165,14 @@ Hibernate inserts a record in the parent table.Then Hibernate realizes that  the
 
 <strong>Source code:</strong>
 
-{% highlight java %}
+<pre>
 session.saveOrUpdate(child);
 //  session.saveOrUpdate(parent);
-{% endhighlight %}
+</pre>
 
 <strong>Query:</strong>
 
-{% highlight sh %}Hibernate: insert into child (firstName, lastName) values (?,  ?){% endhighlight %}
+<pre>Hibernate: insert into child (firstName, lastName) values (?,  ?)</pre>
 
 <strong>Analysis:</strong>
 
@@ -186,7 +186,7 @@ In this case everything remains same except that the <strong>cascade option  has
 
 <strong>Source code:</strong>
 
-{% highlight sh %}
+<pre>
 Parent parent = new Parent();
 Child child = new  Child();
 child.setFirstName("John");
@@ -196,7 +196,7 @@ children.add(child);
 parent.setChildren(children);
 session.saveOrUpdate(child);
 session.saveOrUpdate(parent);
-{% endhighlight %}
+</pre>
 
 <strong>Query:</strong>
 
@@ -210,18 +210,18 @@ Both the parent and the child record are successfully persisted. This test  does
 
 <strong>Source code:</strong>
 
-{% highlight java %}
+<pre>
 //  session.saveOrUpdate(child);
 session.saveOrUpdate(parent);
-{% endhighlight %}
+</pre>
 
 <strong>Query:</strong>
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into parent values ( )
 Hibernate: insert into  child (firstName, lastName) values (?, ?)
 Hibernate: update child set pid=?  where cid=?
-{% endhighlight %}
+</pre>
 
 <strong>Analysis:</strong>
 
@@ -233,10 +233,10 @@ Pay attention to the query. It's the same as case 1.1. It simply means that  in 
 
 <strong>Source code:</strong>
 
-{% highlight java %}
+<pre>
 session.saveOrUpdate(child);
 //  session.saveOrUpdate(parent);
-{% endhighlight %}
+</pre>
 
 <strong>Query:</strong>
 
@@ -254,7 +254,7 @@ Now we will make the association bi-directional. No changes will be done to  the
 
 The hibernate mapping file:
 
-{% highlight xml %}
+<pre>
 <?xml  version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC"-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
@@ -267,18 +267,18 @@ The hibernate mapping file:
        <many-to-one name="parent" class="com.neeraj.Parent" column="pid"  />
    </class>
 </hibernate>
-{% endhighlight %}
+</pre>
 
 The child.java will have following lines added to them :
 
-{% highlight java %}
+<pre>
 package  com.neeraj;
 public class Child {
    private Parent parent;
   public Parent getParent() {return parent;}
   public void setParent(Parent parent) {this.parent = parent;}
 }
-{% endhighlight %}
+</pre>
 
 <strong>3.1 Child has reference to parent. Parent has reference to the  child. Both are persisted.</strong>
 
@@ -286,7 +286,7 @@ We need to make change to our test case to add a reference to the parent to  the
 
 <strong>Source code:</strong>
 
-{% highlight sh %}
+<pre>
 Parent parent = new  Parent();
 Child child = new  Child();
 child.setFirstName("John");
@@ -296,16 +296,16 @@ Set children = new  HashSet();
 children.add(child);
 parent.setChildren(children);
 session.saveOrUpdate(child);
-session.saveOrUpdate(parent);{% endhighlight %}
+session.saveOrUpdate(parent);</pre>
 
 <strong>Query:</strong>
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into child (firstName, lastName, pid) values (?,  ?, ?)
 Hibernate: insert into parent values ( )
 Hibernate: update child set  firstName=?, lastName=?, pid=? where cid=?
 Hibernate: update child set pid=?  where cid=?
-{% endhighlight %}
+</pre>
 
 <strong>Analysis:</strong>
 
@@ -315,26 +315,26 @@ The first query is easy. Note how the first query here is different from the  fi
 
 <strong>Source code:</strong>
 
-{% highlight java %}
+<pre>
 //  session.saveOrUpdate(child);
 session.saveOrUpdate(parent);
-{% endhighlight %}
+</pre>
 
 <strong>Query:</strong>
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into parent values ( )
 Hibernate: update child  set pid=? where cid=?
-{% endhighlight %}
+</pre>
 
 <strong>Error:</strong>
 
-{% highlight sh %}
+<pre>
 SEVERE: Could not synchronize database state with  session
 net.sf.hibernate.TransientObjectException:
 object references an  unsaved transient instance -
 save the transient instance before flushing:  example.Child
-{% endhighlight %}
+</pre>
 
 <strong>Analysis:</strong>
 
@@ -344,24 +344,24 @@ Hibernate successfully persisted a record in the parent table. Look at the  seco
 
 <strong>Source code:</strong>
 
-{% highlight java %}
+<pre>
 session.saveOrUpdate(child);
 //  session.saveOrUpdate(parent);
-{% endhighlight %}
+</pre>
 
 <strong>Query:</strong>
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into child (firstName, lastName, pid) values (?,  ?, ?)
-{% endhighlight %}
+</pre>
 
 <strong>Error:</strong>
 
-{% highlight sh %}
+<pre>
 net.sf.hibernate.TransientObjectException:
 object references an  unsaved transient instance -
 save the transient instance before flushing:  example.Parent 
-{% endhighlight %}
+</pre>
 
 <strong>Analysis:</strong>
 
@@ -375,11 +375,11 @@ This case is an extension of case discussed in step 3. In this case we are  goin
 
 <strong>Query:</strong>
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into child (firstName, lastName, pid) values (?,  ?, ?)
 Hibernate: insert into parent values ( )
 Hibernate: update child set  firstName=?, lastName=?, pid=? where cid=?
-{% endhighlight %}
+</pre>
 
 <strong>Analysis</strong>
 
@@ -390,9 +390,9 @@ as 'true' one party clearly dictates that the onus of maintaining the relationsh
 
 <strong>Query:</strong>
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into parent values ()
-{% endhighlight %}
+</pre>
 
 <strong>Analysis</strong>
 

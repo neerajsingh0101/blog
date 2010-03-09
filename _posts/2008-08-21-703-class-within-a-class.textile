@@ -4,7 +4,7 @@ title: Class within a class
 ---
 Let's look at code. Here I am going to define a class within the definition of another class.
 
-{% highlight ruby %}
+<pre>
 class Person
   def foo
     puts 'foo'
@@ -19,13 +19,13 @@ end
 
 Person.new.foo #=> foo
 Person::Boy.new.bar #=> bar
-{% endhighlight %}
+</pre>
 
 Notice that in order to access Boy class we need to use Person::Boy.
 
 Let's try a variant of this. We still want Boy code to be inside Person but we want Boy class to be referenced directly.
 
-{% highlight ruby %}
+<pre>
 class Person
   def foo
     puts 'foo'
@@ -41,13 +41,13 @@ end
 Person.new.foo #=> foo
 Boy.new.bar #=> bar
 ::Boy.new.bar #=> bar
-{% endhighlight %}
+</pre>
 
 Now we can reference Boy directly or by using ::Boy. This is all good and nice. What surprised me was this.
 
-{% highlight ruby %}
+<pre>
 Person::Boy.new.bar  #=> bar
 warning: toplevel constant Boy referenced by Person::Boy
-{% endhighlight %}
+</pre>
 
 I got the result but I also got the warning. I was surprised by this because I though that since I used ::Boy, I will not be able to access it using Person::Boy. The warning is confirming my suspicion by saying that Boy is a top level constant. However ruby allows it.

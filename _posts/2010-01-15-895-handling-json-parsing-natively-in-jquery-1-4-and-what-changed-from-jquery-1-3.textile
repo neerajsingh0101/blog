@@ -6,13 +6,13 @@ With the popularity of JavaScript JSON has become very very popular. "JSON":http
 
 jQuery makes it extremely easy to deal with JSON data. In the below example server sends a success message to browser. The JSON data looks like this.
 
-{% highlight sh %}
+<pre>
 { 'success': 'record was successfully updated' }
-{% endhighlight %}
+</pre>
 
 The jQuery code to handle JSON data looks like this.
 
-{% highlight js %}
+<pre>
 $.ajax({
    type: "GET",
    url: "test.js",
@@ -21,7 +21,7 @@ $.ajax({
      $('#result').text(json.success);
    }
  });
-{% endhighlight %}
+</pre>
 
 It all looks good and the code works with jQuery 1.3 . 
 
@@ -32,11 +32,11 @@ h2. How jQuery 1.3 parses JSON structure
 
 jQuery 1.3 uses JavaScript’s eval to evaluate incoming JSON structure. Open firebug and type following example.
 
-{% highlight js %}
+<pre>
 s = " { 'success' :  'record was updated' } "
 result = eval('(' + s + ')');
 console.log(result);
-{% endhighlight %}
+</pre>
 
 You will get a valid output.
 
@@ -44,12 +44,12 @@ Note that all valid JSON structure is also valid JavaScript code so eval convert
 
 JSON specification says that all string values must use double quotes. Single quotes are not allowed. What it means is that following JSON structures are not valid JSON.
 
-{% highlight sh %}
+<pre>
 { 'foo' : 'bar' }
 { foo: 'bar' }
 { foo: "bar" }
 { "foo" : 'bar' }
-{% endhighlight %}
+</pre>
 
 Even though above strings are not valid JSON if you eval them they will produce a valid JavaScript object. Since jQuery 1.3 uses eval on strings to convert JSON structure to JavaScript object all the above mentioned examples work.
 
@@ -59,14 +59,14 @@ h2. jQuery 1.4 uses native JSON parsing
 
 Using eval to convert JSON into JavaScript object has a few issue. First is the security. It is possible that eval could execute some malicious code. Secondly it is not as fast as native parse methods made available by browsers. However browsers adhere to JSON spec and they will not parse malformed JSON structures. Open firebug and try following code to see how native browser methods do not parse malformed JSON structure. Here is the link to the announcement of "Firefox support for native JSON parsing":http://blog.mozilla.com/webdev/2009/02/12/native-json-in-firefox-31/ . John Resig mentioned the need for jQuery to have native JSON parsing support "here":http://ejohn.org/blog/native-json-support-is-required/#postcomment .
 
-{% highlight js %}
+<pre>
 s = " { 'success' :  'record was updated' } "
 result = eval('(' + s + ')');
 console.log(result); /* returns valid JavaScript object */
 
 result2 = window.JSON.parse(s);
 console.log(result2); /* throws error */
-{% endhighlight %}
+</pre>
 
 As you can see a string which was successfully parsed by <tt>eval</tt> failed by <tt>window.JSON.parse</tt> . It might or might not fail in chrome. More on that later. Since jQuery 1.4 will rely on browsers parsing the JSON structure malformed JSON structures will fail.
 
@@ -74,27 +74,27 @@ In order to ensure that JSON is correctly parsed by the browsers, jQuery does so
 
 Following JSON structure will be correctly parsed in jQuery 1.3 .  However the same JSON structure will fail in jQuery 1.4 . Why? Because of dangling open bracket <tt>[</tt> . 
 
-{% highlight js %}
+<pre>
 ' { "error" : "record was updated [ " } '
-{% endhighlight %}
+</pre>
 
 jQuery 1.4 has following code that does some data cleanup to "get around the security issue with JSON parsing":http://directwebremoting.org/blog/joe/2007/03/05/json_is_not_as_safe_as_people_think_it_is.html before sending that data to browser for parsing. Here is a snippet of the code. 
 
-{% highlight js %}
+<pre>
 // Make sure the incoming data is actual JSON
 // Logic borrowed from http://json.org/json2.js
 if (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
 	.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
 	.replace(/(?:^|:|,)(?:\s*\[)+/g, ""))) {
-{% endhighlight %}
+</pre>
 
 h2. Not all browsers parse JSON same way
 
 Earlier I mentioned that following JSON structure will not be correctly parsed by browsers. 
 
-{% highlight sh %}
+<pre>
 ” { 'a':1 } ”
-{% endhighlight %}
+</pre>
 
 All browsers will fail to parse above JSON structure except <tt>chrome</tt> . Look at this blog titled "Cross Browser JSON parsing":http://dbj.org/dbj/?p=470 to get more insight into this issue.
 
@@ -104,7 +104,7 @@ h2. I have malformed JSON and I want to use jQuery 1.4
 
 If you have malformed JSON and you want to use jQuery 1.4 then you should send the datatype as <tt>text</tt> and then convert the returned JSON structure using eval. Here is one way you can do that.
 
-{% highlight js %}
+<pre>
 $.ajax({url: "/url",
   dataType: "text",
   success: function(data) {
@@ -112,14 +112,14 @@ $.ajax({url: "/url",
     // do something with json
   }
 });
-{% endhighlight %}
+</pre>
 
 "Ben Alman":http://benalman.com suggested another way in the "comment section":http://yehudakatz.com/2010/01/15/jquery-1-4-and-malformed-json/ .
 
-{% highlight sh %}
+<pre>
 /* this should be the very first JavaScript inclusion file */
 <script type=”text/javascript” language=”javascript”>window.JSON = null;</script>
-{% endhighlight %} 
+</pre> 
 
 jQuery attempts to parse JSON natively. However if native JSON parsing is not available then it falls back to <tt>eval</tt>. Here by setting <tt>window.JSON to null </tt> browser is faking that it does not have support for native JSON parsing.
 

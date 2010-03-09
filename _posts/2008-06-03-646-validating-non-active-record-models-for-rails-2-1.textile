@@ -10,7 +10,7 @@ I recently "posted":http://www.neeraj.name/blog/articles/639-validating-non-acti
 
 Follow the previous article and replace this 
 
-{% highlight ruby %}
+<pre>
 module Validateable
 
   [:save, :save!, :update_attribute].each{|attr| define_method(attr){}}
@@ -34,11 +34,11 @@ module Validateable
   end
 
 end
-{% endhighlight %}
+</pre>
 
 by
 
-{% highlight ruby %}
+<pre>
 module Validateable
 
   [:save, :save!, :update_attribute].each{|attr| define_method(attr){}}
@@ -66,6 +66,6 @@ module Validateable
   end
 
 end
-{% endhighlight %}
+</pre>
 
 That's it. With this change follow "this article":http://www.neeraj.name/blog/articles/639 and things will work fine with Rails 2.1.

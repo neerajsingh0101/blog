@@ -12,17 +12,17 @@ And I think by writing test you code becomes much more beautiful.
 
 Take a look at this named scope which I had.
 
-{% highlight ruby %}
+<pre>
 named_scope :published, :conditions => "status='published'"
-{% endhighlight %}
+</pre>
 
 Above code works. However when I wrote the shoulda test it blows up. In order to make the shoulda test pass, I had to refactor to this.
 
-{% highlight ruby %}
+<pre>
 named_scope :published, :conditions => {:status => 'published'}
 
 # test
 should_have_named_scope :published, :conditions => {:status => 'published'}
-{% endhighlight %}
+</pre>
 
 It was a minor change and but is a good example of why writing tests make your code so much more beautiful. <br />

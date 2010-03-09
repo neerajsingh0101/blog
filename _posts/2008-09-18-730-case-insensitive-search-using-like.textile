@@ -5,20 +5,20 @@ title: case insensitive search using like
 Take a look at this.
 
 
-{% highlight ruby %}
+<pre>
 >> term = "Matz"
 >> User.all :conditions => ["fname like ?", "%#{term}%"]
 >> SELECT * FROM `users` WHERE (fname like '%Matz%') 
-{% endhighlight %}
+</pre>
 
 Above code will work but sometimes it might fail. On my machine I have postgresql installed and the default installation does case-sensitive search. One way to do case-insensitive search in postrgesql is to change like to ilike but that's not very clean.
 
 How about this.
 
-{% highlight ruby %}
+<pre>
 >> term = 'Matz'
 >> User.all :conditions => ["Lower(fname) like ?", "%#{term.downcase}%"]
 >> SELECT * FROM `users` WHERE (Lower(fname) like '%matz%') 
-{% endhighlight %}
+</pre>
 
 I think all the databases support Lower function and the above code should work in all the databases.

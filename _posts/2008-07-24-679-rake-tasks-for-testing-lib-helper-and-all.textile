@@ -8,7 +8,7 @@ I create two more directories under test: lib and helpers. I put all my lib rela
 
 Now I would like to have rake test:libs and rake test:helpers. Also when I run 'rake' then I would like rake to also run tests under lib and helpers directory. This is the fix I came up with .
 
-{% highlight ruby %}
+<pre>
 namespace :test do
   Rake::TestTask.new(:libs => "db:test:prepare") do |t|
     t.libs << "test"
@@ -39,6 +39,6 @@ task :test do
   abort "Errors running #{errors.to_sentence}!" if errors.any?
 end
 
-{% endhighlight %}
+</pre>
 
 It works.

@@ -8,12 +8,12 @@ In this directory , I usually have two files: production.rb and staging.rb .
 
 Now when I need to deploy my code in staging I execute following command.
 
-{% highlight ruby %}
+<pre>
 cap staging deploy
 
 # to deploy the code to production
 cap production deploy
-{% endhighlight %}
+</pre>
 
 This is all good. 
 
@@ -23,7 +23,7 @@ Since I have ssh keys setup, capistrano never prompted me for any user input. I 
 
 This is what I ended up doing. In my deploy.rb I added following lines of code at the bottom.
 
-{% highlight ruby %}
+<pre>
 before "deploy:update_code", "user_confirmation_for_production_deployment"
 task :user_confirmation_for_production_deployment, roles => :app do
   if "#{stage}" == 'production'
@@ -32,7 +32,7 @@ task :user_confirmation_for_production_deployment, roles => :app do
     abort "deployment to production was stopped" unless answer == 'y'
   end
 end
-{% endhighlight %}
+</pre>
 
 The code is pretty self-explanatory. You might be wondering what CLI stands for. CLI is for "Command Line Utility".
 

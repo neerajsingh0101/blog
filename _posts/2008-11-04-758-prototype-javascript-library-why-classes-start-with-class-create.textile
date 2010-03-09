@@ -8,7 +8,7 @@ Javascript does not have the notion of a class which can be used to create new i
 
 If you have been using "prototype":http://prototypejs.org/ , Javascript framework library, then you might have seen code like this.
 
-{% highlight js %}
+<pre>
 var Person = Class.create();
 Person.prototype = {
   initialize: function(name) {
@@ -18,13 +18,13 @@ Person.prototype = {
     return this.name + ': ' + message;
   }
 };
-{% endhighlight %}
+</pre>
 
 When I first looked at this code I wondered why there is a single call Class.create(). In this blog I am going to expand on that.
 
 Let's look at a simple javascript code that creates an instance of User.
 
-{% highlight js %}
+<pre>
 function User(name,email,birth_date) {
   this.name = name;
   this.email = email;
@@ -40,11 +40,11 @@ function User(name,email,birth_date) {
 john = new User('John','john@example.org','11/11/1980');
 
 alert (john.getAge());
-{% endhighlight %}
+</pre>
 
 Above code works. However it will create a new instance of anonymous function for getAge for every single instance of User and that will consume too much memory.  The code could be refactored to
 
-{% highlight js %}
+<pre>
 function User(name,email,birth_date) {
   this.name = name;
   this.email = email;
@@ -61,7 +61,7 @@ User.prototype.getAge = function() {
 john = new User('John','john@example.org','11/11/1980');
 
 alert (john.getAge());
-{% endhighlight %}
+</pre>
 
 Above approach will consume a lot less memory. In the above code prototype method has been used. If you are not familiar with this then you can read more about prototype "here":http://www.javascriptkit.com/javatutors/proto.shtml
 
@@ -69,7 +69,7 @@ However there is a problem. Now the initialization code for User is split at two
 
 Prototype library has solved that problem by creating a function called Class. The code can be refactored to
 
-{% highlight js %}
+<pre>
 var User = Class.create();
 User.prototype = {
   initialize: function(name,email,birth_date) {
@@ -88,7 +88,7 @@ getAge: function() {
 john = new User('John','john@example.org','11/11/1980');
 
 alert (john.getAge());
-{% endhighlight %}
+</pre>
 
 In the above code all the initialization work has been kept at one single place and that is what using Class.create() buys us.
 

@@ -4,20 +4,20 @@ title: sudo and cd issue in capistrano
 ---
 I have following task in capistrano.
 
-{% highlight ruby %}
+<pre>
   task :manage_log, :roles => :app do
     send(run_method, "cd #{current_path} && rake log:rotate")
   end
-{% endhighlight %}
+</pre>
 
 The above task works fine when I am not using sudo. (set :use_sudo,false) in capistrano. When I trun sudo on (set :use_sudo,true) then the above task starts failing.   sudo doesn't play nice with cd because cd is a shell builtin.
 
 However the fix is easy. Just put a ';' before cd in the taks. Like this.
 
-{% highlight ruby %}
+<pre>
   task :manage_log, :roles => :app do
     send(run_method, ";cd #{current_path} && rake log:rotate")
   end
-{% endhighlight %}
+</pre>
 
 capistrano will execute the task with sudo on without any problem.

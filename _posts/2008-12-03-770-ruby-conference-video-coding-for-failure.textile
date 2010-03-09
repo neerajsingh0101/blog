@@ -9,41 +9,41 @@ Here are my notes from this presentation.
 
 h2. Handling exceptions
 
-{% highlight ruby %}
+<pre>
 x = foo.bar rescue nil
-{% endhighlight %}
+</pre>
 
 Above code will rescue only the StandardErrors. Be aware of that. Same is true for this code.
 
-{% highlight ruby %}
+<pre>
 begin
   require 'Foobar'
 rescue
 end
-{% endhighlight %}
+</pre>
 
 
 If you want to rescue all exceptions ( not a good idea) then rescue Exception like this.
 
-{% highlight ruby %}
+<pre>
 begin
  require 'Foobar'
 rescue Exception => e
 end
-{% endhighlight %}
+</pre>
 
 h2. In cron job use &&
 
-{% highlight ruby %}
+<pre>
 # cron job command
 cd directory; rm -rf
-{% endhighlight %}
+</pre>
 
 The above cron job command is risky. Even if the cd to directory fails the next command of deleting all the stuff will be executed. Not good. A better solution is
 
-{% highlight ruby %}
+<pre>
 cd directory && rm -rf
-{% endhighlight %}
+</pre>
 
 In the above cron job command because of <code>&&</code> if the cd to directory fails then the next operation will not be executed.
 
@@ -53,37 +53,37 @@ h2. Always check response code after *nix command
 
 Anytime any *nix command is executed either through system command or backtick check for response code.
 
-{% highlight ruby %}
+<pre>
 files = `cd /etc && ls`
 unless $?.success?
   fail "command failed: #{$?}"
 end
-{% endhighlight %}
+</pre>
 
 
 h2. Fail loud
 
 Not only fail fast but also fail loud.
 
-{% highlight ruby %}
+<pre>
 users.each do |user|
  user.activated = true
  user.save
 end
-{% endhighlight %}
+</pre>
 
 In the above code if the user.save fails for say some validation reason then no feedback is sent back. This is not good. A better solution would be to save loud.
 
-{% highlight ruby %}
+<pre>
 users.each do |user|
  user.activated = true
  user.save! # failing loud
 end
-{% endhighlight %}
+</pre>
 
 h2. Manage Exceptions when sending out emails
 
-{% highlight ruby %}
+<pre>
 SERVER_EXCEPTIONS = [
                     TimeoutError,
                     IOError,
@@ -117,6 +117,6 @@ begin
 rescue *EXCEPTIONS => e
   notify_hoptoad(e)
 end                       
-{% endhighlight %}
+</pre>
 
 

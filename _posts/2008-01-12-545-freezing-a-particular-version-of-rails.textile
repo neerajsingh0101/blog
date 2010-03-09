@@ -6,10 +6,10 @@ Softies on Rails blogged about "how to freez rails":http://softiesonrails.com/20
 
 I needed to freeze Rails 1.2.5 to an old application. I googled and following is the answer.
 
-{% highlight ruby %}
+<pre>
 rake rails:freeze:edge TAG=rel_1-2-5
 
 rake rails:freeze:edge TAG=rel_1-2-6
 
 rake rails:freeze:edge TAG=rel_2-0-0_RC2
-{% endhighlight %}
+</pre>

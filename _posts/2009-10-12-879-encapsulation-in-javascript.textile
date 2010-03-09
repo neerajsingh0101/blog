@@ -6,7 +6,7 @@ JavaScript does not allow you to define a method as public or private. This is a
 
 Here is a simple implementation of the case where you want to verify input code.
 
-{% highlight js %}
+<pre>
 function verifycode(code){
   console.log(code.length);
   return code.length == 4 ? true : false;
@@ -22,11 +22,11 @@ function info(code){
 
 info('abcd');
 info('rty');
-{% endhighlight %}
+</pre>
 
 In the above implementation anyone can call the method verifycode. Not good. Here is one way to fix this problem.
 
-{% highlight js %}
+<pre>
 var Lab = Lab || {};
 Lab = (function() {
 	var verifycode = function(code) {
@@ -47,11 +47,11 @@ Lab = (function() {
 Lab.info('abcd');
 Lab.info('rty');
 Lab.verifycode('abcd'); //verifycode is private
-{% endhighlight %}
+</pre>
 
 Another way to solve the same problem would be to create a constructor function. Here is an implementation.
 
-{% highlight js %}
+<pre>
 function Lab(code) {
         this.code = code;
 	var verifycode = function() {
@@ -66,11 +66,11 @@ function Lab(code) {
 	}
 }
 (new Lab('abcd')).info();
-{% endhighlight %}
+</pre>
 
 Here is another way to solve the same problem. In this case I have moved all the public methods to prototype.
 
-{% highlight js %}
+<pre>
 function Lab(code) {
 	this.code = code;
 	this.verifycode = function() {
@@ -88,4 +88,4 @@ Lab.prototype.info = function() {
 };
 
 (new Lab('abcd')).info();
-{% endhighlight %}<br />
+</pre><br />

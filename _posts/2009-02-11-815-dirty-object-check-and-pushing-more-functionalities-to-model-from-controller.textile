@@ -8,7 +8,7 @@ The requirement is that whenever the activation_status changes to true then send
 
 An implementation of the solution might look like this
 
-{% highlight ruby %}
+<pre>
 # users_controller.rb
 
 def activate
@@ -17,23 +17,23 @@ def activate
     @user.send_welcome_email
   end
 end
-{% endhighlight %}
+</pre>
 
 Above solution works. 
 
 However it is better to push as much business logic as possible to model. Here is an example where app might break. Suppose someone goes to script/console and changes the status of a person who is not getting the activation code for some reason.
 
-{% highlight ruby %}
+<pre>
 >> ruby script/console
 > user = User.find(7)
 > user.update_attributes(:activation_status => true)
-{% endhighlight %}
+</pre>
 
 In the above case the support person changed the status of the person but no welcome email was sent to the person.
 
 A good solution would be to push the functionality to model. In the model before_save callback will send out a welcome email only if the status is changing to true from false or from nil.
 
-{% highlight ruby %}
+<pre>
 # user.rb
 class User < ActiveRecord::Base
   
@@ -46,7 +46,7 @@ class User < ActiveRecord::Base
   end
 end
 
-{% endhighlight %}
+</pre>
 
 This is much better. Now it does not matter how the status is changed. Controller can change the status as well as script/console can change the status and the welcome email will be sent when the status change.
 

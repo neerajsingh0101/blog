@@ -4,10 +4,10 @@ title: How to do a redirect on an AJAX request
 ---
 It's simple ( at least in RoR world).
 
-{% highlight ruby %}
+<pre>
 def redirect_test 
    render :update do |page|
       page.redirect_to :controller => 'home'
    end
 end
-{% endhighlight %}
+</pre>

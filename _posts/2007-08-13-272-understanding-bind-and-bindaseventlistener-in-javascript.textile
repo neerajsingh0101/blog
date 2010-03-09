@@ -11,7 +11,7 @@ Before we jump deep into how bind works first let's see why we need to use 'bind
 All the code discussed in the blog is provided at the end as a download. So if you want to play along or try out any new scenario then you can download the source code.
 
 Let's look at this code.
-{% highlight sh %}
+<pre>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD><TITLE> Learning Javascript </TITLE></HEAD>
 
@@ -37,13 +37,13 @@ Just testing quiz. No event handling in this case.
 </BODY>
 </HTML>
 
-{% endhighlight %}
+</pre>
 
 When we run the above code, we get two pop ups: one with the question and the other one with the answer. 
 
 Now let's look at the second code. In this case we will attach an event to a button. When the button is clicked then the two popups should come up. Note that in this case the  'function quiz' is left as it is.
 
-{% highlight sh %}
+<pre>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD><TITLE> Learning Javascript </TITLE></HEAD><BODY>
 <script type = 'text/javascript'>
@@ -67,7 +67,7 @@ Now let's look at the second code. In this case we will attach an event to a but
 </BODY>
 </HTML>
 
-{% endhighlight %}
+</pre>
 
 When the above code is executed then we get two popups. However the content of both the popups is 'undefined'. We didn't touch the function quiz then how come we are not getting the right result this time.
 
@@ -80,7 +80,7 @@ Inside the function 'quiz' we are using 'this'. As we know 'this' at any point o
 
 Understanding 'this' could be tricky sometimes. Here I am going to provide another example which will help understand what this is about. We are leaving this school_quiz example for a while. Let's see this code.
 
-{% highlight js %}
+<pre>
 var boy = { gender:"boy", city:"Seattle"};
 
 var girl = { gender:"girl", city:"Miami",
@@ -93,7 +93,7 @@ var girl = { gender:"girl", city:"Miami",
 alert(girl.ask()); /* Result: I am a girl and I live in Miami */
 
 alert(girl.ask.call(boy));  /* Result: I am a boy and I live in Seattle */
-{% endhighlight %}
+</pre>
 
 In the above code this.gender shows  the gender. As the above example illustrates this means the context in which the object is evaluated. If you have not encountered a 'call' method then call is a method that is invoked on another method and you can pass an object which should be used as the 'context' using which 'this' should be evaluated inside the function. Now let's get back to the original school_quiz example.
 
@@ -103,7 +103,7 @@ In order to fully understand the above statement let's do a small test to find o
 
 First rule is that If 'this' is not referring to anything specific then by default it refers to 'window' object. Let's test this rule.
 
-{% highlight sh %}
+<pre>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
@@ -118,11 +118,11 @@ First rule is that If 'this' is not referring to anything specific then by defau
 <button id='thebutton' onclick='click_handler()'> Click me!</button>
 </BODY>
 </HTML>
-{% endhighlight %}
+</pre>
 
 Result is 'Object Window'. Now try this.
 
-{% highlight sh %}
+<pre>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD><TITLE> Learning Javascript </TITLE></HEAD>
 <BODY>
@@ -139,7 +139,7 @@ Result is 'Object Window'. Now try this.
 <button id='thebutton'> Click me!</button>
 </BODY>
 </HTML>
-{% endhighlight %}
+</pre>
 
 Result is 'Object HTMLButtonElement'.
 
@@ -151,7 +151,7 @@ This is where bind comes to rescue. To the best of my knowledge bind is not  a r
 
 Here is the code that solves the problem.
 
-{% highlight sh %}
+<pre>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
@@ -179,7 +179,7 @@ Here is the code that solves the problem.
 <button id='thebutton'> Click me!</button>
 </BODY>
 </HTML>
-{% endhighlight %}
+</pre>
 
 Now if we click the button we get two popups: one with the question and one with the answer. The only changed line is <code>the_button.onclick = school_quiz.ask.bind(school_quiz);</code> . Also note that I included prototype.js javascript library at the top.
 

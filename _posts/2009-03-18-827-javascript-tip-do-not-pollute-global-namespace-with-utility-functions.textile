@@ -8,7 +8,7 @@ h2. What are we talking about
 
 My main concern is that as Javascript develeoper I should not be polluting global namespace. I could write the calendar code like this.
 
-{% highlight js %}
+<pre>
   showCalendar = function(options,d){
   };
 
@@ -29,7 +29,7 @@ My main concern is that as Javascript develeoper I should not be polluting globa
 
  // use showCalendar
  showCalendar({},new Date());
-{% endhighlight %}
+</pre>
 
 You can see that the main method that I want to expose to global namespace is <tt>showCalendar</tt>. However I am also exposing six other functions to global namespace. It means that if some user has declared a global namespace function named <tt>getCellID</tt> then my <tt>getCellID</tt> is going to collide with the user's function. This is not good.
 
@@ -37,7 +37,7 @@ h2. Goal
 
 The goal is to refactor the code in such a way that only one method <tt>showCalendar</tt> is exposed to the global namespace.  In order to test the code at the very end of the javascript I will invoke a call to method <tt>getCellID</tt>. 
 
-{% highlight js %}
+<pre>
   showCalendar = function(options,d){
   };
 
@@ -61,7 +61,7 @@ The goal is to refactor the code in such a way that only one method <tt>showCale
 
  // this call should fail but is not failing now
  getCellID(2009,5,4);
-{% endhighlight %}
+</pre>
 
 The above call to <tt>getCellID</tt> is currently being executed successfully. It means I have polluted the global namespace.  I am going to fix it.
 
@@ -71,7 +71,7 @@ The solution is to put all the code inside a function. In a function all the var
 
 Here is the solution.
 
-{% highlight js %}
+<pre>
 (function(){
 
   // by not declaring var this variable is going to be at global namespace
@@ -100,7 +100,7 @@ showCalendar({},new Date());
 // this call will fail
 getCellID(2009,5,4);
 
-{% endhighlight %}
+</pre>
 
 In the above case the call to <tt>showCalendar</tt> was successful. However call to <tt>getCallID</tt> failed. That's good. It means I am not polluting the global namespace.
 

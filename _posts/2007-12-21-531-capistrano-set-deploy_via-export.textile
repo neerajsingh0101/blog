@@ -4,13 +4,13 @@ title: capistrano set  deploy_via,  export
 ---
 capistrano 2.0  provides the ability to set deploy_via export. This will ensure that no .svn files are there in the app directory and ,I guess, that's a good thing.
 
-{% highlight sh %}
+<pre>
 # the default behavior
 set :deploy_via, :checkout
 
 # use export, rather than checkout
 set :deploy_via, :export
-{% endhighlight %}
+</pre>
 
 When I switched to :export I ran into one problem. I use "acts_as_releaseable":http://agilewebdevelopment.com/plugins/acts_as_releaseable plugin to see the release version in staging and production environment. Now that no svn files are there I don't see any svn version.
 

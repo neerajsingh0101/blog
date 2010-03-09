@@ -12,7 +12,7 @@ h2. How do I use this feature
 
 If you have a special case where you want to control the mapping from singular to plural then Rails provides you a hook. You will find a file called <tt>config/initializers/inflections.rb</tt> . This file looks something like this
 
-{% highlight ruby %}
+<pre>
 # Add new inflection rules using the following format 
 # (all these examples are active by default):
 # ActiveSupport::Inflector.inflections do |inflect|
@@ -21,28 +21,28 @@ If you have a special case where you want to control the mapping from singular t
 #   inflect.irregular 'person', 'people'
 #   inflect.uncountable %w( fish sheep )
 # end
-{% endhighlight %}
+</pre>
 
 If I want the plural of 'car' to be 'carz' then this is the place to make that change.
 
-{% highlight ruby %}
+<pre>
 ActiveSupport::Inflector.inflections do |inflect|
     inflect.irregular 'car', 'carz'
 end
-{% endhighlight %}
+</pre>
 
 You can test it in script/console .
 
-{% highlight ruby %}
+<pre>
 >> 'car'.pluralize
 => "carz"
-{% endhighlight %}
+</pre>
 
 h2. How is Inflector implemented
 
 In short inflector.rb has following code
 
-{% highlight ruby %}
+<pre>
 module ActiveSupport
   module Inflector
     extend self
@@ -65,7 +65,7 @@ module ActiveSupport
 
   end
 end
-{% endhighlight %}
+</pre>
 
 A few things to notice here. First is the usage of <tt>extend self</tt>. Secondly module <tt>Singleton</tt> is being included. 
 
@@ -73,7 +73,7 @@ h2. What does 'extend self' do ?
 
 A module can have instance methods and class methods. 
 
-{% highlight ruby %}
+<pre>
 module Foo
  def hi
   puts 'hi'
@@ -83,18 +83,18 @@ module Foo
   puts 'hello'
  end
 end
-{% endhighlight %}
+</pre>
 
 You already know that a module can not be instantiated. 
 
-{% highlight ruby %}
+<pre>
 f = Foo.new
 unndefined method ‘new’ for Foo:Module
-{% endhighlight %}
+</pre>
 
 However you can invoke a class method directly on a module. Invoking an instance method will raise error.
 
-{% highlight ruby %}
+<pre>
 module Foo
  def hi
   puts 'hi'
@@ -109,11 +109,11 @@ end
 Foo.hello #=> 'hello'
 
 Foo.hi #=> undefined method ‘hi’ for Foo:Module
-{% endhighlight %}
+</pre>
 
 You can see that invocation of instance method <tt>hi</tt> resulted in a error. What is the solution to this problem. Solution is <tt>extend self</tt>. Inside the module self is the module Foo itself and if that module is extended then the instance methods become directly available on Foo object.
 
-{% highlight ruby %}
+<pre>
 module Foo
  def hi
   puts 'hi'
@@ -129,11 +129,11 @@ end
 Foo.hello #=> 'hello'
 
 Foo.hi #=> 'hi'
-{% endhighlight %}
+</pre>
 
 In the above case <tt>extend self</tt> was added and both the methods 'hi' and 'hello' worked fine. Back to the main topic. The inflector code is this
 
-{% highlight ruby %}
+<pre>
 module ActiveSupport
   module Inflector
     extend self
@@ -156,14 +156,14 @@ module ActiveSupport
 
   end
 end
-{% endhighlight %}
+</pre>
 
 In the script/console try this
 
-{% highlight ruby %}
+<pre>
 >> ActiveSupport::Inflector.pluralize('cat')
 => "cats"
-{% endhighlight %}
+</pre>
 
 
 Notice that 'Inflector' is a module and method <tt>pluralize</tt> is an instance method. Invocation of instance method on a module results in error. However in this case <tt>extend self</tt> was done so that instance methods are directly available to the module. 
@@ -176,7 +176,7 @@ You will notice that the default rule to add 's' to add any string is defined at
 
 In this case <tt>inflections.rb</tt> is like a configuration file. The class that will read this file is a good candidate for singleton. You don't want two instances of a class to read a configuration file. In this case methods <tt>plural, singular, irregular and uncountable</tt> are being called on <tt> Inflector.inflections</tt>. 
 
-{% highlight ruby %}
+<pre>
 def inflections
   if block_given?
     yield Inflections.instance
@@ -184,7 +184,7 @@ def inflections
     Inflections.instance
   end
 end
-{% endhighlight %}
+</pre>
 
 As you can see method <tt>inflections</tt> returns <tt>Inflections.instance</tt>.  Class Inflections has <tt>include Singleton</tt> and hence every single time <tt>Inflections.instance</tt> is called same instance of the class is returned.
 
@@ -193,26 +193,26 @@ h2. Changing the singular/plural rule
 
 Changing the rule of how singular or plural value is calculated is pretty easy.
 
-{% highlight ruby %}
+<pre>
 ActiveSupport::Inflector.inflections do |inflect|
     inflect.irregular 'car', 'carz'
 end
-{% endhighlight %}
+</pre>
 
 Add another rule for 'car'.
 
-{% highlight ruby %}
+<pre>
 ActiveSupport::Inflector.inflections do |inflect|
     inflect.irregular 'car', 'carz'
     inflect.irregular 'car', 'carzz'
 end
-{% endhighlight %}
+</pre>
 
 In script/console
 
-{% highlight ruby %}
+<pre>
 >> 'car'.pluralize
 => "carzz"
-{% endhighlight %}
+</pre>
 
 You can see that the rules that are defined at the top are overridden by the rules defined below them. Just keep that in mind if you are changing the rule. <br />

@@ -6,21 +6,21 @@ __Following code has been tested with jQuery 1.3 .__
 
 Let's say that I have bound all the links to display an alert.
 
-{% highlight js %}
+<pre>
 $('a').bind('click',function(e){
   e.preventDefault();
   alert('clicked');
 });
-{% endhighlight %}
+</pre>
 
 Mine is a large application and a co-worker has added another javascript file which does this
 
-{% highlight js %}
+<pre>
 $('a').bind('click',function(e){
   e.preventDefault();
   alert('hello');
 });
-{% endhighlight %}
+</pre>
 
 Now if I click on a link I get two alerts. Not good. One way to debug would be to go through all the included javascript files.
 
@@ -28,19 +28,19 @@ However it would be cool if there is a way to find all the click handlers associ
 
 jQuery has "data method":http://docs.jquery.com/Internals/jQuery.data which it uses internally to store information. jQuery uses data method to store all the handlers associated with an element. We could use this information to our advantage. Here I am trying to find out all the click handlers associated with the first link.
 
-{% highlight js %}
+<pre>
 var output = jQuery.data($('a').get(0),'events');
 
 jQuery.each(output.click, function(key,value){
  alert(value);
 });
-{% endhighlight %}
+</pre>
 
 The output looks like this
 
-{% highlight js %}
+<pre>
 function (e) { e.preventDefault(); alert("clicked"); }
 function (e) { e.preventDefault(); alert("hello"); }
-{% endhighlight %}
+</pre>
 
 jQuery.data method is also very useful if you want to store some information about an element. For example, in an application you need to store information about people. In the html page you are only displaying names. And when a name is clickd then you want to display age, hometown and the company they work for. You can store information about each user using jQuery.data and you can retrieve it when user name is clicked.<br />

@@ -6,14 +6,14 @@ h2. How does Rails handle exceptions
 
 Rails exception handling depends on two factors and we are going to discuss both of them here.
 
-{% highlight ruby %}
+<pre>
 # ~/lib/action_controller/rescue.rb
 if consider_all_requests_local || local_request?
   rescue_action_locally(exception)
 else
   rescue_action_in_public(exception)
 end
-{% endhighlight %}
+</pre>
 
 When exceptions are handled by rescue_action_locally then we get to see the page with stacktrace. When exceptions are handled by rescue_action_in_public, we get to see the public/500.html or an error page matching the error code.
 
@@ -23,13 +23,13 @@ h2. consider_all_requests_local
 
 consider_all_requests_local is a class level variable for ActionController::Base . We hardly pay attention to it but it is configured through files residing in config/environments
 
-{% highlight ruby %}
+<pre>
 # config/environments/development.rb
 config.action_controller.consider_all_requests_local = true
 
 # config/environments/production.rb
 config.action_controller.consider_all_requests_local = false
-{% endhighlight %}
+</pre>
 
 As you can see in development environment all the requests are considered local. 
 
@@ -37,9 +37,9 @@ h2. I have overridden the method local_request? but I am still not able to see p
 
 That is a common question I see in the mailing list. As you can see the condition to decide how to handle exception is
 
-{% highlight ruby %}
+<pre>
 if consider_all_requests_local || local_request?
-{% endhighlight %}
+</pre>
 
 In development environment consider_all_requests_local is always true as I showed before. Since one of the conditions is true Rails always handles the exception using rescue_action_locally .
 
@@ -54,7 +54,7 @@ Recently I started using hoptoad and I needed to test how hoptoad will handle ex
 
 Then I stick following file under config/initializers
 
-{% highlight ruby %}
+<pre>
 # config/initializers/local_request_override.rb
 module CustomRescue
   def local_request?
@@ -66,7 +66,7 @@ end
 ActionController::Base.class_eval do
   include CustomRescue
 end
-{% endhighlight %}
+</pre>
 
 Now all request in production or in staging mode are treated as NOT local.
 

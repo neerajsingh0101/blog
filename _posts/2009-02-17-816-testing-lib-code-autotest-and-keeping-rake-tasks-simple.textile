@@ -5,7 +5,7 @@ title: Testing lib code , autotest and keeping rake tasks simple
 
 I like to keep my rake tasks as simple as possible. Here is one of my rake tasks.
 
-{% highlight ruby %}
+<pre>
 # lib/tasks/alert.rake
 namespace :alert do
   task :run => :environment do
@@ -17,26 +17,26 @@ namespace :alert do
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 That's it. The main code is <tt>Alert.run</tt> .
 
 The main reason why I do that is to be able to test my code as easily as possible. <tt>alert_util.rb</tt> resides at lib directory and the code might look like this.
 
-{% highlight ruby %}
+<pre>
 # lib/alert_util.rb
 class AlertUtil
   def self.run
     # ..
   end
 end
-{% endhighlight %}
+</pre>
 
 h2. How to test code residing in lib
 
 I like to create a directory called lib under test which is where I put all the test code for lib directory. Under test/lib I created a file called <tt>alert_util_test.rb</tt> . This is what the test file might look like
 
-{% highlight ruby %}
+<pre>
 # test/lib/alert_util_test.rb
 require File.expand_path(File.dirname(__FILE__) + "/../test_helper")
 
@@ -55,7 +55,7 @@ class AlertUtilTest < ActiveSupport::TestCase
   end
 
 end
-{% endhighlight %}
+</pre>
 
 h2. Making autotest pick up files from test/lib
 
@@ -63,13 +63,13 @@ I have written a test which is working fine. However there is a problem. I use "
 
 To tell autotest to pick up files from test/lib add following lines in .autotest residing at your default home directory.
 
-{% highlight ruby %}
+<pre>
 # ~/.autotest
 Autotest.add_hook :initialize do |at|
   at.add_mapping %r%^test/(lib)/.*rb$% do |filename, _|
     filename
   end
 end
-{% endhighlight %}
+</pre>
 
 Now I have accomplished two things. I have test for my content residing in lib and I have configured autotest to pick up tests written for lib files. <br />

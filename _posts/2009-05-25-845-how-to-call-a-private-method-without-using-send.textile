@@ -6,7 +6,7 @@ In Ruby one can invoke a private or protected method by calling <tt>send</tt>. H
 
 However I started thinking about what are the other ways of calling private method. I came up with three solutions.
 
-{% highlight ruby %}
+<pre>
 class Car
   
   private
@@ -33,6 +33,6 @@ c.honk
 class << c
   private :honk
 end
-{% endhighlight %}
+</pre>
 
 If anyone knows of any other solution then please post it in comments. <br />

@@ -4,20 +4,20 @@ title: merging of two hashes with conditions
 ---
 I have two hashes which need to be merged.
 
-{% highlight ruby %}
+<pre>
 h1 = {:a => 100, :b => 200, :c => 300, :d => 400}
 h2 = {:a => 10, :b => 20, :c => 301, :d => 401}
-{% endhighlight %}
+</pre>
 
 The requiremrnt is that for the same key the higher value from the two hashes need to be picked up. 
 
 The update method of hash takes a block and it will pass the key and value from each of the hashes for our usage. 
 
-{% highlight ruby %}
+<pre>
 h3 = h1.update(h2) { |k,v1,v2|  v1 > v2 ? v1 : v2}
 
 puts h3.inspect
 
-{% endhighlight %}
+</pre>
 
 This is a neat feature which I wasn't aware of until now.

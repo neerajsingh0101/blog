@@ -8,27 +8,27 @@ One such case could be when you want to use link_to method in controller. link_t
 
 One easy way is to include that class file in controller like this.
 
-{% highlight ruby %}
+<pre>
 # environment.rb
 include ActionView::Helpers::UrlHelper 
-{% endhighlight %}
+</pre>
 
 Life is good but soon you need pluralize method in your controller and slowly the include files might look like this.
 
-{% highlight ruby %}
+<pre>
 # environment.rb
 include ActionView::Helpers::UrlHelper 
 include ActionView::Helpers::SanitizeHelper 
 include ActionView::Helpers::TextHelper 
 include ActionView::Helpers::DebugHelper
 include ActionView::Helpers::TagHelper
-{% endhighlight %}
+</pre>
 
 This is not good.
 
 I came across this post from "Hungry Machine" and he has posted an "excellent solution":http://blog.hungrymachine.com/2008/8/7/using-helpers-in-a-controller-with_helpers .
 
-{% highlight ruby %}
+<pre>
 ActionController::Base.class_eval do
   def with_helpers(&block)
     template = ActionView::Base.new([],{},self)
@@ -40,11 +40,11 @@ ActionController::Base.class_eval do
     template.instance_eval(&block)
   end
 end
-{% endhighlight %}
+</pre>
 
 Usage 
 
-{% highlight ruby %}
+<pre>
 class MyController < ApplicationController
   def my_action
     @person = Person.find(params[:id])
@@ -52,7 +52,7 @@ class MyController < ApplicationController
     person_path(@person)) }
   end
 end
-{% endhighlight %}
+</pre>
 
 This is an excellent solution. Now we don't need to include anything in enviroment.rb .
 

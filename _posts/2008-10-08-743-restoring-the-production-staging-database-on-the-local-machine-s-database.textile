@@ -12,13 +12,13 @@ After following the cumbersome way of downloading the data, I decided to write a
 
 This is how I execute the cap task
 
-{% highlight sh %}
+<pre>
 cap production db:restore_local
-{% endhighlight %}
+</pre>
 
 The capistrano task is really simple.
 
-{% highlight ruby %}
+<pre>
 namespace :db do
 desc 'will create a backup on the server and then will download and will insert the data in local database'
   task :restore_local do
@@ -28,13 +28,13 @@ desc 'will create a backup on the server and then will download and will insert 
     system("rake db:restore file='#{timestamp}.sql.gz'")             
   end
 end
-{% endhighlight %}
+</pre>
 
 The cap task invokes two other rake tasks:
 
-{% highlight ruby %}
+<pre>
 rake db:backup timestamp=xyz
 rake db:restore file=xyx.sql.gz
-{% endhighlight %}
+</pre>
 
 If you want to take a look at the rake tasks then hop over to "roll_my_blog":http://github.com/neerajdotname/roll_my_blog/tree/master and you can see the code for cap and rake tasks.

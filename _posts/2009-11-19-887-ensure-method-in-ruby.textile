@@ -4,7 +4,7 @@ title: ensure method in ruby
 ---
 Here is code.
 
-{% highlight ruby %}
+<pre>
 def hello
     yield
   ensure
@@ -13,17 +13,17 @@ def hello
 end
 
 puts hello { puts 'world'; false }
-{% endhighlight %}
+</pre>
 
 I thought if I call hello method then the final returned value will be true. The common ruby convention is that last value gets returned. In this case the very last value is true so I was expecting true to be the returned value.
 
 If I execute above code this will be the output.
 
-{% highlight sh %}
+<pre>
 world
 in ensure block
 false
-{% endhighlight %}
+</pre>
 
 Question is why the final output is false and not true ?
 
@@ -38,7 +38,7 @@ Once again if you are using explicit return statement in ensure block then excep
 
 What could be a good candidate for ensure. It depends on business problem but "here is a one usage":http://matthewbass.com/2009/11/18/time-zone-warp/ .
 
-{% highlight ruby %}
+<pre>
 def pretend_zone_is(zone)
   original_zone = Time.zone
   begin
@@ -48,4 +48,4 @@ def pretend_zone_is(zone)
     Time.zone = original_zone
   end
 end
-{% endhighlight %}
+</pre>

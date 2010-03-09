@@ -4,25 +4,25 @@ title: jQuery edge  delegate method has arrived
 ---
 One of the issues with live method is that live method first searches through all the elements then throws away the result.
 
-{% highlight js %}
+<pre>
 $('p').live('click', function({})
-{% endhighlight %}
+</pre>
 
 In the above case jQuery does nothing with the selected <tt>p</tt> elements. Since the result does not really matter, it is a good idea to remove such codes from the <tt>document ready</tt> callbacks list.
 
 So instead of doing this 
 
-{% highlight js %}
+<pre>
 $(function(){
 $('p').live('click', function({})
 })
-{% endhighlight %}
+</pre>
 
 just do this
 
-{% highlight js %}
+<pre>
 $('p').live('click', function({})
-{% endhighlight %}
+</pre>
 
 h2. Going a step further
 
@@ -30,28 +30,28 @@ John just landed "this commit which adds delegate":http://github.com/jquery/jque
 
 Html markup
 
-{% highlight sh %}
+<pre>
 <div id='lab'>
   <p>p inside lab</p>
 </div>
 <p>p outside lab</p>
-{% endhighlight %}
+</pre>
 
 If you want to track all the clicks on p then you could write like this.
 
-{% highlight js %}
+<pre>
 $(document).delegate('p','click', function(){
   log('p was clicked');
 });
-{% endhighlight %}
+</pre>
 
 However if you only want to track clicks on 'p' which are inside the id <tt>lab</tt> then you can write like this.
 
-{% highlight js %}
+<pre>
 $('#lab').delegate('p','click', function(){
   log('p was clicked');
 });
-{% endhighlight %}
+</pre>
 
 Note this functionality is in jQuery edge and is not available in jQuery 1.4.1. So you will have to get jQuery code from github to play with it.
 

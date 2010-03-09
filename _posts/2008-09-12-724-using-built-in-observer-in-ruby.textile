@@ -4,7 +4,7 @@ title: Using built in observer in ruby
 ---
 Developers love to build things. And it is not too difficult to implement the Observer pattern. But why bother. Ruby has built in support. This was the first time I needed to use observer pattern and I was surprised at how easy it is to use. Here is a quick test.
 
-{% highlight ruby %}
+<pre>
 require 'observer'
 
 class Animal
@@ -32,4 +32,4 @@ end
 dog.add_observer(Watch)
 
 dog.speaks
-{% endhighlight %}
+</pre>

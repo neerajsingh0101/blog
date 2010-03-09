@@ -4,28 +4,28 @@ title: ActiveRecord  Base.connection.quote
 ---
 In constructing some of the complex queries I neeed to convert the time object into mysql datetime format. We also know that such values should be in single quote in the sql statements. So I created a small util.
 
-{% highlight ruby %}
+<pre>
   def db_format(time)
     "'#{time.to_s(:db)}'"
   end
-{% endhighlight %}
+</pre>
 
 Today I discovered that ActiveRecord already has such a utility which does this and much more. Check this out.
 
-{% highlight ruby %}
+<pre>
 >> t = Time.now
 => Thu Apr 24 00:05:43 -0400 2008
 >> ActiveRecord::Base.connection.quote(t)
 => "'2008-04-24 00:05:43'"
-{% endhighlight %}
+</pre>
 
 So the modified code becomes
 
-{% highlight ruby %}
+<pre>
   def db_format(time)
     ActiveRecord::Base.connection.quote(time)
   end
-{% endhighlight %}
+</pre>
 
 
 Not a big deal but the rails code also takes care of database specific things. So if a different database server has a different quoting scheme then the new code will work just fine. Secondly it's also a good idea to pass on as much work as possible to the framework. After all many eyes are watching the framework.

@@ -4,7 +4,7 @@ title: How hash works with block in ruby
 ---
 There are many different implementations of Fibonacci series in Ruby. One implementation is this.
 
-{% highlight ruby %}
+<pre>
 fibs = Hash.new do |hash,key|
   if key < 2
     hash[key] = 1
@@ -26,7 +26,7 @@ end
 34
 55
 89
-{% endhighlight %}
+</pre>
 
 Ruby is full of surprises and this is one of them. Look at the api for Hash. It will mention that Hash can accept a block. But the api leaves out something very important without which understanding the above code is difficult.
 

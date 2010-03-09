@@ -4,7 +4,7 @@ title: has_many association behind the scene action
 ---
 Rails is cool. However nothing impresses people more than showing code like this.
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
    has_many :cars
 end
@@ -12,17 +12,17 @@ end
 class Car < ActiveRecord::Base
    belongs_to :user
 end
-{% endhighlight %}
+</pre>
 
 That's it. Now we can enjoy features like this.
 
-{% highlight ruby %}
+<pre>
 @user.cars
 @user.cars.size
 @user.cars << @new_car
 
 @car.user.name
-{% endhighlight %}
+</pre>
 
 Let's try to understand the magic that is happening behind the scene.
 
@@ -30,16 +30,16 @@ Let's start from the very beginning. I am using Rails2.0.2 ( stable release as o
 
 Let's create two models.
 
-{% highlight ruby %}
+<pre>
 ruby script/generate model User name:string
 ruby script/generate model Car color:string user_id:integer
 
 rake db:migrate
-{% endhighlight %}
+</pre>
 
 Make following changes to the models 
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
    has_many :cars
 end
@@ -47,24 +47,24 @@ end
 class Car < ActiveRecord::Base
    belongs_to :user
 end
-{% endhighlight %}
+</pre>
 
 Let's create a few records.
 
-{% highlight ruby %}
+<pre>
 ruby script/console
 > User.create(:name => 'John')
 > Car.create(:color => 'black', :user_id => 1 )
 > Car.create(:color => 'red', :user_id => 1 )
-{% endhighlight %}
+</pre>
 
 Now we can perform operations like
 
-{% highlight ruby %}
+<pre>
 @user = Uesr.find 1
 @user.cars
 @user.cars.size
-{% endhighlight %}
+</pre>
 
 If we want we can iterate through @user.cars and it looks like that the element is indeed an instance of car. Well in reality that is not true. Let's investigate.
 
@@ -72,7 +72,7 @@ First let's see where has_many method is defined.
 
 lib/active_record/associations.rb
 
-{% highlight ruby %}
+<pre>
 ..
 require 'active_record/associations/has_many_association'
 ..
@@ -91,28 +91,28 @@ require 'active_record/associations/has_many_association'
           collection_accessor_methods(reflection, HasManyAssociation)
         end
       end
-{% endhighlight %}
+</pre>
 
 At the very top we see that has_many_association file is being loaded. If you open up that file you will see following code.
 
-{% highlight ruby %}
+<pre>
 class HasManyAssociation < AssociationCollection #:nodoc:
 end
-{% endhighlight %}
+</pre>
 
 When we do @user.cars, we are actually getting instances of this class called "HasManyAssociation". This class is extended from "AssociationCollection". AssociationCollection in turn is extended from AssociationProxy. How can we confirm that the elements returned from @user.cars are indded instances of AssociationProxy.
 
-{% highlight ruby %}
+<pre>
 @user.cars.class 
 => Array
 # Even though @user.cars.class is saying Array that is not true. Try this
 @user.cars.proxy_target
 # Now array doesn't respond to method proxy_target
-{% endhighlight %}
+</pre>
 
 AssociationProxy has following code.
 
-{% highlight ruby %}
+<pre>
 ...
 instance_methods.each { |m| undef_method m unless m =~ /(^__|^nil\?$|^send$|proxy_)/ }
 ....
@@ -121,13 +121,13 @@ def method_missing(method, *args, &block)
             @target.send(method, *args, &block)
      end
 end
-{% endhighlight %}
+</pre>
 
 AssociationProxy removes all the instance methods by undef command. So all the method calls like @user.cars.class goes to method_missing which redirects the request to the target class.
 
 Coming back to the has_many method. Following chain of commands are executed
 
-{% highlight ruby %}
+<pre>
      ...
       create_reflection(:has_many, association_id, options, self)
      ....
@@ -142,34 +142,34 @@ Coming back to the has_many method. Following chain of commands are executed
         reflection
       end
 .......
-{% endhighlight %}
+</pre>
 
 Create_reflection returns an instance of  AssociationReflection which is a class that keeps all the information about the association. In this case we didn't pass any option however we could write a complex has_many association like this.
 
-{% highlight ruby %}
+<pre>
   has_many :safe_cars, :class_name => "Car", :conditions => "safety_rating > 10"
-{% endhighlight %}
+</pre>
 
 In such cases all the options are kept in the AssociationReflection object.
 
 
 So far has_many has not made any connection with HasManyAssociation. That is done in the last line.
 
-{% highlight ruby %}
+<pre>
           collection_accessor_methods(reflection, HasManyAssociation)
-{% endhighlight %}
+</pre>
 
 Because of has_many association we get car_ids method.
 
-{% highlight ruby %}
+<pre>
 @user = User.find :first
 @user.car_ids
 > [1,2]
-{% endhighlight %}
+</pre>
 
 How did Rails generate car_ids method for us. The answer lies in the following code.
 
-{% highlight ruby %}
+<pre>
 def collection_accessor_methods(reflection, association_proxy_class, writer = true)
 ...
 define_method("#{reflection.name.to_s.singularize}_ids") do
@@ -177,26 +177,26 @@ define_method("#{reflection.name.to_s.singularize}_ids") do
 end
 ....
 
-{% endhighlight %}
+</pre>
 
 This is how Rails magically generates bunch of methods automatically. There are a lot more methods being generated here which I have not mentioned.
 
 We can further refine the search on the association. For example we can do
 
-{% highlight ruby %}
+<pre>
 @user.cars.find(:all, :conditions => "user_id = 2")
-{% endhighlight %}
+</pre>
 
 This is great. However there is a big problem. We know that @user.cars is not actually an array but AssociationProxy and because of that we can use plenty of other methods for free. For example we can do this.
 
-{% highlight ruby %}
+<pre>
 @user = User.find 1
 @user.cars << Car.new(:color => 'green')
  # if you look at the newly added car record it will have user_id value as 5. This is because of has_many assciation. However try this
 
 @user.cars.find(:all) << Car.new(:color => 'yellow')
 # no record will be inserted
-{% endhighlight %}
+</pre>
 
 Why no record was inserted in the second case. Because the final result from find(:all) is a real collection of  car instances in an array and it is not AssociationProxy. Yes that's a bit weird but that's true. Even though @user.cars returns AssociationProxy @user.cars.find(:all) doesn't return AssociationProxy.
 

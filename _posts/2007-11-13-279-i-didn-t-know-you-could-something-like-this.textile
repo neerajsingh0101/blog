@@ -2,7 +2,7 @@
 layout: post
 title: I didn't know you could something like this
 ---
-{% highlight ruby %}
+<pre>
 if event_date >= today
         @todays_events
 elsif event_date == yesterday
@@ -11,11 +11,11 @@ else
         @events
 end << event
 
-{% endhighlight %}
+</pre>
 
 rather than doing
 
-{% highlight ruby %}
+<pre>
 if event_date >= today
         @todays_events << event
 elsif event_date == yesterday
@@ -23,7 +23,7 @@ elsif event_date == yesterday
 else
         @events << event
 end 
-{% endhighlight %}
+</pre>
 
 
 Picked up from the source code of <a href="http://mephistoblog.com/">Mephisto</a>.

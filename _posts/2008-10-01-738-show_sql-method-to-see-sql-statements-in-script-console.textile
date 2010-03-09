@@ -5,9 +5,9 @@ title: show_sql method to see sql statements in script/console
 
 ruby script/console is a great utility. However when you perform an operation like 
 
-{% highlight ruby %}
+<pre>
 User.first
-{% endhighlight %}
+</pre>
 
 I would like to see the sql being generate right on the console rather going to the log file to see the sql.
 
@@ -25,9 +25,9 @@ I put above code as an initializer in all the projects. Now anytime in script/co
 If you are running edge rails then "Pratik has posted a fix":http://m.onkey.org/2008/9/15/active-record-tips-and-tricks
 
 
-{% highlight ruby %}
+<pre>
 def log_to(stream=$stdout)
   ActiveRecord::Base.logger = Logger.new(stream)
   ActiveRecord::Base.connection_pool.clear_reloadable_connections!
 end
-{% endhighlight %}
+</pre>

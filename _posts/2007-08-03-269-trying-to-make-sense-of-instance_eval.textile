@@ -4,18 +4,18 @@ title: Trying to make sense of instance_eval
 ---
 Let's start with a simple case. We are going to invoke a block and we will pass two variables to the block.
 
-{% highlight ruby %}
+<pre>
 class Movie
   attr_accessor :type,:price
   def info
     yield(self.type,self.price)
   end
 end
-{% endhighlight %}
+</pre>
 
 Let's call the method info.
 
-{% highlight ruby %}
+<pre>
 >> @movie = Movie.new
 => #<Movie:0x47ca020>
 >> @movie.type = 'Drama'
@@ -24,24 +24,24 @@ Let's call the method info.
 => 19.95
 >> @movie.info {|t,p| puts "I am a #{t} movie and I cost #{p}"}
 I am a Drama movie and I cost 19.95
-{% endhighlight %}
+</pre>
 
 The above case is simple enough. We can also achieve the same thing using instance_eval.  As per <a href="http://www.ruby-doc.org/core/classes/Object.html#M000336">documentation </a>instance_eval is executed in the context of the caller. Let's first see the example in action and then we will try to decipher what the documentation meant.
 
 Modified code is below.
 
-{% highlight ruby %}
+<pre>
 class Movie
   attr_accessor :type,:price
   def info(&script)
     instance_eval(&script)
   end
 end
-{% endhighlight %}
+</pre>
 
 Let's play with the above code:
 
-{% highlight ruby %}
+<pre>
 >> @movie = Movie.new
 => #<Movie:0x47cf958>
 >> @movie.type = 'Drama'
@@ -50,7 +50,7 @@ Let's play with the above code:
 => 19.95
 >> @movie.info {"I am  a #{self.type} movie and I cost #{self.price}"}
 => "I am  a Drama movie and I cost 19.95"
-{% endhighlight %}
+</pre>
 
 The  difference is that in this case the block is passed to the info method. The block already knows that the object invoking this block will have the instance method @type and @price.  This is where the power of instance_eval emerges. We can create an independent block of code. But the block of code will be executed in the context of the object invoking the block.
 
@@ -60,7 +60,7 @@ In <a href="http://neeraj.name/2007/01/31/ruby-class_eval-in-detail/">this blog<
 
 Here we are adding an instance method and a slass method to the class Movie.
 
-{% highlight ruby %}
+<pre>
 Movie.class_eval do
    def foo  #this is instance method
       puts 'this is method foo'
@@ -73,35 +73,35 @@ Movie.class_eval do
    end
 end
 
-{% endhighlight %}
+</pre>
 
 Below we are adding a class method using instance_eval.
 
-{% highlight ruby %}
+<pre>
 Movie.instance_eval do
   def foo
     puts 'this is method foo'
   end
 end
-{% endhighlight %}
+</pre>
 
 Question is why the method 'foo' is a class method while the similar code for class_eval produced instance method. The answer is given in the documentation when it mentioned that the block is executed in the context of self. So the above code is internally interpreted as "def self.foo" and that produces a class method.
 
 Let's say that we have an instance of Movie class and we apply the same logic to that instance.
 
-{% highlight ruby %}
+<pre>
 @movie.instance_eval do 
   def bar
     puts "method bar"
   end
 end
-{% endhighlight %}
+</pre>
 
 Above code is creating <a href="http://www.wobblini.net/singletons.html">singleton</a> method that is only available to this instance of @movie.
 
 Finally let's see another usage of instance_eval.
 
-{% highlight ruby %}
+<pre>
 class Movie
 
   attr_accessor :type,:price
@@ -111,16 +111,16 @@ class Movie
   end
   
 end
-{% endhighlight %}
+</pre>
 
 We are passing a block to initialize method. It means we can pass a block to create an instance.
 
-{% highlight ruby %}
+<pre>
 @movie = Movie.new do
   self.type = 'Drama'
   self.price = 19.95
 end
-{% endhighlight %}
+</pre>
 
 
 <h5>Reference</h5>

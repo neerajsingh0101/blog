@@ -12,7 +12,7 @@ This is what <a href="http://rubyhacker.com/">'Ruby way second edition'</a> has 
 
 The above definition didn't help me either. Later in the book author provides an interesting example that provides the foundation for the understanding of this complex issue.
 
-{% highlight ruby %}
+<pre>
 class Person
   attr_reader :name,:age
   protected :age
@@ -32,7 +32,7 @@ p2 = Person.new("John",23)
 puts p2 <=> p1 #=> 1
 puts p1.age #=> throws exception NoMethodError: protected method `age' called. Why?
 
-{% endhighlight %}
+</pre>
 
 
 
@@ -50,18 +50,18 @@ Now let's look at p1.age. When p1.age is excecuted 'self' is default Object inst
 
 For a while I thought inside the age method self is same an instance of Person class and things should work just fine. But I guess David was trying to say before we call the method the self should be the rule he mentioned above. So there is no need to go inside the method age. Before we call the method age anywhere just do <code>self.class.to_s</code> and you will see what self is. I added one line to put self.class.to_s inside <=> method.
 
-{% highlight ruby %}
+<pre>
     def <=>(other)
 	puts self.class.to_s #newly added line
         age <=> other.age
     end
-{% endhighlight %}
+</pre>
 
 The result was Person. So that's good. Now let's start irb and see what we get. 
 
-{% highlight ruby %}
+<pre>
 irb(main):001:0> self.class.to_s
 => "Object"
-{% endhighlight %}
+</pre>
 
 In this case we get the default Object as self.  Now  I understand why p1.age failed while the comparison method inside the class Person worked. Thanks David. Thanks Hal.

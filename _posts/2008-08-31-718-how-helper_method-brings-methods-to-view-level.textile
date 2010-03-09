@@ -4,7 +4,7 @@ title: How helper_method brings methods to view level
 ---
 In Rails we can do things like
 
-{% highlight ruby %}
+<pre>
 class ApplicationController < ActionController::Base
   helper_method :current_user, :logged_in?
 
@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
      current_user != nil
    end
 end
-{% endhighlight %}
+</pre>
 
 And now the methods current_user and logged_in? can be used anywhere in the view. This is good.
 
@@ -24,16 +24,16 @@ Question is how does Rails implement this behavior?
 
 In actionpack gem at lib/action_controller/helpers.rb we have following code:
 
-{% highlight ruby %}
+<pre>
 def self.included(base)
    base.class_inheritable_accessor :master_helper_module
    base.master_helper_module = Module.new
 end
-{% endhighlight %}
+</pre>
 
 As we saw above master_helper_module is a Module and it is this module in which helper methods would be defined. Given below is the definition of the method helper_method
 
-{% highlight ruby %}
+<pre>
 def helper_method(*methods)
   methods.flatten.each do |method|
     master_helper_module.module_eval <<-end_eval
@@ -43,11 +43,11 @@ def helper_method(*methods)
     end_eval
   end
 end
-{% endhighlight %}
+</pre>
 
 Now we have the master_helper_module with the helper_method. All we need to do it to attach this module to ActionView somehow. And that is done here.
 
-{% highlight ruby %}
+<pre>
 # lib/action_controller/base.rb
 def initialize_template_class(response)
   response.template = ActionView::Base.new(self.class.view_paths, {}, self)
@@ -55,7 +55,7 @@ def initialize_template_class(response)
   response.redirected_to = nil
   @performed_render = @performed_redirect = false
 end
-{% endhighlight %}
+</pre>
 
 
 In the above code when the template is being initialized then an instance of ActionView:Base is create. And then that template extends the master_helper_module.

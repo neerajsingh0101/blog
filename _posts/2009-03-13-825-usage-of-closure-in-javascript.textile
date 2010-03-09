@@ -9,7 +9,7 @@ h2. Example1: Getting digit name
 
 The goal is to read from an array and display the result. The first implementation is to put everything in Global namespace.
 
-{% highlight js %}
+<pre>
 var names = ['zero', 'one', 'two', 'three', 'four', 'five'];
 
 var digit_name = function(n) {
@@ -17,7 +17,7 @@ var digit_name = function(n) {
 };
 
 alert(digit_name(3)); // 'three'
-{% endhighlight %}
+</pre>
 
 Above solution works. However creating a global variable <tt>names</tt> is not a good thing. You should create as less global variables as possible.
 
@@ -26,19 +26,19 @@ Above solution works. However creating a global variable <tt>names</tt> is not a
 
 Next step is to move the code to a function. In this case we will not have any global variable.
 
-{% highlight js %}
+<pre>
 var digit_name = function(n){
   var names = ['zero', 'one', 'two', 'three', 'four', 'five'];  
   return names[n];
 };
 alert(digit_name(3));
-{% endhighlight %}
+</pre>
 
 The above solution is very slow. Every single time the function is called the whole array is loaded. This solution works and most of the developers will settle with this one. However Closure can provide a better solution.
 
 <strong>Better solution with Closure</strong>
 
-{% highlight js %}
+<pre>
 var digit_name = function(){
   var names = ['zero', 'one', 'two', 'three', 'four', 'five'];  
   
@@ -47,7 +47,7 @@ var digit_name = function(){
   };
 }();
 alert(digit_name(3));
-{% endhighlight %}
+</pre>
 
 Note that at after declaring the function the function is also getting invoked. This is a case of self invoking function. You can find out more bout self invoking function "here":http://www.neeraj.name/blog/articles/821-understanding-jquery-plugin-pattern-and-self-invoking-javascript-function . 
 
@@ -56,7 +56,7 @@ h2. Example2: Getters and Setters
 
 Developers deal with getters and setters all the time. However creating a good getter and setter could be a little tricky. Here is one implementation
 
-{% highlight js %}
+<pre>
 
 function Field(val){
     var value = val;
@@ -76,13 +76,13 @@ field.value
 field.setValue("test2")
 field.getValue()
 // => "test2"
-{% endhighlight %}
+</pre>
 
 Above solution works and it's nicely done. 
 
 Let's look at another implementation.
 
-{% highlight js %}
+<pre>
 var getValue, setValue; 
 (function() { 
   var secret = 0; 
@@ -96,13 +96,13 @@ var getValue, setValue;
 
 setValue('foo');
 getValue(); // foo
-{% endhighlight %}
+</pre>
 
 
 
 h2. Example3: Building an iterator using Javascript
 
-{% highlight js %}
+<pre>
 function custome_iterator(x) { 
   var i = 0; 
   return function(){ 
@@ -115,7 +115,7 @@ var next = setup(['one', 'two', 'three', 'four']);
 next();
 next();
 next();
-{% endhighlight %}
+</pre>
 
 
 This is a simple case of serially iterating through the items provided but the logic of deciding next element can be complex and it can be private.

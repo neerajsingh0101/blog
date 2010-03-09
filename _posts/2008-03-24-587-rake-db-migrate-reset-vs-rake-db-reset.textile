@@ -8,7 +8,7 @@ Let's look at the source code:
 
 railties/lib/tasks/databases.rake
 
-{% highlight ruby %}
+<pre>
   namespace :migrate do
     desc 'Resets your database using your migrations for the current environment'
     task :reset => ["db:drop", "db:create", "db:migrate"]
@@ -16,7 +16,7 @@ railties/lib/tasks/databases.rake
 
   desc 'Drops and recreates the database from db/schema.rb for the current environment.'
   task :reset => ['db:drop', 'db:create', 'db:schema:load']
-{% endhighlight %}
+</pre>
 
 As the code suggests rake db:migrate:reset will drop and will create the database. But after that rails will execute rake db:migrate to build up the tables. This could be tricky since running rake db:migrate after a long time could be a little unstable.
 
@@ -26,6 +26,6 @@ It means that if you are not checking in schema.info in the repository then you 
 
 One more thing worth noting is that rake db:schema:load has limitations. It will not preserve collations, character sets and other database specific features. However one can have all the information in schema.info in sql format instead of having it in ruby format. To accomplish that use the following option in environment.rb
 
-{% highlight ruby %}
+<pre>
 # config.active_record.schema_format = :sql
-{% endhighlight %}
+</pre>

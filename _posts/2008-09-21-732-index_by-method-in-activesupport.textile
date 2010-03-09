@@ -4,8 +4,8 @@ title: index_by method in activesupport
 ---
 Let's say that you have an array of User records. You would like to convert that array into a hash where the key of the hash will be the user email address. ActiveSupport has a good utility method for that.
 
-{% highlight ruby %}
+<pre>
 users = User.all :conditions => 'id < 5'
 h = users.index_by(&:email)
 h['sample.user@example.com'] = # user record
-{% endhighlight %}
+</pre>

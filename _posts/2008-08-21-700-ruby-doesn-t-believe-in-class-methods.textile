@@ -13,15 +13,15 @@ protected_instance_methods
 
 but we do not have their counterparts. We do not have methods like
 
-{% highlight ruby %}
+<pre>
 class_methods
 private_class_methods
 protected_class_methods
-{% endhighlight %}
+</pre>
 
 It is not very difficult for Matz to implement these class methods. The reason why these methods are not there is ,in my opinion, because as "Dave Thomas":http://www.pragprog.com/screencasts/v-dtrubyom/the-ruby-object-model-and-metaprogramming says there is nothing like class methods. All methods are instance methods. A class method is nothing else but instance method for the metaclass. Check this out.
 
-{% highlight ruby %}
+<pre>
 # get the list of all instance methods
 class Person
   def foo
@@ -34,11 +34,11 @@ end
 
 puts Person.instance_methods(false) #=> foo
 puts Person.public_instance_methods(false) #=> foo
-{% endhighlight %}
+</pre>
 
 To get the list of all class methods we could do something like this
 
-{% highlight ruby %}
+<pre>
 # get the list of all class methods
 class Object
   def self.metaclass 
@@ -65,13 +65,13 @@ puts Person.metaclass.instance_methods(false)
 #bar
 #superclass
 #new
-{% endhighlight %}
+</pre>
 
 We know that class methods are nothing but instance methods on the metaclass so we walked upto the metaclass and asked for all the instance methods.
 
 We got method 'bar'.However  we also got 5 additional methods. These five methods are also available in all the metaclasses as instance methods. To cleanup the lise we can do this.
 
-{% highlight ruby %}
+<pre>
 class Object
   def self.metaclass 
     class << self
@@ -90,4 +90,4 @@ end
 
 puts Person.metaclass.instance_methods(false) - String.metaclass.instance_methods(false) 
 #=> bar
-{% endhighlight %}
+</pre>

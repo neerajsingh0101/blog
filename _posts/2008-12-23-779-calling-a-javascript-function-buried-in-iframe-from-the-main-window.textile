@@ -4,7 +4,7 @@ title: Calling a javascript function buried in iframe from the main window
 ---
 On a recent project I had a need to call a javascript function on an iframe from the main window. After googling for solution for a while I got the answer and it is working fine. I am posting the solution on my blog so that I have it handy next time I need it.
 
-{% highlight js %}
+<pre>
 <h1>Widget Demo</h1>
 
 <p>
@@ -25,6 +25,6 @@ On a recent project I had a need to call a javascript function on an iframe from
     
 </p>    
 
-{% endhighlight %}
+</pre>
 
 In the above case the main window is attempting to invoke javascript function <code>refresh_widget</code> on iframe. <br />

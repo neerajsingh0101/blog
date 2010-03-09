@@ -9,7 +9,7 @@ I would like to have a special line to be printed before a controller starts pro
 This is the simple hack I implemented.
 
 
-{% highlight ruby %}
+<pre>
 if RAILS_ENV == 'development'
 
     # this puts a marker before the start of every new controller request
@@ -26,6 +26,6 @@ if RAILS_ENV == 'development'
       end
     end
 end
-{% endhighlight %}
+</pre>
 
 This has proved to be a big help so far.

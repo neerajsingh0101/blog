@@ -6,7 +6,7 @@ In one of the Java projects  rot13 encryption needs to be implemented. People ar
 
 Well in Ruby it's easy. Here is how it can be done.
 
-{% highlight ruby %}
+<pre>
 class String
   def rot13
      self.tr("A-Ma-mN-Zn-z","N-Zn-zA-Ma-m")
@@ -16,7 +16,7 @@ end
 #Now let's use it
 s = "I love Ruby"
 encrypted_s = s.rot13
-{% endhighlight %}
+</pre>
 
 I was surprised by the tr method in Ruby String. I had never used it before. As per the doc
 

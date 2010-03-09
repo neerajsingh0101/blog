@@ -4,17 +4,17 @@ title: Use end more often in jQuery while building DOM elements
 ---
 I want to create following markup dynamically using jQuery.
 
-{% highlight sh %}
+<pre>
 <div>
   <p>
     This is p
   </p>
 </div>
-{% endhighlight %}
+</pre>
 
 Following jQuery code will do the work.
 
-{% highlight js %}
+<pre>
 $(document).ready(function() {
   var div = $('<div></div>');
   var p = $('<p></p>').text('this is p')
@@ -22,22 +22,22 @@ $(document).ready(function() {
 
   $('body').append(div);
 });
-{% endhighlight %}
+</pre>
 
 A better way to accomplish the same is presented below.
 
-{% highlight js %}
+<pre>
 $('<div></div>')
   .append('<p></p>')
     .find('p')
     .text('this is p')
     .end()
   .appendTo('body');
-{% endhighlight %}
+</pre>
 
 Using <tt>.end()</tt> you can go back one level. And you can use <tt>.end()</tt> any number of times to get out of a deeply nested tag.
 
-{% highlight js %}
+<pre>
 $('<div></div>')
   .append('<p></p>')
     .find('p')
@@ -47,4 +47,4 @@ $('<div></div>')
       .end()
     .end()
   .appendTo('body');
-{% endhighlight %}
+</pre>

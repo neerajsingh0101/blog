@@ -12,7 +12,7 @@ ActiveRecord has something called with_scope which is not associated with named_
 
 with_scope let's you add scope to a model in a very extensible manner. 
 
-{% highlight ruby %}
+<pre>
 def self.all_male
   with_scope(:find => {:conditions => "gender = 'm'"}) do
     all_active
@@ -30,7 +30,7 @@ end
 
 # User.all_male
 # SELECT * FROM "users" WHERE ((gender = 'm') AND (status = 'active')) LIMIT 1
-{% endhighlight %}
+</pre>
 
 We can see that when User.all_male is called, it internally calls all_active method and the final sql has both the conditions.
 
@@ -42,27 +42,27 @@ The best way to learn named_scope is by implementing the functionality of named_
 
 To keep it simple in the first iteration we will not support any lamba operation. We will support simple conditions feature. Here is a usage of mynamed_scope .
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   mynamed_scope :active, :conditions => {:status =>  'active'}
   mynamed_scope :male, :conditions => {:gender => 'm'}
 end
-{% endhighlight %}
+</pre>
 
 We expect following queries to provide right result.
 
-{% highlight ruby %}
+<pre>
 User.active
 User.male
 User.active.male
 User.male.active
-{% endhighlight %}
+</pre>
 
 h2. Let's implement mynamed_scope
 
 At the top of user.rb add the following lines of code
 
-{% highlight ruby %}
+<pre>
 module ActiveRecord
   module MynamedScope
     def self.included(base)
@@ -78,7 +78,7 @@ module ActiveRecord
   end
 end
 ActiveRecord::Base.send(:include, ActiveRecord::MynamedScope)
-{% endhighlight %}
+</pre>
 
 Now in script/console if we do User then the code will not blow up.
 
@@ -86,11 +86,11 @@ Next we need to implement functionalities so that mynamed_scope creates class me
 
 What we need is a class where each mynamed_scope could be stored. If 7 mynamed_scopes are defined on User then we should have a way to get reference to all those mynamed_scopes. We are going to add class level attribute myscopes which will store all the mynamed_scopes defined for that class.
 
-{% highlight ruby %}
+<pre>
 def myscopes
   read_inheritable_attribute(:myscopes) || write_inheritable_attribute(:myscopes, {})
 end
-{% endhighlight %}
+</pre>
 
 This discussion is going to be tricky. 
 
@@ -102,14 +102,14 @@ This is really crucial. Let's try one more time. In the case of User.active the 
 
 So we need a class which will store proxy_scope and proxy_options.
 
-{% highlight ruby %}
+<pre>
 class Scope
   attr_reader :proxy_scope, :proxy_options        
   def initialize(proxy_scope, options)
     @proxy_scope, @proxy_options = proxy_scope, options
   end
 end # end of class Scope
-{% endhighlight %}
+</pre>
 
 Now the question is when do create an instance of Scope class. The instance must be created at run time. When we execute User.male.active, until the run time we don't know the scope object active has to work upon. It means that User.male should return a scope and on that scope active will work upon. 
 
@@ -119,7 +119,7 @@ Also notice that proxy_scope happens to be the value of self.
 
 Base on all that information we can now write the implementation of mynamed_scope like this.
 
-{% highlight ruby %}
+<pre>
 def mynamed_scope(name,options = {})
   name = name.to_sym
   myscopes[name] = lambda { |proxy_scope| Scope.new(proxy_scope,options) }
@@ -130,11 +130,11 @@ def mynamed_scope(name,options = {})
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 At this point of time the overall code looks like this.
 
-{% highlight ruby %}
+<pre>
 module ActiveRecord
   module MynamedScope
     def self.included(base)
@@ -177,11 +177,11 @@ class User < ActiveRecord::Base
   mynamed_scope :male, :conditions => {:gender => 'm'}
 end
 
-{% endhighlight %}
+</pre>
 
 On script/console 
 
-{% highlight ruby %}
+<pre>
 >> User.active.inspect
   SQL (0.000549)    SELECT name
  FROM sqlite_master
@@ -189,7 +189,7 @@ On script/console
 
 => "#<ActiveRecord::MynamedScope::ClassMethods::Scope:0x203201c @proxy_scope=User(id: integer, gender: string, status: string, created_at: datetime, updated_at: datetime), @proxy_options={:conditions=>{:status=>"active"}}>"
 >> 
-{% endhighlight %}
+</pre>
 
 What we get is an instance of Scope. What we need is a way to call sql statement at this point of time.
 
@@ -199,7 +199,7 @@ What we need to do is to start walking through the scope graph and if the previo
 
 One way of finding if it is an scope or not is to see if it responds to find(:all). If the proxy_scope does not respond to find(:all) then keep going back because in the end User will be able to respond to find(:all) method.
 
-{% highlight ruby %}
+<pre>
 # all these two methods to Scope class
 def inspect
   load_found
@@ -208,13 +208,13 @@ end
 def load_found
   find(:all)
 end
-{% endhighlight %}
+</pre>
 
 Now in script/console you will get undefined method find. That is because find is not implemented by Scope.
 
 Let's implement method_missing.
 
-{% highlight ruby %}
+<pre>
 def method_missing(method, *args, &block)
   if proxy_scope.myscopes.include?(method)
     proxy_scope.myscopes[method].call(self)
@@ -224,7 +224,7 @@ def method_missing(method, *args, &block)
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 Statement User.active.male invokes method 'male' and since method 'male'  is not implemented by Scope, we don't want to call proxy_scope yet since this method 'male' might be a mynamed_scope. Hence in the above code a check is done to see if the method that is missing is a declared mynamed_scope or not. If it is not a mynamed_scope then the call is sent to proxy_scope for execution. Pay attention to with_scope. Because of this with_scope all calls to proxy_scope are nested.
 
@@ -235,7 +235,7 @@ delegate :with_scope,  :to => :proxy_scope
 
 At this point of time the code looks like this
 
-{% highlight ruby %}
+<pre>
 module ActiveRecord
   module MynamedScope
     def self.included(base)
@@ -297,11 +297,11 @@ class User < ActiveRecord::Base
   mynamed_scope :active, :conditions => {:status =>  'active'}
   mynamed_scope :male, :conditions => {:gender => 'm'}
 end
-{% endhighlight %}
+</pre>
 
 Let's checkout the result in script/console
 
-{% highlight sh %}
+<pre>
 >> User.active
 SELECT * FROM "users" WHERE ("users"."status" = 'active') 
 >> User.male
@@ -315,7 +315,7 @@ SELECT * FROM "users" WHERE (("users"."status" = 'active') AND ("users"."gender"
 >> User.active.count
 SELECT count(*) AS count_all FROM "users" WHERE ("users"."status" = 'active') 
 => 2
-{% endhighlight %}
+</pre>
 
 named_scope supports a lot more things than what we have shown. named_scope supports passing lambda instead of conditions and it also supports joins and extensions.
 

@@ -4,7 +4,7 @@ title: Order of format matters in respond_to block
 ---
 This is a standard Rails code. I am using Rails 2.3.5 .
 
-{% highlight ruby %}
+<pre>
 class UsersController < ApplicationController
   def index
     @users = User.all
@@ -14,11 +14,11 @@ class UsersController < ApplicationController
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 Accidentally in one of my controllers the order of formats got reversed. The altered code looks like this.
 
-{% highlight ruby %}
+<pre>
 class UsersController < ApplicationController
   def index
     @users = User.all
@@ -28,11 +28,11 @@ class UsersController < ApplicationController
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 I thought order of format declaration does not matter. I was wrong.
 
-{% highlight sh %}
+<pre>
 > curl -I http://localhost:3000/users
 HTTP/1.1 200 OK
 Connection: close
@@ -42,7 +42,7 @@ Content-Type: text/javascript; charset=utf-8
 X-Runtime: 62
 Content-Length: 2
 Cache-Control: private, max-age=0, must-revalidate
-{% endhighlight %}
+</pre>
 
 Notice the the Content-Type of in the response header is <strong>text/javascript</strong> in stead of <strong>text/html</strong> .
 

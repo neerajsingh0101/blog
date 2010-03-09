@@ -4,7 +4,7 @@ title: How to get table names and column names automatically
 ---
 Recently in a project, I had to get all the table names and the column names for each of the table for a given database.  The final code is really simple but I had to do some digging around.
 
-{% highlight ruby %}
+<pre>
 #get the table names
 tables = ActiveRecord::Base.connection.tables 
 
@@ -12,4 +12,4 @@ tables.each do |table|
        #get the column names for a given table
       columns = ActiveRecord::Base.connection.columns(table)
 end 
-{% endhighlight %}
+</pre>

@@ -7,29 +7,29 @@ If you are writing a functional test and you need to be logged in the the api is
 Most of the time once a person is logged in then we stored the user.id in session as session[:user_id] = user.id . In order to create a test environment where this person is logged in then you need to write test like this.
 
 
-{% highlight ruby %}
+<pre>
 context "testing get index" do
   setup { get :index, {}, {:user_id => 1} }
   
   should_respond_with :success
   should_render_template :index
 end
-{% endhighlight %}
+</pre>
 
 This is not pretty. Let's make it pretty.
 
-{% highlight ruby %}
+<pre>
 # test_helper.rb
 class Test::Unit::TestCase
   def login_as(user)
     @request.session[:user_id] = user ? user.id : nil
   end
 end
-{% endhighlight %}
+</pre>
 
 Now the test could be written as
 
-{% highlight ruby %}
+<pre>
 context "testing get index" do
   setup do
     login_as(user)
@@ -38,11 +38,11 @@ context "testing get index" do
   should_respond_with :success
   should_render_template :index
 end
-{% endhighlight %}
+</pre>
 
 Much better. If you need the same person to be logged in all of your test cases then call the login_as method at a higher setup level like this
 
-{% highlight ruby %}
+<pre>
 class CitiesControllerTest < ActionController::TestCase
 
   def setup
@@ -60,4 +60,4 @@ class CitiesControllerTest < ActionController::TestCase
   end
   
 end
-{% endhighlight %}
+</pre>

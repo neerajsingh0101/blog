@@ -4,11 +4,11 @@ title: How dynamic finders work in Ruby and in Rails
 ---
 Rails allows one to write code like  
 
-{% highlight ruby %}User.find_by_email("neeraj@gmail.com");{% endhighlight %}
+<pre>User.find_by_email("neeraj@gmail.com");</pre>
 
 Another version is  
 
-{% highlight ruby %}User.find_all_by_state("MD").{% endhighlight %}
+<pre>User.find_all_by_state("MD").</pre>
 
 How is it accomplished?</p>
 

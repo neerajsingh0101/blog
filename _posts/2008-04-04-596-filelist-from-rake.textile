@@ -4,24 +4,24 @@ title: FileList from Rake
 ---
 While browsing through the code for the rake method "rake log:clear" this is what I noticed.
 
-{% highlight ruby %}
+<pre>
     FileList["log/*.log"].each do |log_file|
       f = File.open(log_file, "w")
       f.close
     end
-{% endhighlight %}
+</pre>
 
 I had never seen FileList before. I looked for it in Ruby core but couldn't find it. Then I found out that FileList comes from rake.  "Here":http://rake.rubyforge.org/classes/Rake/FileList.html is the doc. FileList seems similar to "Dir.glob":http://www.ruby-doc.org/core/classes/Dir.html#M002347
 
 This is how I delete all the log files every time I start radrails on my machine. I use Dir.glob .
 
-{% highlight ruby %}
+<pre>
 require 'fileutils'
 dir = File.join('d:','dev','**','log','*.log*')
 Dir.glob(dir).each do|f| 
 	FileUtils.rm_rf(f)
 end
-{% endhighlight %}
+</pre>
 
 In the above case Dir.glob can be substituted by FileList and it will work fine as long as we add a line "require 'rake' ".
 

@@ -6,7 +6,7 @@ Previously "I blogged":http://neeraj.name/blog/articles/766-updating-rubygem-to-
 
 This is what I did to get 1.3.1 installed.
 
-{% highlight sh %}
+<pre>
 mkdir ~/sources
 cd sources
 wget http://rubyforge.org/frs/download.php/45905/rubygems-1.3.1.tgz
@@ -18,6 +18,6 @@ sudo ln -s /usr/bin/gem1.8 /usr/bin/gem
 # that's it
 > gem -v
 1.3.1
-{% endhighlight %}
+</pre>
 
  <br />

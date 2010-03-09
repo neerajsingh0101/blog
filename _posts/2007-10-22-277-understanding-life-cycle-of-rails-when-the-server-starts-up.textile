@@ -4,19 +4,19 @@ title: Understanding life cycle of Rails when the server starts up
 ---
 Let's say that any time the server starts you want to print out the migration version information from the <code>schema_info</code> table. Let's put in the code at the very beginning of the environment.rb after the boot statement.
 
-{% highlight ruby %}
+<pre>
 require File.join(File.dirname(__FILE__), 'boot')
 puts ActiveRecord::Base.connection.execute('select * from schema_info').fetch_hash['version']
 
 Rails::Initializer.run do |config|
 ......
-{% endhighlight %}
+</pre>
 
 When we start the server, we get following error message.
 
-{% highlight ruby %}
+<pre>
  in "load_missing_constant": uninitialized constant ActiveRecord (NameError)
-{% endhighlight %}
+</pre>
 
 It means the application doesn't know what <code>ActiveRecord</code> is. Let's try to find out what happens when the server is started. At what point the database connection is made.
 
@@ -24,18 +24,18 @@ It means the application doesn't know what <code>ActiveRecord</code> is. Let's t
 Assuming that apache server is at the front, apache looks for .htaccess file in the directory. All Rails applications have .htaccess file. The job of this .htaccess file ( found in public directory) is to call dispatcher. dispatcher handles all the ruby/rails related code processing.
 
 
-{% highlight ruby %}
+<pre>
 require File.dirname(__FILE__) + "/../config/environment" unless defined?(RAILS_ROOT)
-{% endhighlight %}
+</pre>
 
 Now let's hop over to environment.rb and see what happens there.
 
 First two lines  of environment.rb is 
 
-{% highlight ruby %}
+<pre>
 RAILS_GEM_VERSION = '1.2.5' unless defined? RAILS_GEM_VERSION
 require File.join(File.dirname(__FILE__), 'boot')
-{% endhighlight %}
+</pre>
 
 <h3>boot.rb</h3>
 
@@ -59,24 +59,24 @@ Up until this point nothing is loaded. We have the LOAD_PATH and thats it.
 <h3>Rails::Initializer.run </h3>
 Next in environment.rb we have following piece of code.
 
-{% highlight ruby %}
+<pre>
 Rails::Initializer.run do |config|
     # do something with the configuration object
 end
-{% endhighlight %}
+</pre>
 
 As per the documentation:The Configuration class holds all the parameters for the Initializer and ships with defaults that suites most Rails applications. 
 
 Note that the last line of boot.rb invokes the same method but in that case argument (:set_load_path) is passed. In this case no argument is being passed which means the default method (:process) is invoked. Let's look at the code.
 
-{% highlight ruby %}
+<pre>
     def self.run(command = :process, configuration = Configuration.new)
       yield configuration if block_given?
       initializer = new configuration
       initializer.send(command)
       initializer
     end
-{% endhighlight %}
+</pre>
 
 From the code it's clear that the the configuration object is yielded. After  the yield is over then
 the method process
@@ -93,18 +93,18 @@ Let's look at the process method. As per the documentation following things are 
 <li><strong>set_connection_adapters</strong>: By default Rails loads all connection adapters. However one can configure it to load only the database adapter in use to reduce the start up time. For example 
 I have following code in my environment.rb since I only want to load adapters for mysql.
 
-{% highlight ruby %}
+<pre>
 config.connection_adapters = ['mysql']
-{% endhighlight %}
+</pre>
 
 </li>
 
 <li>
 <strong>require_frameworks</strong>:  Rails by default loads  all frameworks (ActiveRecord, ActiveSupport, ActionPack, ActionMailer, and ActionWebService). I am not using ActionWebService and hence I can say 
 
-{% highlight ruby %}
+<pre>
   config.frameworks = [ :active_record,:action_controller,:action_view,:action_mailer ]  
-{% endhighlight %}
+</pre>
 
 </li>
 
@@ -114,9 +114,9 @@ config.connection_adapters = ['mysql']
 <strong>load_environment</strong>: Depending on the environment either the environments/development.rb, environments/test.rb or environments/production.rb file is read. Note that the config values set in environment.rb is overriden by values from these files read under the environments directory.
 The main piece of code here is
 
-{% highlight ruby %}
+<pre>
 eval(IO.read(configuration.environment_path), binding, configuration.environment_path)
-{% endhighlight %}
+</pre>
 
 configuration.environment_path is the absolute path to the file. In my case the value is /home/neeraj/demo_app/config/environments/development.rb
 </li>
@@ -126,10 +126,10 @@ configuration.environment_path is the absolute path to the file. In my case the 
 <li>
 <strong>initialize_database</strong>: This is where database configuration is set and after setting the database configuration, an attempt is made to connect to the database. 
 
-{% highlight ruby %}
+<pre>
 ActiveRecord::Base.configurations = configuration.database_configuration
 ActiveRecord::Base.establish_connection
-{% endhighlight %}
+</pre>
 
 Now it's clear that  before this operation takes  place any attempt to do any database operation will fail
  because the <code>ActiveRecord::Base.configurations </code> is not even populated with the values from  database.yml.
@@ -142,11 +142,11 @@ Now it's clear that  before this operation takes  place any attempt to do any da
 <li>
 <strong>initialize_framework_logging</strong>: This operation sets the logger instance previously created in the frameworks previously loaded.  Because of this operation we don't need to create logger instance inside a controller and we just start typing logger.info(''...").
 
-{% highlight ruby %}
+<pre>
       for framework in ([ :active_record, :action_controller, :action_mailer ] & configuration.frameworks)
         framework.to_s.camelize.constantize.const_get("Base").logger ||= RAILS_DEFAULT_LOGGER
       end
-{% endhighlight %}
+</pre>
 </li>
 
 
@@ -161,9 +161,9 @@ When ruby encounters 'require' statement it loads that file if the file has not 
 
 In development environment you want files to be auto loaded every time. So Rails should use 'load' . In production classes need to be cached and should not be loaded every single time, so rails should use 'require'. How does Rails manage that. Here is the answer.
 
-{% highlight ruby %}
+<pre>
       Dependencies.mechanism = configuration.cache_classes ? :require : :load
-{% endhighlight %}
+</pre>
 
 If you open up environments/development. rb you will see <code>config.cache_classes = false</code>. In environments/production.rb you will see <code>config.cache_classes = true</code> . Based on false or true value Rails uses 'require' or 'load'.
 </li>
@@ -177,14 +177,14 @@ If you open up environments/development. rb you will see <code>config.cache_clas
 
 <li><strong>initialize_framework_settings</strong>: Initialize all the loaded frameworks by sending 'setting' method to the class <code>Base</code>  of each of the frameworks.
 
-{% highlight ruby %}
+<pre>
       configuration.frameworks.each do |framework|
         base_class = framework.to_s.camelize.constantize.const_get("Base")
         configuration.send(framework).each do |setting, value|
           base_class.send("#{setting}=", value)
         end
       end
-{% endhighlight %}
+</pre>
 
 </li>
 
@@ -192,60 +192,60 @@ If you open up environments/development. rb you will see <code>config.cache_clas
 <li><strong>load_plugins</strong>: This is where plugins are loaded. All the init.rb files under vendor/plugins/* are evaluated.
 All the lib directories under vendor/plugins/* is added to the LOAD_PATH. By default plugins are loaded in alphabetical order; however you can control the order by specifying config options.
 
-{% highlight ruby %}
+<pre>
  find_plugins(configuration.plugin_paths).sort.each { |path| load_plugin path }
-{% endhighlight %}
+</pre>
 
 Let's look inside the load_plugin method.
 
-{% highlight ruby %}
+<pre>
       def load_plugin(directory)
         name = File.basename(directory)
         return false if loaded_plugins.include?(name)
         # start loading plugin
     end 
-{% endhighlight %}
+</pre>
 
 The above code explains whey when I change anything in plugin I need to restart the server. That's because the load_plugin method loads a plugin only once. If you work extensively on plugins and want the behavior to reload plugins every single time in development then this method could be overridden in your application. I haven't tested this theory though.
 </li>
 
 
 <li><strong>load_observers</strong>: Observers are loaded.
-{% highlight ruby %}
+<pre>
 ActiveRecord::Base.instantiate_observers
-{% endhighlight %}
+</pre>
 </li>
 
 
 <li>
 <strong>initialize_routing</strong>: loads routing definitions
 
-{% highlight ruby %}
+<pre>
     def initialize_routing
       return unless configuration.frameworks.include?(:action_controller)
       ActionController::Routing.controller_paths = configuration.controller_paths
       ActionController::Routing::Routes.reload
     end
-{% endhighlight %}
+</pre>
 </li>
 
 <li><strong>after_initialize</strong>: after routing configuration is loaded then rails provides a hook to do any final settings that needs to be done with the config. 
 
-{% highlight ruby %}
+<pre>
     def after_initialize
       configuration.after_initialize_block.call if configuration.after_initialize_block
     end
-{% endhighlight %}
+</pre>
 
 Where would you use it. Let's say that you have written a plugin which automatically shows tables and all its values. This is so that the admin of the site can quickly update the database. The problem is that that each application will have different way of implementing check to ensure that admin is logged in. So the strategy will be to allow the user to configure the name of the method that should be called to check if the user is admin or not. 
 
 Remember that this configuration can be done only after all the plugins are loaded otherwise the value which you want to set might not be there in the config object. The best place to pass the name of method will be after_initialize block. Here is one usage.
 
-{% highlight ruby %}
+<pre>
   config.after_initialize do
     Railmail::ActionMailer::InstanceMethods.railmail_settings[:before_filter] = [:is_user_admin?]
   end  
-{% endhighlight %}
+</pre>
 
 </li>
 </ul>

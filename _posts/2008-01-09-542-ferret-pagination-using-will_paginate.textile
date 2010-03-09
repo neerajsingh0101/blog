@@ -6,7 +6,7 @@ In Rails2.0 paginator has been removed and we should use "will_paginate":http://
 
 Create an new file called ferret_will_paginater.rb under config/initializers.
 
-{% highlight ruby %}
+<pre>
 module ActsAsFerret
   module ClassMethods
     def paginate_search(query, options = {})
@@ -20,22 +20,22 @@ module ActsAsFerret
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 In the controller the code is
 
-{% highlight ruby %}
+<pre>
 @events = Event.paginate_search ferret_query, :page => params[:page], 
           :per_page => 20      
-{% endhighlight %}
+</pre>
 
 In the view
 
-{% highlight ruby %}
+<pre>
 Total number of records: <%= @events.total_entries %>
 <% @events.each do |event| %>
    <%= event.name %>
 <% end %>
-{% endhighlight %}
+</pre>
 
 Majority of the code is picked from "here":http://opensoul.org/2007/8/17/acts_as_ferret-will_paginate . Slight changes have been made.

@@ -6,7 +6,7 @@ Since most of the ruby guys are introduced to ruby through rails, sometimes what
 
 We all know about attr_accessor which is part of ruby. Ruby does not provide anything called cattr_accessor. This is introduced in ActiveSupport gem which rails uses. Here is how you can use cattr_accessor
 
-{% highlight ruby %}
+<pre>
 require 'rubygems'
 require 'activesupport'
 
@@ -16,4 +16,4 @@ end
 
 Person.type = 'developer'
 puts Person.type
-{% endhighlight %}
+</pre>

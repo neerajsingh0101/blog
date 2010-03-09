@@ -14,7 +14,7 @@ h3. Installation
 
 Installation process is very straight forward.
 
-{% highlight ruby %}
+<pre>
 sudo gem install chronic
 
 wget http://www.sphinxsearch.com/downloads/sphinx-0.9.8-rc2.tar.gz
@@ -23,7 +23,7 @@ cd sphinx-0.9.8-rc2
 ./configure && make && sudo make install
 
 script/plugin install svn://rubyforge.org/var/svn/fauna/ultrasphinx/trunk
-{% endhighlight %}
+</pre>
 
 h3. Creating a test case
 
@@ -31,7 +31,7 @@ Searching and sorting goes hand in hand. Many times sorting needs to be done on 
 
 We will create a model and we will discuss the case.
 
-{% highlight ruby %}
+<pre>
 ruby script/generate model Mysphinx name:string body:text start_date:integer city_id:integer
 
 # In the migration we will create three records
@@ -41,11 +41,11 @@ ruby script/generate model Mysphinx name:string body:text start_date:integer cit
                     :start_date => 20090401 , :city_id => 20)    
     Mysphinx.create(:name => 'java', :body => 'java and neeraj are clumsy', 
                     :start_date => 20090402 , :city_id => 21)
-{% endhighlight %}
+</pre>
 
 h3. configuration files and deamons
 
-{% highlight ruby %}
+<pre>
 #create the directory
 mkdir config/ultrasphinx
 
@@ -82,7 +82,7 @@ rake ultrasphinx:index RAILS_ENV=staging
 rake ultrasphinx:daemon:start RAILS_ENV=staging
 
 
-{% endhighlight %}
+</pre>
 
 make sure that the daemon is started when mongrel is already up and running.  I had put sphins daemon as the first process to run after stopping all processes and sphinx was failing. So I changed the order and started mongrel first and then I started sphinx daemon.
 
@@ -91,12 +91,12 @@ h3. Searching
 
 Let's get started. Let's do a simple search.
 
-{% highlight ruby %}
+<pre>
 ruby script/console staging
 >> sphinx_options = {:query => ''}
 >> Ultrasphinx::Search.new(sphinx_options).run.size 
 => 20
-{% endhighlight %}
+</pre>
 
 I had 20 records and I got all the records. It means sphinx and ultrasphinx are playing well. If you run into any issue at this stage then go back and try to resolve it.
 
@@ -104,32 +104,32 @@ h3. Filtering
 
 Let's say that I want to filter search result by start date range and we are searching for the keyword 'music'. 
 
-{% highlight ruby %}
+<pre>
 filter_options = {:filters => {:start_date => Range.new(20080101,20081231}}
 sphinx_options = {:query => 'music'}
 sphinx_options.merge!(filter_options)
 
 >> Ultrasphinx::Search.new(sphinx_options).run.size
-{% endhighlight %}
+</pre>
 
 
 h3. Sorting
 
 Let's get the search result sorted by start_date in ascending order.
 
-{% highlight ruby %}
+<pre>
 sort_options = :sort_by => 'start_date_sphinx', :sort_mode => 'ascending'
 sphinx_options.merge!(filter_options)
 
 >> Ultrasphinx::Search.new(sphinx_options).run.size
-{% endhighlight %}
+</pre>
 
 
 h3. Pagination
 
 Pagination is important and it is built right into ultrasphinx.
 
-{% highlight ruby %}
+<pre>
 sphinx_options.merge!(:per_page => '20', :page => params['page'])
 
 #process in controller
@@ -139,7 +139,7 @@ sphinx_options.merge!(:per_page => '20', :page => params['page'])
 
 # in the view
 <%= will_paginate @search %>
-{% endhighlight %}
+</pre>
 
 h3. Watch out for
 

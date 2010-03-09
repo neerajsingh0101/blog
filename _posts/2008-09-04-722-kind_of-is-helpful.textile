@@ -4,7 +4,7 @@ title: kind_of? is helpful
 ---
 ruby has this method kind_of? which so far I did not use for some reason.
 
-{% highlight ruby %}
+<pre>
 class Person
 end
 
@@ -13,10 +13,10 @@ end
 
 d = Doctor.new
 puts d.class.ancestors.include?(Person)
-{% endhighlight %}
+</pre>
 
 As illustrated above if I need to find if an object comes from Person I used to take help of ancestors. It was ugly but it worked. The same thing is done by kind_of? so the improvised code will be 
 
-{% highlight ruby %}
+<pre>
 puts d.kind_of?(Person)
-{% endhighlight %}
+</pre>

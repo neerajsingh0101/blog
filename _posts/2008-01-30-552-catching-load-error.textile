@@ -4,7 +4,7 @@ title: Catching load error
 ---
 While going through the admitter code i noticed this. The trick is to place the load in a method and then call that method to find out if the load was successful or not.
 
-{% highlight ruby %}
+<pre>
 # this needs to be placed in a method or else rescue doesn't work
 def load_image_science
   require 'image_science'
@@ -18,4 +18,4 @@ load_image_science
 if $image_science_installed
 #...
 end
-{% endhighlight %}
+</pre>

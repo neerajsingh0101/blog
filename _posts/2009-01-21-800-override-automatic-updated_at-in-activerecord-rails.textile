@@ -6,10 +6,10 @@ Rails provides some good tools like automatically updating created_at and update
 
 However I have a unique business need where I need to update a column but I do not want updated_at to be changed. Or we can see the problem this way. I want to change the updated_at to a particular value.
 
-{% highlight ruby %}
+<pre>
 >> User.first.update_attributes(:updated_at => 100.years.ago)
 UPDATE `users` SET `updated_at` = '2009-01-20 19:15:25' WHERE `id` = 2
-{% endhighlight %}
+</pre>
 
 Look at the sql that is generated. Rails discarded the updated_at value that I had supplied and replaced the value by the current time. Rails works fine if you supply <tt>created_at</tt> value. It is the updated_at value that is discarded.
 
@@ -17,14 +17,14 @@ Rails provides a feature called "ActiveRecord::Base.record_timestamps":http://ap
 
 Let's try that.
 
-{% highlight ruby %}
+<pre>
 >> User.record_timestamps=false
 => false
 >> User.first.update_attributes(:updated_at => 100.years.ago)
 UPDATE `users` SET `updated_at` = '1909-01-20 18:52:50' WHERE `id` = 2
 >> User.record_timestamps=true
 => true
-{% endhighlight %}
+</pre>
 
 It worked. I have successfully set updated_at to year 1909. However there is a problem.
 
@@ -32,7 +32,7 @@ For a brief duration <tt>User.record_timestamps</tt> was set to false. That is a
 
 In order to isolate the behavior to only the record we are interested in, I can do this.
 
-{% highlight ruby %}
+<pre>
 >> u = User.first
 
 >> class << u
@@ -52,7 +52,7 @@ UPDATE `users` SET `updated_at` = '1909-01-20 18:58:10' WHERE `id` = 2
 
 >> u.update_attributes(:updated_at => 200.years.ago)
 UPDATE `users` SET `updated_at` = '2009-01-20 19:22:11' WHERE `id` = 2
-{% endhighlight %}
+</pre>
 
 In order to restrict the changes to a model, I am opening up the metaclass of u ( user object) and in that object I am adding a method called record_timestamps . The idea is to insert a method called record_timestamps in the metaclass which will return true and in this way the changes are restricted to a single object rather than making change at the class level.
 
@@ -64,7 +64,7 @@ h2. update_without_timestamping method
 
 This strategy of opening up an instance object works but it is messy. I would like to have a method that is much easier to use and this is what I came up with. Stick this piece of code in an initializer.
 
-{% highlight ruby %}
+<pre>
 module ActiveRecord
   class Base
       
@@ -82,24 +82,24 @@ module ActiveRecord
     
   end
 end
-{% endhighlight %}
+</pre>
 
 This is how you can use it.
 
-{% highlight ruby %}
+<pre>
 >> u = User.first
 >> u.updated_at = 100.years.ago
 >> u.created_at = 200.years.ago
 >> u.update_record_without_timestamping
 UPDATE `users` SET `created_at` = '1809-01-20 19:08:21', 
 `updated_at` = '1909-01-20 19:08:22' WHERE `id` = 2
-{% endhighlight %}
+</pre>
 
 h2. Good usage of remove_method
 
 In the above solution I used super when I want to bring back the default auto time stamping behavior. In stead of super I can also use remove_method. More about the what remove_method does is "here":http://neeraj.name/blog/articles/801-difference-between-undef_method-and-remove_method .
 
-{% highlight ruby %}
+<pre>
 module ActiveRecord
   class Base
       
@@ -118,6 +118,6 @@ module ActiveRecord
   end
 end
 
-{% endhighlight %}
+</pre>
 
 Using the above technique, I can fully control updated_at values without rails messing up anything. <br />

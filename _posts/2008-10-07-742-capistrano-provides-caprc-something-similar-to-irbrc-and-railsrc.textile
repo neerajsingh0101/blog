@@ -6,18 +6,18 @@ I use roll_my_blog, a blogging engine that I developed, to power this blog. It m
 
 One of the things I wanted to hide was the user name which I use to log into my slice to deploy the application. The deploy.rb file had following code.
 
-{% highlight sh %}
+<pre>
 set :user, 'my_real_user_name'
-{% endhighlight %}
+</pre>
 
 I wanted to hide my real user name that I use to log into the box. But at the same time I wanted to run the exact copy that is released to public as open source.
 
 .caprc file came to rescue. It's simple. I created a ~/.caprc file on my mac. This is what the content of the file looks like.
 
-{% highlight sh %}
+<pre>
 > cat ~/.caprc
 set :user, 'my_real_user_name'
-{% endhighlight %}
+</pre>
 
 Now my real user name that I use to login to the box is hidden from general public.
 

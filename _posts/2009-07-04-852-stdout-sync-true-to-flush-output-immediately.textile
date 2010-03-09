@@ -4,12 +4,12 @@ title: $stdout.sync = true to flush output immediately
 ---
 Try this.
 
-{% highlight ruby %}
+<pre>
 5.times do
   putc('.')
   sleep(2)
 end
-{% endhighlight %}
+</pre>
 
 I was hoping that I will get a dot after every two seconds. But that's not what happens when you run the code. I see nothing for first 10 seconds then I see five dots in one shot. This is not what I wanted.
 

@@ -6,9 +6,9 @@ Rails auto loads all the changes in development mode. However Rails leaves out a
 
 I took a peek inside the Rails code to just know enough to overcome this problem. In my lib directory I have a class called 'Notification' which is used by the application. Here is the code I put in my environment.rb to ensure that the changes made to 'Notification' class is auto loaded in development mode.
 
-{% highlight ruby %}
+<pre>
 # auto load changes in development mode
 Dependencies.explicitly_unloadable_constants << 'Notification'
-{% endhighlight %}
+</pre>
 
 The suggested solution does not work for modules. And in the lib directories mostly modules reside. If I find a solution for auto loading changes to modules residing in lib directory I will post that here.

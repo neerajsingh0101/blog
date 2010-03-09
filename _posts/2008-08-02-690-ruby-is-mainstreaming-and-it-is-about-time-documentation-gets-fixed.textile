@@ -6,7 +6,7 @@ Previously  I "blogged about":http://www.neeraj.name/638/to_yaml-is-not-core som
 
 Here is another case. If you look at "Ruby documentation":http://www.ruby-doc.org/core/ you will NOT find class 'Date'  under Classes. However in irb class Date is available to you. Check this out.
 
-{% highlight ruby %}
+<pre>
 > irb
 >> d = Date.new
 => #<Date:0x5707c4>
@@ -15,16 +15,16 @@ Here is another case. If you look at "Ruby documentation":http://www.ruby-doc.or
 >> Date.parse('2008-08-09')
 NoMethodError: undefined method `parse' for Date:Class
 	from (irb):3
-{% endhighlight %}
+</pre>
 
 Notice that in irb I do not do any require. By default class Date is available to us. And that class has certain methods like new. However if you invoke method 'parse' then there is a problem. In order to fix the problem we need to do require.
 
-{% highlight ruby %}
+<pre>
 >> require 'Date'
 => true
 >> Date.parse('2008-08-09')
 => #<Date: 4909375/2,0,2299161>
-{% endhighlight %}
+</pre>
 
 
 Notice that after the require statement, Date class has parse method. 

@@ -4,11 +4,11 @@ title: Easy way to create and conditions from params
 ---
 Let's say that you are editing a user and for some reason you want to do a query to find out if the user with all the params that is being passed exists are not.
 
-{% highlight ruby %}
+<pre>
 User.find(:all, :conditions => Hash[params[:user]])
 
 # the sql would look something 
 SELECT * FROM "users" WHERE ("users"."first_name" = 'Neeraj2' AND "users"."last_name" = 'Kumar' AND "users"."email" = 'john.doe@example.com')
-{% endhighlight %}
+</pre>
 
 Above code works because :conditions take a hash as input but it will create a sql by ANDing all the keys and values, as it was done in the above case.

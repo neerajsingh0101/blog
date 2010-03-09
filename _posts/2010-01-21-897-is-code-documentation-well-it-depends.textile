@@ -4,11 +4,11 @@ title: Is code documentation? Well it depends.
 ---
 What does this method signature tell you?
 
-{% highlight js %}
+<pre>
 jQuery.extend = jQuery.fn.extend = function() {
  ...
 }
-{% endhighlight %}
+</pre>
 
 Above piece of code is taken from jQuery. Here is the documentation for "extend method":http://api.jquery.com/jQuery.extend/ . 
 
@@ -20,7 +20,7 @@ My take is that documentation is not a substitute for poor code quality. Write t
 
 If you are curious here is the full implementation of the extend method mentioned above.
 
-{% highlight js %}
+<pre>
 jQuery.extend = jQuery.fn.extend = function() {
 	// copy reference to target object
 	var target = arguments[0] || {}, i = 1, length = arguments.length, deep = false, options, name, src, copy;
@@ -76,4 +76,4 @@ jQuery.extend = jQuery.fn.extend = function() {
 	// Return the modified object
 	return target;
 };
-{% endhighlight %}
+</pre>

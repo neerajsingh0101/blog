@@ -6,7 +6,7 @@ title: should_validate_format_of   for easy format testing
 
 "shoulda":http://thoughtbot.com/projects/shoulda/ is a great testing tool. If you have a validation for the presence of a field then testing it is as easy as this.
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   validates_presence_of :email
 end
@@ -14,28 +14,28 @@ end
 class UserTest < ActiveSupport::TestCase
   should_validate_presence_of :email
 end
-{% endhighlight %}
+</pre>
 
 For one line of code, one line of testing. This is awesome.
 
 However when it comes to email, not only I need to make sure it is present, I need to validate the format of it. 
 
-{% highlight ruby %}
+<pre>
 validates_format_of :email, :with => /(\A(\s*)\Z)|(\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z)/i
-{% endhighlight %}
+</pre>
 
 I thought shoulda will have something like <tt>should_validate_format_of</tt>/. But shoulda does not provide anything like that. No problem it is easy to create something like that. "The code is here":http://gist.github.com/109474 and it can be put at <tt>config/initializer/should_validate_format_of.rb</tt>.
 
 With that code in testing for format validation is as simple as 
 
-{% highlight ruby %}
+<pre>
 should_validate_format_of :email, 
                           :invalid_value => 'foo'
 
 should_validate_format_of :email, 
                           :message => /Email must be a valid email address/,
                           :invalid_value => 'foo'
-{% endhighlight %}
+</pre>
 
 Above two cases are illustrated. The first is one with the default message and the second one is a custom message. You should pass an invalid value which is NOT matching the regular expression.
 

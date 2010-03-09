@@ -24,15 +24,15 @@ The end result in the above two javascript statement was same. In the end a vari
 
 Please note that in the above case only the functions are declared. They are not invoked. In order to invoke the function we have to do this
 
-{% highlight js %}
+<pre>
 var hello = function(){ alert('Hello'); }
 hello();
-{% endhighlight %}
+</pre>
 
 
 How do we invoke an anonymous function. We need to call () on the anonymous function. But before that we need to wrap the whole command in (). Take a look at this
 
-{% highlight js %}
+<pre>
 // original
 function hello(){ alert('Hello');}
 
@@ -41,16 +41,16 @@ function hello(){ alert('Hello');}
 
 // now call () to invoke this function
 (function hello(){ alert('Hello');})();
-{% endhighlight %}
+</pre>
 
 The final result is weird looking code but it works and that is how an anonymous function is declared and invoke on run time.
 
 With this understanding now it becomes easier to see what is happening in this code
 
-{% highlight js %}
+<pre>
 (function($) {
   // ....
 })(jQuery);
-{% endhighlight %}
+</pre>
 
 In the above case an anonymous function is being created. However unlike my anonymous function this anonymous function take a parameter and the name of this paramter is $. $ is nothing else but jQuery object that is being passed while invoking this function. <br />

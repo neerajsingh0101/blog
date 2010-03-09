@@ -6,22 +6,22 @@ __Following code has been tested with Rails 2.3 .__
 
 Traditional way of rendering partials.
 
-{% highlight ruby %}
+<pre>
 render :partial => 'comments/comment', :locals => { :comment => comment, :show_article_title => false}
-{% endhighlight %}
+</pre>
 
 Above code can also be written as 
 
-{% highlight ruby %}
+<pre>
 render 'comments/comment', :comment => comment, :show_article_title => false
-{% endhighlight %}
+</pre>
 
 One more example.
 
-{% highlight ruby %}
+<pre>
 render :partial => 'comment', :locals => { :comment => comment, :show_article_title => true }
 render 'comment', :comment => comment, :show_article_title => true
-{% endhighlight %}
+</pre>
 
 I continue to see everyone use the version with keyword 'partial'. 
 

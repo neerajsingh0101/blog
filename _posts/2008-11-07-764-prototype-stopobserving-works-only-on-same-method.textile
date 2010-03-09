@@ -6,7 +6,7 @@ In the "previous example":http://neeraj.name/blog/articles/763-understanding-bin
 
 I am going to add code that will stop observing after the first click.
 
-{% highlight js %}
+<pre>
 var Developer = {
   skill: 'ruby ',
   processed: false,
@@ -25,7 +25,7 @@ var Developer = {
 
 tmp1 = Developer.show_skill.bindAsEventListener(Developer,1,10);
 document.observe('click',tmp1);
-{% endhighlight %}
+</pre>
 
 The code is self explanatory. However if you run the above code it doesn't work. Document keeps observing the click even when it has been asked to stop observing.
 
@@ -35,7 +35,7 @@ Problem is that every single time bind is called, it returns a new anonymous cla
 
 Fix would be to capture the method tmp1 somewhere and then stopObeving should receive tmp1 as input. Look at refactored code.
 
-{% highlight js %}
+<pre>
 var Developer = {
   skill: 'ruby ',
   processed: false,
@@ -54,6 +54,6 @@ var Developer = {
 
 Developer.observing_object = Developer.show_skill.bindAsEventListener(Developer,1,10);
 document.observe('click',Developer.observing_object);
-{% endhighlight %}
+</pre>
 
 Above code stops observing clicks after the first click. <br />

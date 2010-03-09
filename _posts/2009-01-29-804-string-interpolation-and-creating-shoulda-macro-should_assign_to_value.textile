@@ -4,34 +4,34 @@ title: String interpolation and creating shoulda macro should_assign_to_value
 ---
 h2. String Interpolation 
 
-{% highlight ruby %}
+<pre>
 >> a = 10
 >> b = 'a is #{a}'
-{% endhighlight %}
+</pre>
 
 Notice that b has string with single quotes. Now if I want the value of b to be interpolated then this could be done this way.
 
-{% highlight ruby %}
+<pre>
 >> c = '"' + b + '"'
 => ""a is \#{a}""
 >> eval c
 => "a is 10"
-{% endhighlight %}
+</pre>
 
 I created another variable called c which has the value of 'b' within double quotes and then I did an eval on c to get the result.
 
 Above code can also be written as
 
-{% highlight ruby %}
+<pre>
 eval %Q["#{b}"]
-{% endhighlight %}
+</pre>
 
 
 h2. Using macro should_assign_to macro
 
 I use "shoulda":http://thoughtbot.com/projects/shoulda testing framework. It comes up with some built in macros like <tt>should_assign_to</tt> . This macro is used like this
 
-{% highlight ruby %}
+<pre>
 # users_controller.rb
 def show
  @user = User.find(params[:id])
@@ -39,17 +39,17 @@ end
 
 #users_controller_test.rb
 should_assign_to :user
-{% endhighlight %}
+</pre>
 
 h2. Why I need should_assign_to_value macro
 
 I set <tt>@page_title</tt> in most of pages as a response to get request. In order to test the value of <tt>@page_title</tt> this is what I have to do
 
-{% highlight ruby %}
+<pre>
 should 'have page title' do
   assert_equal assigns(:page_title),"new members"    
 end
-{% endhighlight %}
+</pre>
 
 Above code works. But writing three lines of code every single time I want to test page_title is not very DRY.
 
@@ -57,7 +57,7 @@ h2. Implementation of should_assign_to macro
 
 I created a macro which reduced three lines to one line of test.
 
-{% highlight ruby %}
+<pre>
 def self.should_assign_to_value(name,value)
   should "assign @#{name}" do
     assert assigns(name.to_sym), "The action isn't assigning to @#{name}"
@@ -74,13 +74,13 @@ end
 
 # now
 should_assign_to_value :page_title, 'new members'
-{% endhighlight %}
+</pre>
 
 Cool. Now I can use one liner <tt>should_assign_to_value</tt> anywhere. However I ran into an issue pretty soon.
 
 h2. Trouble in the macro
 
-{% highlight ruby %}
+<pre>
 # users_controller.rb
 def show
  @user = User.find(params[:id])
@@ -90,19 +90,19 @@ end
 # users_controller_test.rb
 # WILL NOT WORK
 should_assign_to_value :page_title, "Profile of #{@user.name}"
-{% endhighlight %}
+</pre>
 
 In order to make the above code work try this
 
-{% highlight ruby %}
+<pre>
 should_assign_to_value :page_title, '"Profile of #{@user.name}"'
-{% endhighlight %}
+</pre>
 
 Above strategy will work but it is not very easy on eyes. Having single quotes and then double quotes is confusing. A better fix would be to change the implementation of <tt>should_assign_to_value</tt> .
 
 h2. Revised implementation of should_assign_to_value
 
-{% highlight ruby %}
+<pre>
 def self.should_assign_to_value(name,value)
   should "assign @#{name}" do
     assert assigns(name.to_sym), "The action isn't assigning to @#{name}"
@@ -114,27 +114,27 @@ def self.should_assign_to_value(name,value)
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 With the above code both the assertions pass
-{% highlight ruby %}
+<pre>
 should_assign_to_value :page_tile, 'Profile of #{assigns(:user).name}'
 should_assign_to_value :page_title, 'new members'
-{% endhighlight %}
+</pre>
 
 h2. Revision of should_redirect_to
 
 Shoulda built-in macro <tt>should_redirect_to</tt> suffers from the same problem.
 
-{% highlight ruby %}
+<pre>
 should_redirect_to '"/invite/friends/#{assigns(:event).id}"'
-{% endhighlight %}
+</pre>
 
 Above code works but ,again, with single quotes and double quotes it is not easy on eyes. I revised the implementation of <tt>should_redirect_to</tt> and now I can refactor the same test to
 
-{% highlight ruby %}
+<pre>
 should_redirect_to '/invite/friends/#{assigns(:event).id}'
-{% endhighlight %}
+</pre>
 
 h2. A complete test example
 

@@ -10,13 +10,13 @@ Answer: rails cheats.
 
 In the active record lib directory there is a file called timestamp.rb . Given below is snippet of code from that file.
 
-{% highlight ruby %}
+<pre>
 module Timestamp
     def self.included(base) #:nodoc:
       base.alias_method_chain :create, :timestamps
       base.alias_method_chain :update, :timestamps
    end
 end
-{% endhighlight %}
+</pre>
 
 So the answer is that create method is changed to create_with_timestamps and update method is changed to update_with_timestamps using the alias_method_chain.

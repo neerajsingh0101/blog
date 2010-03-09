@@ -4,7 +4,7 @@ title: How controller and view share instance variables
 ---
 In rails world if I set an instance variable in the controller then I expect that instance variable to be present in the view. 
 
-{% highlight ruby %}
+<pre>
 class UsersController < ApplicationController
   def index
     @users = User.find(:all)
@@ -15,7 +15,7 @@ end
 <% for user in @users %>
    <%= user.name %>
 < % end %>
-{% endhighlight %}
+</pre>
 
 In the above case we just assumed that @users will be present in the view.
 
@@ -29,13 +29,13 @@ h3. assings in ActionController::Base
 
 In the ActionController::Base assigns is defined like this
 
-{% highlight ruby %}
+<pre>
     attr_accessor :assigns
-{% endhighlight %}
+</pre>
 
 In the ActionController::Base there is method 'render' which is used to render the view. In this method 'render' there is a call to method 'add_variables_to_assigns'.
 
-{% highlight ruby %}
+<pre>
 def render(options = nil, extra_options = {}, &block) 
    .....
    add_variables_to_assigns
@@ -54,17 +54,17 @@ def add_instance_variables_to_assigns
     @assigns[var[1..-1]] = instance_variable_get(var)
   end
 end
-{% endhighlight %}
+</pre>
 
 In the render method another method 'add_variables_to_assigns' is called. In the method 'add_variables_to_assigns' a call to add_instance_variables_to_assigns method is made. In this method all the instance variables of the controllers are assigned to instance variable @assings. @assigns is a hash which is keeping the name of the instance variable and the value. So in our case we defined @users = User.find(:all) then the operation will be something similar to 
 
-{% highlight ruby %}
+<pre>
 @assigns['users'] = User.find(:all)
-{% endhighlight %}
+</pre>
 
 Besides adding variables to @assigns there is also method to forget variables and to reset variables in assigns.
 
-{% highlight ruby %}
+<pre>
 def forget_variables_added_to_assigns
   @variables_added = nil
 end
@@ -72,7 +72,7 @@ end
 def reset_variables_added_to_assigns
   @template.instance_variable_set("@assigns_added", nil)
 end
-{% endhighlight %}
+</pre>
 
 That's it about adding instance variables to @assigns on ActionController::Base side.
 
@@ -80,14 +80,14 @@ Now let's see how the instance variables are made accessible to ActionView::Base
 
 h3. assings in ActionView::Base
 
-{% highlight ruby %}
+<pre>
 attr_accessor :base_path, :assigns, :template_extension, :first_render
-{% endhighlight %}
+</pre>
 
 The ActionView has following two methods which make the instance variables available to the view side.
 
 
-{% highlight ruby %}
+<pre>
 # Evaluate the local assigns and pushes them to the view.
 def evaluate_assigns
   unless @assigns_added
@@ -100,11 +100,11 @@ end
 def assign_variables_from_controller
   @assigns.each { |key, value| instance_variable_set("@#{key}", value) }
 end
-{% endhighlight %}
+</pre>
 
 Now all we need to do is to find out places from where evaluate_assigns is called.
 
-{% highlight ruby %}
+<pre>
 module ActionView #:nodoc:
   class Template #:nodoc:
     def prepare!
@@ -116,6 +116,6 @@ end
 
 # action controller also calls evaluate_assigns under certain conditions
 @template.send! :evaluate_assigns
-{% endhighlight %}
+</pre>
 
 In order to make the action controller instance variables available at the view level rails does quite a bit or work. First it puts all the instance variables in a variable called assigns. Later the instance variables from @assigns are retrieved and instance variables are set on Actionview::Base and thus those instance variables are made available on the view layer.

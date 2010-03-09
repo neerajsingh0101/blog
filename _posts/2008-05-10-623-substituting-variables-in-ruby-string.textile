@@ -4,27 +4,27 @@ title: Substituting variables in ruby  string
 ---
 Couple of days back Nick posted "this article":http://pivots.pivotallabs.com/users/nick/blog/articles/443-block-fu about idiomatic rubism. He discussed a really really nice way of doing thing and a standard way of doing things. I had trouble understanding the second approach outlined in his article.
 
-{% highlight ruby %}
+<pre>
 statement.gsub('?', '%s') % values.map { |v| quote_bound_value(v) }
-{% endhighlight %}
+</pre>
 
 Simply stated this is the requirement. We have a string with question marks and we have an array of values which will fit in those question marks in the right order.
 
-{% highlight ruby %}
+<pre>
 statement = "first_name = ? and last_name = ?"
 statement.gsub('?', '%s') % ['Tom','Hanks']
 # => first_name = Tom and last_name = Hanks
-{% endhighlight %}
+</pre>
 
 It took me a while to understand what was going on. I am splitting the operation in many lines for easier understanding.
 
-{% highlight ruby %}
+<pre>
 statement = "first_name = ? and last_name = ?"
 b = statement.gsub('?','%s') 
 puts b #=> first_name = %s and last_name = %s
 c =  b % ['Tom', 'Hanks']
 puts c #=> first_name = Tom and last_name = Hanks
-{% endhighlight %}
+</pre>
 
 If you need to then look at the Ruby API for %(String).
 

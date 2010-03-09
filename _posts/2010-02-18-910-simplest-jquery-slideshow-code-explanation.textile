@@ -6,7 +6,7 @@ title: Simplest jQuery slideshow code explanation
 
 The full JavaScript code in its entirety is given below. If you understand this code  then you don't need to read rest of the article. 
 
-{% highlight js %}
+<pre>
 $(function(){
     $('.fadein img:gt(0)').hide();
     setInterval(function(){
@@ -15,24 +15,24 @@ $(function(){
          .end().appendTo('.fadein');}, 
       3000);
 });
-{% endhighlight %}
+</pre>
 
 h2.  appendTo removes and attaches elements
 
 In order to understand what's going on above, I am constructing a simple test page. Here is the html markup.
 
-{% highlight sh %}
+<pre>
 <div id='container'>
   <div class='lab'>This is div1 </div>
   <div class='lab'>This is div2 </div>
 </div>
-{% endhighlight %}
+</pre>
 
 Open this page in browser and execute following command in firebug.
 
-{% highlight js %}
+<pre>
 $('.lab:first').appendTo('#container');
-{% endhighlight %}
+</pre>
 
 Run the above command 5/6 times to see its effect. Every single time you run JavaScript the order is changing. 
 
@@ -42,34 +42,34 @@ h2. Back to original problem
 
 In the original code the very first image is being plucked out of document and that image is being added to set again. In simpler terms this is what is happening. Initially the order is like this.
 
-{% highlight sh %}
+<pre>
 Image1
 Image2
 Image3
-{% endhighlight %}
+</pre>
 
 After the code is executed the order becomes this.
 
-{% highlight sh %}
+<pre>
 Image2
 Image3
 Image1
-{% endhighlight %}
+</pre>
 
 After the code is executed again then the order becomes this.
 
-{% highlight sh %}
+<pre>
 Image3
 Image1
 Image2
-{% endhighlight %}
+</pre>
 
 After the code is executed again then the order becomes this.
 
-{% highlight sh %}
+<pre>
 Image1
 Image2
 Image3
-{% endhighlight %}
+</pre>
 
 And this cycle continues forever.

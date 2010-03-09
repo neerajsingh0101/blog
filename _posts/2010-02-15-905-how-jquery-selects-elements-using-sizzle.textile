@@ -16,9 +16,9 @@ After a page is rendered then those xml elements are referred as DOM elements.
 
 JavaScript is all about manipulating this tree structure (DOM elements) that browser has created in memory. A good example of manipulating the tree is command like the one give below which would hide the header element. However in order to hide the header tag, jQuery has to get to that DOM element.
 
-{% highlight js %}
+<pre>
 jQuery('#header').hide()
-{% endhighlight %}
+</pre>
 
 The job of a selector engine is to get all the DOM elements matching the criteria provided by a user. There are many JavaScript selector engines in the market. Paul Irish has "a nice article":http://paulirish.com/2008/javascript-css-selector-engine-timeline/ about JavaScript CSS Selector Engine timeline .
 
@@ -28,21 +28,21 @@ h2. Browsers help you to get to certain elements
 
 Browsers do provide some helper functions to get to certain types of elements. For example if you want to get DOM element with id <tt>header</tt> then <tt>document.getElementById</tt> function can be used like this
 
-{% highlight js %}
+<pre>
 document.getElementById('header')
-{% endhighlight %}
+</pre>
 
 Similarly if you want to collect all the p elements in a document then you could use following code .
 
-{% highlight js %}
+<pre>
 document.getElementsByTagName('p')
-{% endhighlight %}
+</pre>
 
 However if you want something complex like the one given below then browsers were not much help. It was possible to walk up and down the tree however traversing the tree was tricky because of two reasons: a) DOM spec is not very intuitive b) Not all the browsers implemented DOM spec in same way.
 
-{% highlight js %}
+<pre>
 jQuery('#header a')
-{% endhighlight %}
+</pre>
 
 Later "selector API":http://www.w3.org/TR/selectors-api/ came out.  
 
@@ -75,9 +75,9 @@ On IE6/7 <tt>querySelectorAll</tt> is not available so jQuery will pass on this 
 Sizzle gets the selector string '.header a'. It splits the string into two parts and stores in variable called parts.
 
 
-{% highlight js %}
+<pre>
 parts = ['.header', 'a']
-{% endhighlight %}
+</pre>
 
 Next step is the one which sets Sizzle apart from other selector engines. Instead of first looking for elements with class <tt>header</tt> and then going down, Sizzle starts with the outer most selector string. As per "this presentation":http://paulirish.com/perf/ from Paul Irish "YUI3":http://developer.yahoo.com/yui/3/ and "NWMatcher":http://javascript.nwbox.com/NWMatcher/ also go right to left. 
 
@@ -85,7 +85,7 @@ So in this case Sizzle starts looking for all <tt>a</tt> elements in the documen
 
 Here is snippet of code from Sizzle.find .
 
-{% highlight js %}
+<pre>
 match: {
      ID: /#((?:[\w\u00c0-\uFFFF-]|\\.)+)/,
      CLASS: /\.((?:[\w\u00c0-\uFFFF-]|\\.)+)/,
@@ -96,39 +96,39 @@ match: {
      POS: /:(nth|eq|gt|lt|first|last|even|odd)(?:\((\d*)\))?(?=[^-]|$)/,
      PSEUDO: /:((?:[\w\u00c0-\uFFFF-]|\\.)+)(?:\((['"]?)((?:\([^\)]+\)|[^\(\)]*)+)\2\))?/
 },
-{% endhighlight %}
+</pre>
 
 
 One by one Sizzle will go through all the match definitions. In this case since <tt>a</tt> is a valid tag, a match will be found for <tt>TAG</tt>. Next following function will be called.
 
-{% highlight js %}
+<pre>
 TAG: function(match, context){
      return context.getElementsByTagName(match[1]);
 }
-{% endhighlight %}
+</pre>
 
 Now result consists of all <tt>a</tt> elements.
 
 Next task is to find if each of these elements has a parent element matching <tt>.header</tt>. In order to test that a call will be made to method <tt>dirCheck</tt>. In short this is what the call looks like.
 
-{% highlight js %}
+<pre>
 dir = 'parentNode';
 cur = ".header"
 checkSet = [ a www.neeraj.name, a www.google.com ] // object representation
 dirCheck( dir, cur, doneName, checkSet, nodeCheck, isXML )
-{% endhighlight %}
+</pre>
 
 dirCheck method returns whether each element of checkSet passed the test.  After that a call is made to method <tt>preFilter</tt>. In this method the key code is below
 
-{% highlight js %}
+<pre>
 if ( not ^ (elem.className && (" " + elem.className + " ").replace(/[\t\n]/g, " ").indexOf(match) >= 0) )
-{% endhighlight %}
+</pre>
 
 For our example this is what is being checked
 
-{% highlight js %}
+<pre>
 " header ".indexOf(" header ")
-{% endhighlight %}
+</pre>
 
 This operation is repeated for all the elements on the checkSet. Elements not matching the criteria are rejected.
 
@@ -136,7 +136,7 @@ h2. More methods in Sizzle
 
 if you dig more into Sizzle code you would see functions defined as <tt>+</tt>, <tt>></tt> and <tt>~</tt> . Also you will see methods like
 
-{% highlight js %}
+<pre>
 enabled: function(elem){
           return elem.disabled === false && elem.type !== "hidden";
     },
@@ -219,7 +219,7 @@ eq: function(elem, i, match){
           return match[3] - 0 === i;
      }
 
-{% endhighlight %}
+</pre>
 
 I use all these methods almost daily and it was good to see how these methods are actually implemented.
 
@@ -227,21 +227,21 @@ h2. Performance Implications
 
 Now that I have little more understanding of how Sizzle works, I can better optimize my selector queries. Here are two selectors doing the same thing.
 
-{% highlight js %}
+<pre>
 $('p.about_me .employment');
 
 $('.about_me  p.employment'); 
-{% endhighlight %}
+</pre>
 
 
 Since Sizzle goes from right to left, in the first case Sizzle will pick up all the elements with the class <tt>employment</tt> and then Sizzle will try to filter that list. In the second case Sizzle will pick up only the <tt>p</tt> elements with class <tt>employment</tt> and then it will filter the list. In the second case the right most selection criteria is more specific and it will bring better performance.
 
 So the rule with Sizzle is to go more specific on right hand side and to go less specific on left hand side.  Here is another example.
 
-{% highlight js %}
+<pre>
 $('.container :disabled');
 
 $('.container input:disabled');
-{% endhighlight %}
+</pre>
 
 The second query will perform better because the right side query is more specific.

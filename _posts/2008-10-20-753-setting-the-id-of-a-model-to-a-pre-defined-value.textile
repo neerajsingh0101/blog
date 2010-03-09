@@ -4,31 +4,31 @@ title: Setting the id of a model to a pre defined value
 ---
 Here I am trying to create a user record with id 100.
 
-{% highlight ruby %}
+<pre>
 >> User.create(:id => 100, :status => 'active', :gender => 'm')
 WARNING: Can't mass-assign these protected attributes: id
   User Create (0.000771)   INSERT INTO "users" ("status", "updated_at", "gender", "created_at") VALUES('active', '2008-10-20 19:11:41', 'm', '2008-10-20 19:11:41')
 => #<User id: 6, gender: "m", status: "active", created_at: "2008-10-20 19:11:41", updated_at: "2008-10-20 19:11:41">
 >> 
-{% endhighlight %}
+</pre>
 
 I got a warning and ActiveRecord ignored the id value that I had passed. However there is a way around to it. After the record has been created ,do an update and it will all be good.
 
-{% highlight ruby %}
+<pre>
 >> user.id = 100
 => 100
 >> user.save
   User Update (0.000491)   UPDATE "users" SET "updated_at" = '2008-10-20 19:13:37' WHERE "id" = 100
 => true
-{% endhighlight %}
+</pre>
 
 Notice that the sql does not update the id.
 
 I worked around the issue by directly issuing the update sql.
 
-{% highlight ruby %}
+<pre>
 ActiveRecord::Base.connection.update("update users set id=34 where id = 2")
 update users set id=34 where id = 2
-{% endhighlight %}
+</pre>
 
 You can package that sql statement in a nice method.

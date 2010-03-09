@@ -6,14 +6,14 @@ h3. Problem Definition
 
 Users table has following four columns: fname, lname, name1 and name2. I have following callback on the User model.
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   def before_save
     self.name1 = fname + ' ' + lname
     name2 = fname + ' ' + lname
   end
 end
-{% endhighlight %}
+</pre>
 
 Once a record is created column 'name1' is properly populated. However column 'name2' is nil. Why?
 
@@ -23,7 +23,7 @@ h3. In ruby a method and a variable can have the same name.
 
 It is not a good practice to define a method and a variable with the same name. But it is possible. Ruby allows it.
 
-{% highlight ruby %}
+<pre>
 def a
    puts 'inside method a'
    return "a"
@@ -33,7 +33,7 @@ a = 5 + 11
 
 puts a #=> 16
 puts self.a #=> inside method a
-{% endhighlight %}
+</pre>
 
 Above we defined method 'a' and variable 'a'.  Ruby follows the rule of looking for a variable name first. If there is no variable name defined then it will look for a method name.
 
@@ -45,13 +45,13 @@ h3.   self.something is an invocation of method 'something'.
 
 Open your irb and try this.
 
-{% highlight ruby %}
+<pre>
 >> self.something = 'ruby rocks'
 NoMethodError: undefined method `something=' for main:Object
 	from (irb):13
 >> something = 'ruby rocks'
 => "ruby rocks"
-{% endhighlight %}
+</pre>
 
 When ruby see self dot something then instantly it understands that a method named after the dot is being invoked. That is what happened in the above case. Since there is no method defined 'something' we get an error. If self is something then ruby understands that a variable is being created.
 
@@ -59,14 +59,14 @@ h3. Coming back to the problem definition
 
 In the below case why the column 'name2' is NOT being populated.
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   def before_save
     self.name1 = fname + ' ' + lname
     name2 = fname + ' ' + lname
   end
 end
-{% endhighlight %}
+</pre>
 
 That is because ruby is creating a local variable name2.  When I wrote the coded I intended the method name2 to be invoked with the value from the right hand side. What ruby did was to create a local variable named 'name2'. Hence the column 'name2' remains nil. The fix is to put 'self.name2' instead of 'name2'.
 

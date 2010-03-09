@@ -18,7 +18,7 @@ Problem does not end there. Once you get the branch code to your machine you wil
 
 You need to do following steps
 
-{% highlight ruby %}
+<pre>
 > git clone git://github.com/alloy/complex-form-examples.git
 > cd complex-form-examples
 > git checkout -b alloy-nested_params_merged_in_rails origin/alloy-nested_params_merged_in_rails
@@ -27,7 +27,7 @@ You need to do following steps
 > rake db:create
 > rake db:migrate
 > ruby script/server
-{% endhighlight %}
+</pre>
 
 Without enough git knowledge it could be hard to figure that out. 
 

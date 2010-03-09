@@ -12,7 +12,7 @@ Here is what I came up with.
 
 Here is the jQuery code that makes AJAX call. Notice that on error I am calling <tt>ajax_processing_error_notification</tt>
 
-{% highlight js %}
+<pre>
 var options = {
   beforeSubmit: preSubmit,
   success: postSuccess,
@@ -21,27 +21,27 @@ var options = {
 };
 
 $('#form').ajaxForm(options);
-{% endhighlight %}
+</pre>
 
 Here is the ajax_processing_error_notification function.
 
-{% highlight js %}
+<pre>
 function ajax_processing_error_notification(){
   $('.spinner').hide();
   alert('There was an error processing your request.');
 };
-{% endhighlight %}
+</pre>
 
 Here is the view where form and spinners are declared.
 
-{% highlight ruby %}
+<pre>
 #..form code
 <%= image_tag('spinner.gif', :id => 'spinner', :class => 'spinner', :style => 'display:none;')%>
-{% endhighlight %}
+</pre>
 
 And here is the main code that catches all the exceptions.
 
-{% highlight ruby %}
+<pre>
 # application_controller.rb
 rescue_from Exception, :with => :handler_exception
 def handler_exception(e)
@@ -54,7 +54,7 @@ def handler_exception(e)
     end
  end
 end
-{% endhighlight %}
+</pre>
 
 If it is not an AJAX request then raise the exception. Otherwise render some text. But the key is the status code. Any status code other than 2xx will invoke the error callback and that's exactly what we want.
 

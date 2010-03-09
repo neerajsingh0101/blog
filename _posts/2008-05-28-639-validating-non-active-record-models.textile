@@ -13,7 +13,7 @@ The contact form has name, email and message fields which needs to be validated.
 
 In first edition of Rails recipie, Chad suggested to use a module called Validateable. I have enhance that module. The new code looks like this. Put this code in your lib directory with the name validateable.rb .
 
-{% highlight ruby %}
+<pre>
 module Validateable
 
   [:save, :save!, :update_attribute].each{|attr| define_method(attr){}}
@@ -37,12 +37,12 @@ module Validateable
   end
 
 end
-{% endhighlight %}
+</pre>
 
 
 Let's create a user model with two attributes: name and email.
 
-{% highlight ruby %}
+<pre>
 class User 
   
   include Validateable
@@ -58,12 +58,12 @@ class User
   validates_presence_of :email
 
 end
-{% endhighlight %}
+</pre>
 
 Let's write the controller UsersController.rb
 
 
-{% highlight ruby %}
+<pre>
 class UsersController < ApplicationController
 
   def new
@@ -77,11 +77,11 @@ class UsersController < ApplicationController
   end
 
 end
-{% endhighlight %}
+</pre>
 
 Lastly we need the view users/new.html.erb .
 
-{% highlight ruby %}
+<pre>
 <p style="color: green"><%= flash[:notice] %></p>
 
 <h1>Contact me</h1>
@@ -104,6 +104,6 @@ Lastly we need the view users/new.html.erb .
     <%= f.submit "Submit" %>
   </p>
 <% end %>
-{% endhighlight %}
+</pre>
 
 That's it. Now when you hit submit without filling out anything, you'll get error messages in the same consistent format.

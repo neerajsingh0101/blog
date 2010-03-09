@@ -93,7 +93,7 @@ h2. Conclusion
 
 Finally the widget is ready. If you want to display all the events happening in mumbai in your html page then all you have to do is include following lines of code in your html code.
 
-{% highlight js %}
+<pre>
 <iframe 	id='widget_iframe'
 					name='widget_iframe' 
 					type='text/javascript' 
@@ -105,7 +105,7 @@ Finally the widget is ready. If you want to display all the events happening in 
 					style='overflow-x: hidden;'>
 </iframe>
 
-{% endhighlight %}
+</pre>
 
 If you have other thoughts on how to create a widget then please post a comment.
 

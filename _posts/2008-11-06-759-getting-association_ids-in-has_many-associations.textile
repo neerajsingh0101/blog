@@ -4,7 +4,7 @@ title: Getting association_ids in has_many associations
 ---
 Until today I didn't know that this was possible.
 
-{% highlight sh %}
+<pre>
 class State < ActiveRecord::Base
   has_many :cities
 end
@@ -13,7 +13,7 @@ end
   State Load (1) SELECT * FROM `states` LIMIT 1
   City Load (4)  SELECT * FROM `cities` WHERE (`cities`.state_id = 14) 
 => [164, 174, 112, 311]
-{% endhighlight %}
+</pre>
 
 @state.city_ids is a method available by virtue of has_many association.
 

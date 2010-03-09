@@ -6,7 +6,7 @@ __Following code is tested with jQuery 1.3 .__
 
 I have following code which depends on jQuery. 
 
-{% highlight js %}
+<pre>
 var Search = {
 		initAction: function($elm) {
 			if ($elm.attr('value').length === 0) {
@@ -24,7 +24,7 @@ var Search = {
 
 Search.initAction($('#query_term_input'));
 Search.blurAction($('#query_term_input'));
-{% endhighlight %}
+</pre>
 
 Everything is cool. 
 
@@ -34,7 +34,7 @@ I can obviously go through the code and do a mass find <tt>$</tt> and replace $ 
 
 A better solution would be to make use of "self invoking function":http://www.neeraj.name/blog/articles/821-understanding-jquery-plugin-pattern-and-self-invoking-javascript-function and redefine $ to jQuery. 
 
-{% highlight js %}
+<pre>
 var Search = (function($) {
 	return {
 		initAction: function($elm) {
@@ -54,4 +54,4 @@ var Search = (function($) {
 
 Search.initAction(jQuery('#query_term_input'));
 Search.blurAction(jQuery('#query_term_input'));
-{% endhighlight %}<br />
+</pre><br />

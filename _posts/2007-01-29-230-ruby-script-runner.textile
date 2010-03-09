@@ -4,11 +4,11 @@ title: ruby script/runner
 ---
 A lot of database operations are easily done using runner. 
 
-{% highlight ruby %}ruby script/runner Event.db_mod -e production{% endhighlight %}
+<pre>ruby script/runner Event.db_mod -e production</pre>
 
 In case where you don't want to load the full rails framework and speed matters one can write a program which will do exactly the same without the bloat.
 
-{% highlight sh %}
+<pre>
  #!/usr/bin/ruby
  # require AR and gems
  require 'rubygems'
@@ -17,6 +17,6 @@ In case where you don't want to load the full rails framework and speed matters 
 
  db_config = YAML::load(File.open("../config/database.yml"))
  ActiveRecord::Base.establish_connection(db_config['production'])
-{% endhighlight %}
+</pre>
 
 Part of the reason why I mentioned the code is here so that I can refer to it when later I need it.

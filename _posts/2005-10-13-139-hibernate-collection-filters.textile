@@ -4,10 +4,10 @@ title: Hibernate collection filters
 ---
 Hibernate collection filter is a good tool when one wants a filter to be applied to a collection of items. For example: if you want to have all employees of a company with salary &gt; 100, the sql would be something like this:
 
-{% highlight java %} List results= session.createFilter(company.getEmployees(), "where this.salary > 100").list(); {% endhighlight %}
+<pre> List results= session.createFilter(company.getEmployees(), "where this.salary > 100").list(); </pre>
 
 The  thing to watch out for the query string that is passed to the method. The query is taken literally. It means if you have a boolean property then do not pass the value as boolean. To further extend the example, if one needs to find out if the employee is a full time employee of part time employee, something like this needs tobe done.
 
-{% highlight java %} List results= session.createFilter(company.getEmployees(),"where this.fulltime='Y'").list();{% endhighlight %}
+<pre> List results= session.createFilter(company.getEmployees(),"where this.fulltime='Y'").list();</pre>
 
 Notice that in this case I am passing 'Y' and not a boolean value. If the database has value 0 or 1 in your case, then one needs to accommodate the change accordingly.

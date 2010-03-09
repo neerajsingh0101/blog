@@ -4,31 +4,31 @@ title: ruby script/console tip  less output
 ---
 In RoR world "ruby script/console" is god send.  Sometimes when I perform an operation I get tons of output on console which is not what I want.  Try this.
 
-{% highlight ruby %}
+<pre>
 ruby script/console
 >> rs = ActionController::Routing::Routes
-{% endhighlight %}
+</pre>
 
 You will get tons of output. Now try this.
 
-{% highlight ruby %}
+<pre>
 ruby script/console
 >> rs = ActionController::Routing::Routes;nil
 >> nil
-{% endhighlight %}
+</pre>
 
 In the end we added semicolon and nil. The output we got was nil. The theory is that only the output from the last ruby command is sent to console. Here by adding semicolon we are passing two ruby commands and the second command is nil.
 
 This might be useful in some scenarios. Recently on a production machine I had to put an emergency fix and I ran this command.
 
-{% highlight ruby %}
+<pre>
 ruby script/console
 >> Event.find(:all).each { |e| e.save! }
-{% endhighlight %}
+</pre>
 
 This produced so much output and it took forever because printing a lot of data on console is very time consuming. Something like this would have been nice to know at that time.
 
-{% highlight ruby %}
+<pre>
 ruby script/console
 >> Event.find(:all).each { |e| e.save! }; nil
-{% endhighlight %}
+</pre>

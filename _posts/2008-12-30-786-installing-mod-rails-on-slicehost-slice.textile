@@ -12,19 +12,19 @@ This article links to "another article":http://articles.slicehost.com/2008/5/1/u
 
 First make sure that you have enabled anysite by command
 
-{% highlight sh %}
+<pre>
 sudo a2ensite testapp
-{% endhighlight %}
+</pre>
 
 then remove that by executing following command
 
-{% highlight sh %}
+<pre>
 sudo a2dissite testapp
-{% endhighlight %}
+</pre>
 
 Now go and take a look at /etc/apache2/sites-enabled . This directory should be empty.
 
-{% highlight sh %}
+<pre>
 sudo vi /etc/apache2/apache2.conf
 
 # go to the bottom of this file and add following lines
@@ -45,6 +45,6 @@ ServerAlias www.neeraj.name
 DocumentRoot /home/neeraj/apps/rollmyblog/current/public
 </VirtualHost>
 
-{% endhighlight %}
+</pre>
 
 Make sure that you replace 67.207.136.195 by the ip address of your slice box.

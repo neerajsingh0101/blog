@@ -7,9 +7,9 @@ Given below are the four useful scripts when I use time to time.
 
 I created  a directory called 'scripts' .
 
-{% highlight sh %}
+<pre>
 mkdir ~/scripts
-{% endhighlight %}
+</pre>
  
 h2. gemmate
 
@@ -17,7 +17,7 @@ I use this script to look at the source code of any gem. You can type gemmate ra
 
 Save the following file as <code>~/scripts/gemmate</code> . Notice there is no extension.
 
-{% highlight sh %}
+<pre>
 #!/bin/sh
 
 # Usage: gemmate activerec[tab]
@@ -32,14 +32,14 @@ GEM="$1"
 
 [ -z "$GEM" ] && usage
 mate "$(gem environment gemdir)/gems/$GEM"
-{% endhighlight %}
+</pre>
 
 
 h2. ipfor
 
 This is used to get ip address for a url.  Save the following file as <code>~/scripts/ipfor</code>
 
-{% highlight sh %}
+<pre>
 #!/usr/bin/env ruby
 require 'resolv'
 
@@ -59,33 +59,33 @@ begin
 rescue Resolv::ResolvError
   puts "-> Could not resolve '#{ARGV.first}'" 
 end
-{% endhighlight %}
+</pre>
 
 h2. myip_from_inside
 
 This is used to get the ipaddress of my machine from inside. Save this file as <code>~/scripts/myip_from_inside</code>
 
-{% highlight sh %}
+<pre>
 #http://www.askdavetaylor.com/how_do_i_figure_out_my_ip_address_on_a_mac.html
 ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2
-{% endhighlight %}
+</pre>
 
 h2. myip_from_outside
 
 This is used to get the ipaddress of my machine from outside. Save this file as <code>~/scripts/myip_from_outside</code>
 
-{% highlight sh %}
+<pre>
 # the script is being displayed in two lines. You should put
 # them in one single line
 curl -s http://checkip.dyndns.org | awk '{print $6}' | awk ' BEGIN { FS = "<" } { print $1 } '
-{% endhighlight %}
+</pre>
 
 Now let's add scripts directory to the path . Go to command prompt and execute following commands
 
-{% highlight sh %}
+<pre>
 touch ~/.bash_profile
 echo 'export PATH=$PATH:~/scripts' >> ~/.bash_profile
 chmod x ~/scripts/*
-{% endhighlight %}
+</pre>
 
 Now close all shells. Start a new shell and you should be able to use these shell commands. <br />

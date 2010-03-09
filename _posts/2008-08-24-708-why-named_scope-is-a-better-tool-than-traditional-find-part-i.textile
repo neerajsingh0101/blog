@@ -6,7 +6,7 @@ This is part I of the two part series.
 
 In this first part we are going to write a plugin which will make searching for  a term easy in any model. Here is how the plugin should work.
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   roll_searchable_for do 
     searchable_for  :first_name
@@ -16,13 +16,13 @@ class User < ActiveRecord::Base
     searchable_for  :notes
   end
 end
-{% endhighlight %}
+</pre>
 
 In the above case we have a model User. We want to enable search for attributes :first_name,:last_name,:email and :notes. For the email we want to have a special condition and hence condition has been passed as an option.
 
 Here is the complete code for plugin.
 
-{% highlight ruby %}
+<pre>
 # init.rb
 require 'roll_searchable'
 
@@ -56,26 +56,26 @@ module RollSearchable
 end
 
 ActiveRecord::Base.send(:extend,RollSearchable)
-{% endhighlight %}
+</pre>
 
 Now we can do things like
 
-{% highlight ruby %}
+<pre>
 >> User.search('rose')
 It will return an array of Users. 
-{% endhighlight %}
+</pre>
 
 Our code works and it is all good. However there is a problem. Let's say that our search_term returns 5000 records. There is no point in getting all the 5000 records since we want to implement pagination. However if we try to use plugin will_paginate we would still get all the 5000 records.
 
-{% highlight ruby %}
+<pre>
 >> User.search('rose').paginate(:page => 1)
-{% endhighlight %}
+</pre>
 
 We would still get all the 5000 records because in our plugin we have this code
 
-{% highlight ruby %}
+<pre>
   find(:all, :conditions => conditions)
-{% endhighlight %}
+</pre>
 
 Getting a count of all the records matching the search term is not efficient in this case. In order to get the count this plugin wil bring retrieve all the 5000 records and would do a size operation on the array. This is inefficient.
 

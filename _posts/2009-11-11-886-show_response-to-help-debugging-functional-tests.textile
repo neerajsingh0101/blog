@@ -6,7 +6,7 @@ While writing functional tests, I use <tt>assert_tag</tt> a lot. Many times the 
 
 In your <tt>test/test_helper.rb</tt> add a new method called <tt>show_response</tt>.
 
-{% highlight ruby %}
+<pre>
 class Test::Unit::TestCase
   def show_response
     Dir.mkdir(File.join(RAILS_ROOT, 'tmp')) unless File.directory?(File.join(RAILS_ROOT,'tmp'))
@@ -15,11 +15,11 @@ class Test::Unit::TestCase
     system 'open ' + File.expand_path(response_html) rescue nil
   end
 end
-{% endhighlight %}
+</pre>
 
 This is how I use this method while debugging.
 
-{% highlight ruby %}
+<pre>
 context 'get show for comment which belongs to another class' do
   setup do
     @comment = Factory(:comment, :article => @article)
@@ -33,6 +33,6 @@ context 'get show for comment which belongs to another class' do
                 :descendant => {:tag => 'a', :child => /Article/})
   end
 end
-{% endhighlight %}
+</pre>
 
 If you are using mac then running this test will open a new web page with full response text. Now I can easily see why my assertion might be failing. <tt>show_response</tt> also works with ajax request.

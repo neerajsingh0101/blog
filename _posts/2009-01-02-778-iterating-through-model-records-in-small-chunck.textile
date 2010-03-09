@@ -4,9 +4,9 @@ title: Iterating through model records in small chunck
 ---
 If you have 1 million records and if you want to invoke save on all of them then the following strategy is a bad idea because it will load all million records in memory in one swoop.
 
-{% highlight ruby %}
+<pre>
 User.all.each { |user| user.save! }
-{% endhighlight %}
+</pre>
 
 In order to get around to this problem in one of my previous blogs I had mentioned "this strategy":http://neeraj.name/blog/articles/635-iterating-through-models-in-small-chunks .
 

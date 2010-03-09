@@ -6,7 +6,7 @@ title: Understanding bind in prototype framework
 
 Prototype also has a powerful concept called bind. However first let's see what kind of problem we might run into if we do not know bind.
 
-{% highlight js %}
+<pre>
 var Developer = Class.create();
 
 Developer.prototype = {
@@ -28,7 +28,7 @@ function show_skill(skill) {
 }
 
 new Developer();
-{% endhighlight %}
+</pre>
 
 If you execute the above javascript code, you will get the message that starts with 'from main window". If you look at the code, the intent was to call the show_skill method which would have shown the message started with "from Developer class".
 
@@ -38,7 +38,7 @@ In order to fix this problem, somehow we need to pass "this" from marker 1 to th
 
 Prototype aims to solve the problem by providing a method called bind. By using bind you are changing the reference of "this" inside the function. Look at revised code.
 
-{% highlight js %}
+<pre>
 var Developer = Class.create();
 
 Developer.prototype = {
@@ -61,7 +61,7 @@ function show_skill(skill) {
 
 
 new Developer();
-{% endhighlight %}
+</pre>
 
 In this case bind method was used to pass "this" and now when we execute the javascript we get the message "from Developer class".
 

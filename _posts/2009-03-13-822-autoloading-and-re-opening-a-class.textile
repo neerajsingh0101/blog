@@ -4,7 +4,7 @@ title: Autoloading and re opening a class
 ---
 ruby allows to re-open a class. After re-opening the class the behavior of the class can be changed.
 
-{% highlight ruby %}
+<pre>
 class Dog
 end
 class Dog
@@ -14,7 +14,7 @@ class Dog
 end
 
 Dog.new.bark #=> 'bho bho'
-{% endhighlight %}
+</pre>
 
 In the above case initially class Dog was defined without any method. The this class was re-opened and the method <tt>bark</tt> was added. It all worked out pretty well.
 
@@ -27,41 +27,41 @@ h2. Things going wrong
 
 Let's say you you have a model called <tt>User</tt>  and it looks like this. 
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   def speaks
     "hello"
   end
 end
-{% endhighlight %}
+</pre>
 
 You want to add a method called <tt>drinks</tt> . To add this method you would re-open the class and will add this method. Stick this code at the bottom of <tt>environment.rb</tt> .
 
-{% highlight ruby %}
+<pre>
 class User
   def drinks
     "water"
   end
 end
-{% endhighlight %}
+</pre>
 
 Now try using these methods.
 
-{% highlight ruby %}
+<pre>
 >> User.new.drinks
 => "water"
 >> User.new.speaks
 NoMethodError: undefined method `speaks' for #<User:0x1fa8c54>
 	from (irb):2
-{% endhighlight %}
+</pre>
 
 So what happened there. Why the user instance does not have method speaks when it was defined. Even worse User class is not aware of methods provided by ActiveRecord. Try this.
 
-{% highlight ruby %}
+<pre>
 >> User.first
 NoMethodError: undefined method `first' for User:Class
 	from (irb):3
-{% endhighlight %}
+</pre>
 
 Even User.first is failing.
 
@@ -78,29 +78,29 @@ Technically ruby re-opens the class only if ruby VM has already loaded that clas
 
 You might be wondering later when User class from user.rb is loaded then the missing ActiveRecord methods should become available. Well the way auto-loading works is that it relies on const_missing. Since in this case User class is already defined, VM does not invoke const_missing. And since const_missing is never invoked the User class defined in user.rb is never invoked. In fact you can test it. Change user.rb to have a raise inside it like this
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   raise "boom"
   def speaks
     "hello"
   end
 end
-{% endhighlight %}
+</pre>
 
 Remove the code that you added at the bottom of <tt>enviroment.rb</tt> and try running <tt>script/console</tt>
 
-{% highlight ruby %}
+<pre>
 > User.first
 RuntimeError: boom
 	from /Users/nkumar/dev/scratch/demo/app/models/user.rb:2
-{% endhighlight %}
+</pre>
 
 See you got the boom. Now add the code back at the bottom of <tt>enviroment.rb</tt> and execute <tt>script/console</tt> again.
 
-{% highlight ruby %}
+<pre>
 >> User.new.drinks
 => "water"
-{% endhighlight %}
+</pre>
 
 You see no boom. It means that ruby VM never ever looked at User class defined in user.rb .
 
@@ -114,7 +114,7 @@ Back to the original problem of adding the method <tt>drinks</tt> to the User cl
 
 One way to fix this problem is to have a <tt>User.new</tt> statement before re-opening the class. This is not a good solution but it works.
 
-{% highlight ruby %}
+<pre>
 
 User.new
 class User
@@ -122,17 +122,17 @@ class User
     "water"
   end
 end
-{% endhighlight %}
+</pre>
 
 A much better solution would be this.
 
-{% highlight ruby %}
+<pre>
 module Drinking
   def drinks
     "water"
   end
 end
 User.instance_eval { include Drinking }
-{% endhighlight %}
+</pre>
 
 This post was inspired by "Living without send":http://codefluency.com/2009/03/13/living-without-send.html . <br />

@@ -8,7 +8,7 @@ The ruby documentation does not mention anything about *alias*. Finally I found 
 
 Well alias is not a method. It is a reserved keyword. Otherwise it is pratically same as alias_method. I am pasting the information from aforementioned blog.
 
-{% highlight ruby %}
+<pre>
 class Test
   def test
     puts "hello" 
@@ -20,7 +20,7 @@ end
 Test.new.test        # > "hello" 
 Test.new.test_copy   # > "hello" 
 Test.new.test_copy2  # > "hello" 
-{% endhighlight %}
+</pre>
 
 <blockquote>
 It turns out that they are the same, except that:

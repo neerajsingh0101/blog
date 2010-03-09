@@ -6,7 +6,7 @@ You might have encountered such cases. Your code works fine on your machine but 
 
 I have tried to trim down the problem to the simplest level so that we could discuss the real issue without getting bogged down with the business requirement. Here is the code. 
 
-{% highlight ruby %}
+<pre>
 # ~/app/models/vehicle.rb
 class Vehicle 
   def self.color
@@ -42,7 +42,7 @@ end
 # ~/app/views/home/index.html.erb
 <%= link_to 'show car color', :action => 'show_car_color' %> <br />
 <%= link_to 'show truck color', :action => 'show_truck_color' %>
-{% endhighlight %}
+</pre>
 
 Execute the above code in development environment. Every single time you click on 'show car color', you will get blue. And every single time you click on 'show truck color', you will get black. Everything looks good. You check in your code and the code is migrated to production.
 
@@ -54,7 +54,7 @@ To get the answer to the question we need to see what is going on here. In the m
 
 class variables in ruby are shared with sub classes. It means one subclass can change the value of the class variable and the other subclass will see the changed value. This not good but it is what it is and this causes quit a bit of problem. Check the following test case.
 
-{% highlight ruby %}
+<pre>
 class Parent
   def self.toy
     @@toy
@@ -76,7 +76,7 @@ end
 => "doll"
 > Son.toy
 => "doll"
-{% endhighlight %}
+</pre>
 
 
 Notice that in the above case changing the value of toy for Daughter changes the value of toy for Son.
@@ -89,7 +89,7 @@ In development this is not a problem because Rails does auto loading of constant
 
 ActiveSupport provides <tt>class_inheritable_accesso</tt> and that fixes some of the issues with the way ruby handles class varialbes.  Checkout the following test case.
 
-{% highlight ruby %}
+<pre>
 class Parent
   class_inheritable_accessor :toy
 end
@@ -107,16 +107,16 @@ end
 >> Son.toy
 => "truck"
 
-{% endhighlight %}
+</pre>
 
 In this case changing the toy for daughter does not affect the toy value for son.
 
 So to fix the original problem the vehicle needs to be declared like this.
 
-{% highlight ruby %}
+<pre>
 class Vehicle 
   class_inheritable_accessor :color
 end
-{% endhighlight %}
+</pre>
 
 I hope this article provides a somewhat real example of a case where something works in development but fails in production. <br />

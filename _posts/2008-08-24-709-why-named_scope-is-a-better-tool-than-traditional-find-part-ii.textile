@@ -8,7 +8,7 @@ In the "part I of this article":http://www.neeraj.name/708/why-named_scope-is-a-
 
 First let's see how named_scope works. Using named_scope is easy. Following examples are lifter from "here":http://ryandaigle.com/articles/2008/3/24/what-s-new-in-edge-rails-has-finder-functionality
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   named_scope :active, :conditions => {:active => true}
   named_scope :inactive, :conditions => {:active => false}
@@ -19,11 +19,11 @@ end
 User.active    # same as User.find(:all, :conditions => {:active => true})
 User.inactive # same as User.find(:all, :conditions => {:active => false})
 User.recent   # same as User.find(:all, :conditions => ['created_at > ?', 1.week.ago])
-{% endhighlight %}
+</pre>
 
 Here is the revised plugin which uses named_scope.
 
-{% highlight ruby %}
+<pre>
 module RollSearchable
   Searchable = Struct.new :attribute,:condition
      
@@ -59,32 +59,32 @@ module RollSearchable
 end
 
 ActiveRecord::Base.send(:extend,RollSearchable)
-{% endhighlight %}
+</pre>
 
 Now User model is search enabled.
 
-{% highlight ruby %}
+<pre>
 >> User.search('rose')
 returns one record
-{% endhighlight %}
+</pre>
 
 Let's see what happens when we try to get count of search results.
 
-{% highlight ruby %}
+<pre>
 >> User.search('rose').count
 The generated sql is
 SELECT count(*) AS count_all FROM `users` WHERE ((users.first_name LIKE '%rose%') OR (users.last_name LIKE '%rose%') OR (users.email LIKE '%rose%' AND users.id > 1) OR (users.notes LIKE '%rose%'))
-{% endhighlight %}
+</pre>
 
 This is much better compared to the Part I case where all the records were retrieved and the size of array was returned as the count.
 
 Let's see how it works with pagination using will_paginate plugin
 
-{% highlight ruby %}
+<pre>
 User.search('rose').paginate(:page => 1)
 The generate sql is
 SELECT * FROM `users` WHERE ((users.first_name LIKE '%rose%') OR (users.last_name LIKE '%rose%') OR (users.email LIKE '%rose%' AND users.id > 1) OR (users.notes LIKE '%rose%')) LIMIT 0, 30
-{% endhighlight %}
+</pre>
 
 This is much better. In this case only the first 30 records were retrieved.
 

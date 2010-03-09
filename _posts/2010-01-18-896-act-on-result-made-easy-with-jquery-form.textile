@@ -18,7 +18,7 @@ h2. Code
 
 Let's assume that you have a typical form. First step is submitting the form through AJAX. jQuery Form makes it really easy. Given below is how you can submit a form using AJAX.
 
-{% highlight js %}
+<pre>
 $(document).ready(function() {
 
 	function handleSuccess(json, statusText) {
@@ -40,23 +40,23 @@ $(document).ready(function() {
 	$('#form').ajaxForm(options);
 
 });
-{% endhighlight %}
+</pre>
 
 In the <tt>beforSubmit</tt> callback all the input fields for the form should be stored. This could be done like this.
 
-{% highlight js %}
+<pre>
 function preSubmit(formData, jqForm, options) {
   ..
   $('#form').data('form_data', formArray);		
   ..
 }
-{% endhighlight %}
+</pre>
 
 As you can see before the form is submitted, all the input values are stored with key <tt>form_data</tt> .
 
 Now user is presented with a link to delete all records. If user clicks on that link then form will be submitted to same url but this time there would additional parameter <tt>act_on_result_action</tt> which will tell that all the matching records should be deleted. 
 
-{% highlight js %}
+<pre>
 $('#delete_all').live('click', function() {
 
 	var formData = $('#form').data('form_data');
@@ -78,6 +78,6 @@ $('#delete_all').live('click', function() {
 
 	return false;
 });
-{% endhighlight %}
+</pre>
 
 As you can see using jQuery Form and the technique mentioned above makes it really easy to implement <tt>act on result</tt> requirements.

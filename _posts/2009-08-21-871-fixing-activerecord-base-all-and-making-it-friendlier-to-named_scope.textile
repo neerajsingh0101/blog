@@ -6,49 +6,49 @@ __Following code has been tested with Rails 2.3 .__
 
 Search feature of this blog is powered by following named_scope.
 
-{% highlight ruby %}
+<pre>
 named_scope :search, lambda { |search_term|
    { :conditions => ["title LIKE :search_term or body LIKE :search_term", { :search_term => "%#{search_term}%"} ]  }
 }
-{% endhighlight %}
+</pre>
 
 I want to search for all <tt>sinatra</tt> related articles.
 
-{% highlight ruby %}
+<pre>
 >> Article.search('sinatra')
 SELECT * FROM `articles` WHERE (title LIKE '%sinatra%' or body LIKE '%sinatra%') 
-{% endhighlight %}
+</pre>
 
 I want to search for all articles in <tt>published</tt> status.
 
-{% highlight ruby %}
+<pre>
 >> Article.all(:conditions => {:status => 'published'})
 SELECT * FROM `articles` WHERE (`articles`.`status` = 'published') 
-{% endhighlight %}
+</pre>
 
 Now I want to combine the above two requirements: search for 'sinatra' related articles which are in 'published' status. Should be easy, Right.
 
-{% highlight ruby %}
+<pre>
 >> Article.all(:conditions => {:status => 'published'}).search('sinatra')
 NoMethodError: undefined method `search' for #<Array:0x22bbdd8>
-{% endhighlight %}
+</pre>
 
 Now try the same search as above in reverse order: put named_scope 'search' first and then apply 'all'.
 
-{% highlight ruby %}
+<pre>
 >> Article.search('sinatra').all(:conditions => {:status => 'published'})
 SELECT * FROM `articles` WHERE (`articles`.`status` = 'published') AND (title LIKE '%sinatra%' or body LIKE '%sinatra%') 
-{% endhighlight %}
+</pre>
 
 This one worked. Why is that?
 
 That's because <tt>ActiveRecord::Base.all</tt> method is defined like this
 
-{% highlight ruby %}
+<pre>
 def all(*args)
   find(:all, *args)
 end
-{% endhighlight %}
+</pre>
 
 
 So the main problem is that <tt>all</tt> is not a named_scope. And since it is not a named_scope  <tt>Article.all(:conditions => {:status => 'published'}).search('sinatra')</tt> failed.
@@ -56,12 +56,12 @@ So the main problem is that <tt>all</tt> is not a named_scope. And since it is n
 
 Fix is to create a named_scope called <tt>all</tt>.
 
-{% highlight ruby %}
+<pre>
 module ActiveRecord
    class Base
       named_scope :all, lambda { |args| args ||= {} }
    end
 end
-{% endhighlight %}
+</pre>
 
 Now the order does not matter and you can use <tt>all</tt> any way you please.<br />

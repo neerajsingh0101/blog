@@ -4,7 +4,7 @@ title: How to handle exception while developing api in ruby on rails
 ---
 Let's jump into the code.
 
-{% highlight ruby %}
+<pre>
 # users_controller.rb
 
 def show
@@ -15,7 +15,7 @@ def show
     format.xml  { render :xml => @user }
   end
 end
-{% endhighlight %}
+</pre>
 
 
 The above method would fine if everything goes fine. However if a request is made for a user id that does not exist then <tt>User.find</tt> will throw an exception.
@@ -29,7 +29,7 @@ h2. rescue_from is the solution
 
 If you don't know what <tt>rescue_from</tt> is then read "this blog about rescue_from":http://ryandaigle.com/articles/2007/9/24/what-s-new-in-edge-rails-better-exception-handling .
 
-{% highlight ruby %}
+<pre>
 rescue_from Exception, :with => :all_exception_catch
 def all_exception_catch(e)
   if params[:format] == 'xml'
@@ -38,6 +38,6 @@ def all_exception_catch(e)
     rescue_action_without_handler(e)
   end
 end
-{% endhighlight %}
+</pre>
 
 In the above code, you are asking Rails to catch all the exception with the method <tt>all_exception_catch</tt>. In that method if the format is xml then an xml response is sent. If the format is not xml then you would like the request to travel the path it was travelling. This is important because a lot of plugins like hoptoad latches onto method <tt>rescue_action_in_public</tt>. You don't want the exception propogation to halt with method <tt>all_exception_catch</tt> . <br />

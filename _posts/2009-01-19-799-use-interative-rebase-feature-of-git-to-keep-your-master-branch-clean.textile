@@ -4,17 +4,17 @@ title: Use interative rebase feature of git to keep your master branch clean
 ---
 I have a directory called git_learn and I have three files. After the intial commit this is the status
 
-{% highlight sh %}
+<pre>
 > git show-branch
 [master] initial commit
 
 > git log --pretty=oneline
 6c99e3911df8feb631a009ca6d14719732499515 initial commit
-{% endhighlight %}
+</pre>
 
 I'll create an experiment branch where I will make three commits one for each file. 
 
-{% highlight sh %}
+<pre>
 > git branch experiment
 > git co experiment
 
@@ -35,16 +35,16 @@ I'll create an experiment branch where I will make three commits one for each fi
 9fcbb0bc144356d8a6d0e49939979fa99c5f5ec8 comments for file1
 6c99e3911df8feb631a009ca6d14719732499515 initial commit
 
-{% endhighlight %}
+</pre>
 
 
 If we merge the changes from experiment branch to master then master will get three commits . In this case I don't want master branch to be polluted with three commits. I would rather have all three changes go into master branch as one single commit.
 
 I need to use interactive rebase feature to merge three commits into one single commit.
 
-{% highlight sh %}
+<pre>
 > git rebase -i master
-{% endhighlight %}
+</pre>
 
 Above command will show a screen which will look something like this.
 It lists all the three commits.
@@ -76,9 +76,9 @@ squash 0260346 comments for file3
 
 Save the file and  another screen will come up which will ask to put the message for the combined commit. I put in following message.
 
-{% highlight sh %}
+<pre>
 This is a combination of all commits for experiment branch.
-{% endhighlight %}
+</pre>
 
 Now let's look at the log in experiment branch.
 
@@ -126,7 +126,7 @@ h2. Trouble in interactive rebasing
 
 Notice that while peforming interactive rebasing, I left the first commit as 'pick'. If you choose wrong options then you might get 'interactive rebase already started' error. If you get this error then the fix is
 
-{% highlight sh %}
+<pre>
 cd .git
 rm -rf .dotest-merge
-{% endhighlight %}
+</pre>

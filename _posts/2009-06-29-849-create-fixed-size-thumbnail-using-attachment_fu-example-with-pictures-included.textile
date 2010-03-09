@@ -19,7 +19,7 @@ h2. Problem Definition
 
 I want to get thumbnails of size 200x200. Here is the model.
 
-{% highlight ruby %}
+<pre>
 class Picture < ActiveRecord::Base
   has_attachment  :max_size => 5.megabytes,
                   :content_type => :image,
@@ -30,7 +30,7 @@ class Picture < ActiveRecord::Base
   validates_as_attachment
 
 end
-{% endhighlight %}
+</pre>
 
 If you upload a picture of height 551 and width 800 then the thumbnails we will get by Rmagick is 
 "this one":http://s3.amazonaws.com/neerajdotname-blog/pictures/37/cycle_default_200x200.jpg 
@@ -44,11 +44,11 @@ h2. Using Rmagick processor with attachment_fu
 
 If you look at the documentation of attachment_fu you will notice that the thumbnail options are something like 
 
-{% highlight ruby %}
+<pre>
 :thumbnails => { :small => '10x10>',
                  :thumb => '100x100>' }
 
-{% endhighlight %}
+</pre>
 
 I could not understand what that greater than sign <tt>></tt> meant at the end of '10x10>'. 
 
@@ -62,28 +62,28 @@ I could not fully understand the documentation. I uploaded a picture with five d
 
 h3. option: 200x200
 
-{% highlight ruby %} 
+<pre> 
  :processor => :Rmagick, 
  :thumbnails => { :default_200x200 => '200x200' }
-{% endhighlight %}
+</pre>
 
 Rmagick is being asked to create thumbnail of dimension '200x200'. Be default Rmagick maintains the aspect ratio. And that is the reason by thumbnails that are created are not of exact size ( 200x200 ). Instead the thumbnail is of size (138x200)
 
 h3. option: 200x200!
 
-{% highlight ruby %}
+<pre>
  :processor => :Rmagick, 
  :thumbnails => { :ex_200x200 => '200x200!' }
-{% endhighlight %}
+</pre>
 
 The  addition of an exclamation mark tell Rmagick to stretch the thumbnail to fit to the exact size mentioned . The end result is a thumbnail of the exact size but it is stretched and some people don't like stretched pictures.
 
 h3. option: c200x200
 
-{% highlight ruby %}
+<pre>
  :processor => :Rmagick, 
  :thumbnails => { :crop_200x200 => 'c200x200' }
- {% endhighlight %}
+ </pre>
 
 In this case Rmagick is being asked to create a thumbnail by cropping it.
 

@@ -6,15 +6,15 @@ As a programmer when we switch from one language to another we are expected to p
 
 This one not so good.
 
-{% highlight ruby %}
+<pre>
 if current_user.status == false
   # do something
 end
-{% endhighlight %}
+</pre>
 
 A better approach would be
 
-{% highlight ruby %}
+<pre>
 if !current_user.status
   # do something
 end
@@ -24,17 +24,17 @@ end
 unless current_user.status
   # do something
 end
-{% endhighlight %}
+</pre>
 
 checkout this code.
 
-{% highlight ruby %}
+<pre>
 if count = current_user.pictures_count
   current_user.updated_attributes(:pictures_count => count + 1)
 else
   current_user.updated_attributes(:pictures_count => 0)  
 end
-{% endhighlight %}
+</pre>
 
 It is a valid ruby code. But I highly recomment not to write like this. In the above case the author's assumption is that current_user.pictures_count migh return nil. And in that case else loop will be called. Also note that the variable count is being set with a value here.
 
@@ -42,11 +42,11 @@ Over the years of progamming when my brain sees 'if' then it expects a condition
 
 I guess more readable code would be.
 
-{% highlight ruby %}
+<pre>
 count = current_user.pictures_count
 if count
   current_user.updated_attributes(:pictures_count => count + 1)  
 else
   current_user.updated_attributes(:pictures_count => 0)    
 end
-{% endhighlight %} <br />
+</pre> <br />

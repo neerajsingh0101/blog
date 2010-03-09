@@ -6,17 +6,17 @@ Going through <a href="http://www.ryandaigle.com/">Ryan's blog</a> I am finding 
 
 Before:
 
-{% highlight ruby %}
+<pre>
 Article.find(:all, :conditions =>
 [ "author_id = ? and status = ?", @author.id, 'published' ], :limit => 10)
-{% endhighlight %}
+</pre>
 
 Now:
 
-{% highlight ruby %}
+<pre>
 Article.find(:all, :conditions =>
 { :author_id => @author.id, :status => 'published' }, :limit => 10)
-{% endhighlight %}
+</pre>
 
 Don't worry about sql injection. The params are sanitized before being used.
 

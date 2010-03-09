@@ -6,7 +6,7 @@ In ruby there are many ways to achieve the same result and sometimes it gets con
 
 We are going to have a module and then the same module would be used in a class in two different ways.  The goal is to make the method count be a class method in the including Class.
 
-{% highlight ruby %}
+<pre>
 # make the method count as the class method 
 module Count
   def count
@@ -25,14 +25,14 @@ class Person2
   end
 end
 puts Person2.count
-{% endhighlight %}
+</pre>
 
 We saw two different ways of  having a module method become a class method: Person1 used "extend" and Person2 used "include".
 
 
 Similarly let's see another case where a module method should become instance method for the class.
 
-{% highlight ruby %}
+<pre>
 # the method name should become instance method
 module Name
   def name
@@ -50,7 +50,7 @@ end
 p4 = Person4.new
 p4.extend Name
 puts p4.name
-{% endhighlight %}
+</pre>
 
 Here we saw two different ways of making the method "name" as instance method. Person3 used "include" and Person4 used "extend" on objects.
 
@@ -58,7 +58,7 @@ Although both Person3 and Person4 achieved the objective of having "name" as ins
 
 When a class includes a module then , in a way, a super class is created where the module methods reside. It means if both the module and the class declare method with the same name then the method defined in the class takes precedence. Take a look.
 
-{% highlight ruby %}
+<pre>
 module Name
   def name
     "from module"
@@ -73,18 +73,18 @@ class Person
 end
 
 puts Person.new.name   # output is "from person"
-{% endhighlight %}
+</pre>
 
 We saw that by including a module the existing methods of the class are not threatened. In the above case if the instance method "name" of class "Person" wants to access the method provided by the module then "super" can be used. We can see the same order by asking ruby the order in which it will look into items.
 
-{% highlight ruby %}
+<pre>
 puts Person.new.instance_eval("class << self;self;end;").ancestors
 # [Person,Name,Object,Kernel]
-{% endhighlight %}
+</pre>
 
 The above result indicates that ruby will look in Person class before it looks in Name class.
 
-{% highlight ruby %}
+<pre>
 module Name
   def name
     " from module"
@@ -100,11 +100,11 @@ end
 
 puts Person.new.name
 # output is "from person  from module"
-{% endhighlight %}
+</pre>
 
 This is not the case with extend. When an object extends a module then the methods of the module takes precedence over the methods of the obj. Take a look.
 
-{% highlight ruby %}
+<pre>
 module Name
   def name
     " from module"
@@ -121,11 +121,11 @@ end
 @person.extend(Name)
 
 puts @person.name # output is "from module"
-{% endhighlight %}
+</pre>
 
 Use "super" to access the class defined method from the module method.
 
-{% highlight ruby %}
+<pre>
 module Name
   def name
     " from module " + super
@@ -142,14 +142,14 @@ end
 @person.extend(Name)
 
 puts @person.name # output is " from module from person "
-{% endhighlight %}
+</pre>
 
 Let's ask ruby the order in which things will be searched.
 
-{% highlight ruby %}
+<pre>
 puts @person.instance_eval("class << self;self;end;").ancestors
 # [Name,Person,Object,Kernel]
-{% endhighlight %}
+</pre>
 
 As we can see the module Name will be searched before class Person is looked into.
 

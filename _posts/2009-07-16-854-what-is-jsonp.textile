@@ -8,9 +8,9 @@ h2. What problem JSONP solves?
 
 Browsers do not allow cross-domain Ajax requests. For example if you try to make Ajax request to "http://www.eventsinindia.com/events/14633.js":http://www.eventsinindia.com/events/14633.js to get event data you will get following error.
 
-{% highlight sh %}
+<pre>
 Access to restricted URI denied.
-{% endhighlight %}
+</pre>
 
 In order to get around this security problem you can do any number of things including sending the Ajax request to your server which will get the JSON data from the eventsinindia.com API. Or use iframe. Both of these solutions are implemented and discussed in "this article":http://www.neeraj.name/blog/articles/846 .
 
@@ -20,17 +20,17 @@ h2. Before we discuss JSONP some basics ?
 
 Before looking at JSONP let's cover some basics. When a html page includes a javascript file then the html code looks something like this.
 
-{% highlight sh %}
+<pre>
 <script src="http://neeraj.name/javascripts/color.js" type="text/javascript"></script>
-{% endhighlight %}
+</pre>
 
 There are two things to notice here. First is that the source of the javascript file could be cross-domain. It means your html page can point the source of your javascript file to "http://neeraj.name/javascripts/cache/all.js" and all.js will be loaded by the browser. This feature which allows cross-domain loading of javascript file is the basis of JSONP.
 
 The second thing to notice is that the javascript written in color.js is immediately evaluated after the source file has been loaded. For example the content of color.js could be this.
 
-{% highlight js %}
+<pre>
 alert('hello');
-{% endhighlight %}
+</pre>
 
 When the html page is loaded you will get an alert.
 
@@ -44,21 +44,21 @@ However in the world of JSON we only get JSON data from the remote server. If we
 
 Let's take an example. If you make a call to "http://www.eventsinindia.com/events/14633.js":http://www.eventsinindia.com/events/14633.js you will get JSON data back.
 
-{% highlight js %}
+<pre>
 {"name": "Craft Classes" , "start_date": "2009-05-01" , ....}
-{% endhighlight %}
+</pre>
 
 However what you really want is to do is to stick this data on your html page by invoking a javascript function like this
 
-{% highlight js %}
+<pre>
 AddThisDataToPage({"name": "Craft Classes" , "start_date": "2009-05-01" , ....});
-{% endhighlight %}
+</pre>
 
 What needs to be done is while making a call to http://www.eventsinindia.com/events/14633.js pass a paramater called <tt>callback</tt> . So in this case the full url would look something like this
 
-{% highlight sh %}
+<pre>
 http://www.eventsinindia.com/events/14633.js?callback=AddThisDataToPage
-{% endhighlight %}
+</pre>
 
 Remember callback is a special word here. By using callback we are telling API to wrap the response JSON data with a call to function named AddThisDataToPage. 
 
@@ -94,13 +94,13 @@ h2. Providing support for JSONP
 
 All the APIs should provide support for JSONP. Enabling JSONP support is easy if you are using Rails 2.3 or any Rack compliant framework. In Rails 2.3 all you need to do is stick "this file in lib as jsonp.rb":http://gist.github.com/148419 and then add one line to the environment.rb .
 
-{% highlight ruby %}
+<pre>
 #environment.rb
 Rails::Initializer.run do |config|
   .....
   config.middleware.use 'Jsonp'
 end
-{% endhighlight %}
+</pre>
 
 That's it. Now you are providing support of JSONP with the keyword being <tt>callback</tt>.
 

@@ -2,7 +2,7 @@
 layout: post
 title: Ruby gsub edge case
 ---
-{% highlight ruby %}
+<pre>
 # works
 >> text.gsub(/(WORLD)/i,'<nice> \1 </nice>')
 => "hello <nice> world </nice>, this is a test"
@@ -18,7 +18,7 @@ title: Ruby gsub edge case
 # DOES NOT WORK
 >> text.gsub(/(WORLD)/i,"<nice> \1 </nice>")
 => "hello <nice> \001 </nice>, this is a test"
-{% endhighlight %}
+</pre>
 
 Any idea why the last one does not work?
  <br />

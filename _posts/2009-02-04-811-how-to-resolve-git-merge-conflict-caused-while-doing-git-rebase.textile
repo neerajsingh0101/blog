@@ -69,46 +69,46 @@ Notice that the output clearly tells that there were conflicts in rails.txt and 
 
 Also notice that now you are in a special branch called (no branch)
 
-{% highlight sh %}
+<pre>
 > git branch
 * (no branch)
   experiment
   master
-{% endhighlight %}
+</pre>
 
 Open rails.txt and remove the extra lines that have been added by git.Once the file looks good then save the file. Do the same with ruby.txt .
 
 Now add both the files. But do not commit them. Just add the resolved files.
 
-{% highlight sh %}
+<pre>
 > git add ruby.txt
 > git add rails.txt
-{% endhighlight %}
+</pre>
 
 Now let's continue with rebase.
 
-{% highlight sh %}
+<pre>
 > git rebase --continue
 # if you still get some message then try running this command 
 # again. It seems sometimes you get some message which is not 
 # a problem. So try rebase --continue two times just to be on 
 # the safe side.
-{% endhighlight %}
+</pre>
 
 Now the rebase work is done and notice that the current branch has changed from (no branch) to experiment branch.
 
-{% highlight sh %}
+<pre>
 > git branch
 * experiment
   master
-{% endhighlight %}
+</pre>
 
 h2. Abort the whole merge
 
 If you get merge conflicts and you find out the merge conflicts are massive and you do not want to go ahead with rebase then you can issue following command to abort the whole rebase command.
 
-{% highlight sh %}
+<pre>
 > git rebase --abort
-{% endhighlight %}
+</pre>
 
 When the merge conflict message appears then you are put into (no branch). After the abort you will be taken back to your experiment branch. <br />

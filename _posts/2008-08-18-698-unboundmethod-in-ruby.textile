@@ -5,7 +5,7 @@ title: UnboundMethod in ruby
 Check this out
 
 
-{% highlight ruby %}
+<pre>
 class Person
   def hello
     'Hello'
@@ -15,7 +15,7 @@ end
 m = Person.instance_method(:hello)
 puts m.class 
 #=> UnboundMethod 
-{% endhighlight %}
+</pre>
 
 Click "here for the rdoc":http://ruby-doc.org/core/classes/UnboundMethod.html of UnboundMethod. 
 
@@ -23,7 +23,7 @@ Jay fields has posted a nice article about how to go about redefining a method u
 
 Since 'm' is not bound to any person object we can't really use. In order to use 'm' we need to bind it to real object. This will work.
 
-{% highlight ruby %}
+<pre>
 class Person
   def hello
     'Hello'
@@ -37,11 +37,11 @@ p = Person.new
 puts m.bind(p).call
 # UnboundMethod
 # Hello
-{% endhighlight %}
+</pre>
 
 Any method can be overridden using this UnboundMethod technique. One cool feature of unbound method is that once it has been captured the nature of this method will not change even though the underlying implementation has been changed subsequently.
 
-{% highlight ruby %}
+<pre>
 class Person
   def hello
     'Hello'
@@ -66,4 +66,4 @@ puts Person.new.extend(Revised).hello
 #UnboundMethod
 #Hello
 #Hello ruby
-{% endhighlight %}
+</pre>

@@ -6,61 +6,61 @@ Ruby offers a lot of goodies and one of them is "inject":http://ruby-doc.org/cor
 
 Code will make it easier to understand.
 
-{% highlight ruby %}
+<pre>
 foo = %w(a b c)
 output = foo.inject('') do |sum, element|
   puts "currently processing element #{element}"
   sum = sum + element
 end
 puts output
-{% endhighlight %}
+</pre>
 
 You will get output like this.
 
-{% highlight sh %}
+<pre>
 currently processing element a
 currently processing element b
 currently processing element c
 abc
-{% endhighlight %}
+</pre>
 
 Now try change the code so that the empty string is not being passed to inject call. 
 
-{% highlight ruby %}
+<pre>
 foo = %w(a b c)
 output = foo.inject do |sum, element|
   puts "currently processing element #{element}"
   sum = sum + element
 end
 puts output
-{% endhighlight %}
+</pre>
 
 This time the output is
 
-{% highlight sh %}
+<pre>
 currently processing element b
 currently processing element c
 abc
-{% endhighlight %}
+</pre>
 
 Notice that even though the final result is same, no iteration was done for the element 'a'.
 
 Now try running the same code with array having only one element.
 
-{% highlight ruby %}
+<pre>
 foo = %w(a)
 output = foo.inject do |sum, element|
   puts "currently processing element #{element}"
   sum = sum + element
 end
 puts output
-{% endhighlight %}
+</pre>
 
 This time the output is
 
-{% highlight sh %}
+<pre>
 a
-{% endhighlight %}
+</pre>
 
 Notice that this time code inside the loop was not executed.
 

@@ -4,7 +4,7 @@ title: jQuery show method edge case
 ---
 Here is a simple case of invoking <tt>show</tt> method on a hidden element.
 
-{% highlight sh %}
+<pre>
 <style>
   p { display: inline; }
   #hello p { display: none;}
@@ -16,24 +16,24 @@ Here is a simple case of invoking <tt>show</tt> method on a hidden element.
     <p>this is p inside hello</p>
   </div>
 </div>
-{% endhighlight %}
+</pre>
 
 jQuery code.
 
-{% highlight js %}
+<pre>
 $('p').show();
-{% endhighlight %}
+</pre>
 
 You can see the result "here":http://jsfiddle.net/d5uW7/  . Notice that when <tt>p</tt> is shown then <tt>display</tt> property of <tt>p</tt> is <tt>inline</tt> which is what it should be. All is well.
 
 Now I'll change the css a little bit and will try the same code again. New css is .
 
-{% highlight sh %}
+<pre>
 <style>
   #container p { display: inline; }
   #hello p { display: none;}
 </style>
-{% endhighlight %}
+</pre>
 
 See the result "here":http://jsfiddle.net/qj6PT/ . Notice that <tt>display</tt> property of <tt>p</tt> is <tt>block</tt> instead of <tt>inline</tt> .
 

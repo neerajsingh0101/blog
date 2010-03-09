@@ -4,16 +4,16 @@ title: Hidden feature of jQuery  Calling a method on a jQuery collection
 ---
 I was going through the "Adding keyboard navigation":http://jqueryfordesigners.com/adding-keyboard-navigation and noticed that Remi replaced this code 
 
-{% highlight js %}
+<pre>
 $('.coda-slider-wrapper ul a.current').parent().next().find('a').click();
-{% endhighlight %}
+</pre>
 
 with this code
 
-{% highlight js %}
+<pre>
 var direction = 'next';
 $('.coda-slider-wrapper ul a.current').parent()[direction]().find('a').click();
-{% endhighlight %}
+</pre>
 
 I had never seen anything like that. In the above mentioned article, Remi usedd <tt>next</tt> and <tt>prev</tt> methods. However I wanted to know all the options I could pass since this feature is not very documented.
 
@@ -21,7 +21,7 @@ h2. Snippet from jQuery source code
 
 Here is code from jQuery that makes that above method work.
 
-{% highlight js %}
+<pre>
 jQuery.each({
 	parent: function(elem){return elem.parentNode;},
 	parents: function(elem){return jQuery.dir(elem,"parentNode");},
@@ -42,13 +42,13 @@ jQuery.each({
 		return this.pushStack( jQuery.unique( ret ), name, selector );
 	};
 });
-{% endhighlight %}
+</pre>
 
 As you can see, a variety of selectors can be passed to jQueryCollection[].
 
 If you want to give a try, any jQuery enabled site should perform all of the below mentioned code without any problem.
 
-{% highlight js %}
+<pre>
 var a = $('a:first');
 var log = console.log;
 
@@ -61,4 +61,4 @@ log(a['prevAll']());
 log(a['siblings']());
 log(a['children']());
 log(a['contents']());
-{% endhighlight %}
+</pre>

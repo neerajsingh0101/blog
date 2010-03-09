@@ -4,7 +4,7 @@ title: Why not use join instead
 ---
 I am looking at the source code of "cache_fu":http://github.com/defunkt/cache_fu/tree/master and this is what I found. 
 
-{% highlight ruby %}
+<pre>
 def config_args
   args = {
     '-p' => Array(config['servers']).first.split(':').last,
@@ -19,7 +19,7 @@ end
 def memcached(*args)
   `/usr/bin/env memcached #{args * ' '}`
 end
-{% endhighlight %}
+</pre>
 
 For those who are not aware of "*" method from Array "here is the link of documentation":http://ruby-doc.org/core/classes/Array.html#M002210. 
 

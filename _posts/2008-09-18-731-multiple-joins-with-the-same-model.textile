@@ -4,22 +4,22 @@ title: multiple joins with the same model
 ---
 A user has many articles and we want to search for all users who have written articles with title "ruby". This is how we can do that.
 
-{% highlight sh %}
+<pre>
 >> User.all :joins => :articles, :conditions => {"articles.title" => 'ruby'}
-  SELECT "users".* FROM "users" INNER JOIN "articles" ON articles.user_id = users.id WHERE ("articles"."title" = 'ruby') {% endhighlight %}
+  SELECT "users".* FROM "users" INNER JOIN "articles" ON articles.user_id = users.id WHERE ("articles"."title" = 'ruby') </pre>
 
 How about finding all the users who have written articles with title 'ruby' and 'java'. Note that here we are using joins two times.
 
-{% highlight ruby %}
+<pre>
 >> User.all :joins => [:articles,:articles], :conditions => {"articles.title" => 'ruby',"articles_users.title" => 'java'}
 SELECT "users".* FROM "users" INNER JOIN "articles" ON articles.user_id = users.id INNER JOIN "articles" articles_users ON articles_users.user_id = users.id WHERE ("articles"."title" = 'ruby' AND "articles_users"."title" = 'java') 
-{% endhighlight %}
+</pre>
 
 This works. But how about finding all the users who have written articles with title 'ruby' and 'java' and 'python'. 
 
-{% highlight ruby %}
+<pre>
 >> User.all :joins => [:articles,:articles,:articles], :conditions => {"articles.title" => 'ruby',"articles_users.title" => 'java', "articles_users_2.title" => 'python'}
 SELECT "users".* FROM "users" INNER JOIN "articles" ON articles.user_id = users.id INNER JOIN "articles" articles_users ON articles_users.user_id = users.id INNER JOIN "articles" articles_users_2 ON articles_users_2.user_id = users.id WHERE ("articles"."title" = 'ruby' AND "articles_users_2"."title" = 'python' AND "articles_users"."title" = 'java') 
-{% endhighlight %}
+</pre>
 
 As more :articles is added to joins, we get new table names like articles_users_3, articles_users_4 etc. This article is inspired by "this":http://m.onkey.org/2008/9/15/active-record-tips-and-tricks article from Pratik.

@@ -4,33 +4,33 @@ title: Understanding jQuery effects queue
 ---
 Recently I tried following code in jQuery and it did not work.
 
-{% highlight js %}
+<pre>
  $('#lab')
     .animate({height: '200px'})
     .hide();
-{% endhighlight %}
+</pre>
 
 If I pass a parameter to <tt>hide</tt> then it would start working.
 
-{% highlight js %}
+<pre>
  $('#lab')
     .animate({height: '200px'})
     .hide(1);
-{% endhighlight %}
+</pre>
 
 As it turns out I did not have proper understanding of how effects work in jQuery.
 
 animate method uses a queue inside. This is the queue to which all the pending activities are added. 
 
-{% highlight js %}
+<pre>
 $('#lab').animate({height: '200px'}).animate({width: '200px'});
-{% endhighlight %}
+</pre>
 
 In the above code element is being animated twice. However the second animation will not start until the first animation is done. While the first animation is happening the second animation is added to a queue. 
 Name of this default queue is <tt>fx</tt>. This is the queue to which jQuery adds all the pending activities while one activity is in progress.
  You can inquire an element about how many pending activities are there in the queue. 
 
-{% highlight js %}
+<pre>
     $('#lab')
       .animate({height: '200px'})
       .animate({width: '200px'})
@@ -38,73 +38,73 @@ Name of this default queue is <tt>fx</tt>. This is the queue to which jQuery add
       .queue(function(){ console.log( $(this).queue('fx').length); $(this).dequeue(); })
       .animate({width: '800px'})
       .queue(function(){ console.log( $(this).queue('fx').length);$(this).dequeue(); }) ;
-{% endhighlight %}
+</pre>
 
 In the above code, twice the current queue is being asked to list number of pending activities.  First time the number of pending activities is 3 and the second time it is 1.
 
 
 Method show and hide also accepts duration. If a duration is passed then that operation is added to the queue. If duration is not passed or if the duration is zero then that operation is not added to queue.
 
-{% highlight js %}
+<pre>
  $('#lab').hide(); // this action is not added to fx queue
 
  $('#lab').hide(0); // this action is not added to fx queue
 
  $('#lab').hide(1); // this action is added to fx queue 
-{% endhighlight %}
+</pre>
 
 h2. Coming back to the original question
 
 When show or hide method is invoked without any duration then those actions are not added to queue. 
 
-{% highlight js %}
+<pre>
  $('#lab')
     .animate({height: '200px'})
     .hide();
-{% endhighlight %}
+</pre>
 
 In the above code since hide method is not added to queue, both the animate and the hide method are executed simultaneously. Hence the end result is that element is not hidden.
 
 It could be fixed in a number of ways. One way would be to pass a duration to hide method.
 
-{% highlight js %}
+<pre>
  $('#lab')
     .animate({height: '200px'})
     .hide(1);
-{% endhighlight %}
+</pre>
 
 Another way to fix it would be to pass hiding action as a callback function to animate method.
 
-{% highlight js %}
+<pre>
 $('#lab')
    .animate({height: '200px'}, function(){
      $(this).hide();
    });
-{% endhighlight %}
+</pre>
 
 
 Another way would be to explicitly put hide method in a queue.
 
-{% highlight js %}
+<pre>
      $('#lab')
         .animate({height: '200px'})
         .queue(function(){
           $(this).hide();
         })
-{% endhighlight %}
+</pre>
 
 Since hide method is not added to queue by default, in this case I have explicitly put the hide method to the queue. 
 
 Note that inside a queue method you must explicitly call <tt>dequeue</tt> for the next activity from the queue to be picked up. 
 
-{% highlight js %}
+<pre>
    $('#lab')
         .animate({height: '200px'})
         .queue(function(){
           $(this).hide().dequeue();
         })
         .animate({width: '200px'})
-{% endhighlight %}
+</pre>
 
 In the above code if <tt>dequeue</tt> is not called then second animation will never take place.
 
@@ -114,12 +114,12 @@ h2. Turning off all animations
 
 If for some reason you don't want animation then just set <tt>$.fx.off = true</tt>.
 
-{% highlight js %}
+<pre>
 $.fx.off = true;  
 $('#lab')
    .animate({height: '200px'}, function(){
      $(this).hide();
    });
-{% endhighlight %}
+</pre>
 
 Above code is telling jQuery to turn off all animations and that would result in the element hiding in an instant.

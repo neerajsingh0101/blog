@@ -6,17 +6,17 @@ In the <a href="http://neeraj.name/2007/07/31/learning-ruby-rails-july-edition/"
 
 Let's look at it again.
 
-{% highlight ruby %}
+<pre>
 class City<ActiveRecord::Base
    belongs_to :state
    validates_presence_of :state
    validates_associated :state
 end
-{% endhighlight %}
+</pre>
 
 Now let's take a case of inserting a new city. In this case I am creating a NEW state and attaching the state to the city. Notice that the @state is a new state and is not an existing record.
 
-{% highlight ruby %}
+<pre>
 >> @state = State.new
 => #<State:0x4664064 @new_record=true, @attributes={"name"=>""}>
 >> @state.name = "Maryland2"
@@ -30,23 +30,23 @@ Now let's take a case of inserting a new city. In this case I am creating a NEW 
 => #<State:0x4664064 @new_record=true, @attributes={"name"=>"Maryland2"}>
 >> @city.save
 => true
-{% endhighlight %}
+</pre>
 
 I was completely surprised to find that the above operation besides inserting a new city record also inserted a new state record.
 
 However my intention here was to make sure that any city I insert must have a valid state record already existing. This is where validates_existence comes in handy. Revised code is.
 
-{% highlight ruby %}
+<pre>
 class City < ActiveRecord::Base  
   belongs_to  :state 
   validates_existence_of :state
   validates_associated :state
 end 
-{% endhighlight %}
+</pre>
 
 Now I will try to insert a city record which is associated with a NEW state record. Let's see what happens.
 
-{% highlight ruby %}
+<pre>
 >> @state = State.new
 => #<State:0x45c3290 @new_record=true, @attributes={"name"=>""}>
 >> @state.name = "Maryland3"
@@ -62,7 +62,7 @@ Now I will try to insert a city record which is associated with a NEW state reco
 => false
 >> @city.errors
 => #<ActiveRecord::Errors:0x45afd1c @errors={"state"=>["does not exist"]},
-{% endhighlight %}
+</pre>
 
 I could not insert the city record. That makes sense. 
 

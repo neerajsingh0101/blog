@@ -4,7 +4,7 @@ title: Getting stage variable in capistrano
 ---
 I use "capistrano multistage":http://weblog.jamisbuck.org/2007/7/23/capistrano-multistage in all of my applications. A typical deploy.rb file might look like this.
 
-{% highlight ruby %}
+<pre>
 set :stages, %w(production)
 require 'capistrano/ext/multistage'
 server "67.207.xxx.xx", :app, :web, :db, :primary => true
@@ -18,27 +18,27 @@ set :use_sudo, false
 set :scm, :git
 set :deploy_via, :copy
 set :copy_remote_dir, "/home/#{user}/tmp"
-{% endhighlight %}
+</pre>
 
 This is all good. Problem arises if we want to change the application name from "myblog" to "myblog_production" or "myblog_staging". On the linux server is it much easier to distinguish between staging and production environments if the full path to application is /home/neeraj/apps/eii_staging/current or /home/neeraj/apps/eii_production/current. 
 
 In order to have dynamic name of the application one might be tempted to do this.
 
-{% highlight ruby %}
+<pre>
 # I am only mentioning the line that is being change
 set :application, "myblog_#{stage}"
-{% endhighlight %}
+</pre>
 
 But this will not work. Capistrano will complain that variable 'stage' is not found. In order to fix the problem revise the above code to
 
-{% highlight ruby %}
+<pre>
 # lazily evaluate stage
 set(:application) { "myblog_#{stage}" }
-{% endhighlight %}
+</pre>
 
 Now the code should work fine. With that revision the full code might look like this.
 
-{% highlight ruby %}
+<pre>
 set :stages, %w(production)
 require 'capistrano/ext/multistage'
 server "67.207.xxx.xx", :app, :web, :db, :primary => true
@@ -52,7 +52,7 @@ set :use_sudo, false
 set :scm, :git
 set :deploy_via, :copy
 set :copy_remote_dir, "/home/#{user}/tmp"
-{% endhighlight %}
+</pre>
 
 Capistrano will fail again because we are using variable 'application' in setting variable 'deploy_to'. But when the value of variable 'deploy_to' is evaluated application is not yet set by that time and hence the error.
 
@@ -60,7 +60,7 @@ Since variable 'application' is lazily evaluated, all variables that depend on '
 
 The final fixed version looks like this
 
-{% highlight ruby %}
+<pre>
 set :stages, %w(production)
 require 'capistrano/ext/multistage'
 server "67.207.xxx.xx", :app, :web, :db, :primary => true
@@ -75,5 +75,5 @@ set :use_sudo, false
 set :scm, :git
 set :deploy_via, :copy
 set :copy_remote_dir, "/home/#{user}/tmp"
-{% endhighlight %}
+</pre>
  <br />

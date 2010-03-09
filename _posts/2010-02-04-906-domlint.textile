@@ -12,16 +12,16 @@ Today I came across "DOM Lint":http://yura.thinkweb2.com/domlint/ in this "jQuer
 
 I never really thought it before but what if  the name of a form is <tt>getElementById</tt>.
 
-{% highlight sh %}
+<pre>
 <form name="getElementById">
     ...
-</form>{% endhighlight %}
+</form></pre>
 
 How about <tt>addEventListener</tt> as the id of a div.
 
-{% highlight sh %} <div id="addEventListener">
+<pre> <div id="addEventListener">
     ...
-  </div>{% endhighlight %}
+  </div></pre>
 
 I am quoting Dave here. He explained the problem very well.
 

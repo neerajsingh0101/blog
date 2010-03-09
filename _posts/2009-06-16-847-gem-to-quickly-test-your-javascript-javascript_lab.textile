@@ -6,10 +6,10 @@ Personally I am liking jQuery over Prototype but there are many projects which u
 
 I ended up creating this gem calld <tt>javascript_lab</tt>. 
 
-{% highlight ruby %}
+<pre>
 gem sources -a http://gems.github.com
 sudo gem install neerajdotname-javascript_lab
-{% endhighlight %}
+</pre>
 
 Once the gem is installed then on the command line type <tt>javascript_lab</tt> and a browser should come up.
 

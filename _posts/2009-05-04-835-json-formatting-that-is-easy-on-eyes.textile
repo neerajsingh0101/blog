@@ -6,7 +6,7 @@ ActiveRecord makes it easy to get JSON output. All you need to do is to call <tt
 
 Here is the snippet of the code from the blog engine that powers this blog.
 
-{% highlight ruby %}
+<pre>
 def show
   @article = Article.find(params[:id], :include => :comments)
   respond_to do |format|
@@ -17,7 +17,7 @@ def show
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 You can see the output "here":http://www.neeraj.name/blog/articles/834-how-cookie-stores-session-data-in-rails.js .
 
@@ -25,7 +25,7 @@ If you are working on an API or if you need to refer to the JSON output time and
 
 Rails makes use of <tt>to_json</tt> method added to Hash in ActiveSupport. You can overwrite <tt>to_json</tt> method to get the desired output. This is what I have.
 
-{% highlight ruby %}
+<pre>
 class Hash
   def to_json(options = {}) #:nodoc:
     options.reverse_merge! :spacer_size => 1    
@@ -47,7 +47,7 @@ class Hash
     
   end
 end
-{% endhighlight %}
+</pre>
 
 
 Now all json outputs are nicely displayed on the browser. No horizontal scrolling. <br />

@@ -4,7 +4,7 @@ title: rescuing from LoadError
 ---
 let's say that you are writing a date parser and you want to parse the input date field using chronic gem if that gem is installed. If that gem is not installed then you want to use Time. parse. You would try something like this.
 
-{% highlight ruby %}
+<pre>
 begin
   require 'chronic'
 rescue
@@ -12,7 +12,7 @@ rescue
 end
 
 puts 'chronic is missing" if @chronic_missing
-{% endhighlight %}
+</pre>
 
 However if you execute the above code, you will get exception *no such file to load — chronic*
 
@@ -24,7 +24,7 @@ if no clause is provided after rescue then by default rescue rescues from Standa
 
 The fix is to explicitly catch LoadError.
 
-{% highlight ruby %}
+<pre>
 begin
   require 'chronic'
 rescue LoadError
@@ -32,7 +32,7 @@ rescue LoadError
 end
 
 puts 'chronic is missing' if @chronic_missing
-{% endhighlight %}
+</pre>
 
 
 Mystery solved.

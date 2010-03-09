@@ -11,7 +11,7 @@ In this article we are going to see what's the difference between bind and bindA
 
 Since bindAsEventListener has to do with event let's modify the existing code. In the existing code this.ask is assigned to a function and that function doesn't accept any input. Let's change that. Now the function will start accepting event as an input parameter. 
 
-{% highlight js %}
+<pre>
 //Existing code:
 
 this.ask = function() {
@@ -38,7 +38,7 @@ function addhandler(){
 	the_button.onclick = school_quiz.ask.bind(school_quiz,11,12,13);
 }
 
-{% endhighlight %}
+</pre>
 
 Since we are done  with this.the_question and this.the_answer, I have removed alert for them. Instead now we have an alert for the event and an alert for the arguments.
 
@@ -50,7 +50,7 @@ We have also changed the school_quiz.ask.bind method. Now instead of just passin
 
 Let's execute the code and see how it looks. The full code and the result is given below.
 
-{% highlight sh %}
+<pre>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
@@ -78,29 +78,29 @@ Let's execute the code and see how it looks. The full code and the result is giv
 <button id='thebutton'> Click me!</button>
 </BODY>
 </HTML>
-{% endhighlight %}
+</pre>
 
 Result is:
 
-{% highlight sh %}
+<pre>
 e is 11
 11,12,13,[ObjectMouseEvent]
-{% endhighlight %}
+</pre>
 
 This is not good. e should not be 11 and why the [ObjectMouseEvent] is appearing at the end of the arguements list.  Before we get to the bottom of the matter, let's see what will happen if we change the code from bind to bindAsEventListener.
 
-{% highlight sh %}
+<pre>
 the_button.onclick = school_quiz.ask.bind(school_quiz,11,12,13);
 was changed to
 the_button.onclick = school_quiz.ask.bindAsEventListener(school_quiz,11,12,13);
-{% endhighlight %}
+</pre>
 
 Result is
 
-{% highlight sh %}
+<pre>
 e is [ObjectMouseEvent]
 [ObjectMouseEvent],11,12,13
-{% endhighlight %}
+</pre>
 
 It seems replacing bind by bindAsEventListener fixed the problem. Now we are getting the right event object. But how the problem got fixed and what magic bindAsEventListener did still needs to be understood.
 
@@ -109,7 +109,7 @@ In order to fully understand how bind works  let's see the source code for bind.
 
 Here is the existing code for bind in <a href="http://www.prototypejs.org/assets/2007/8/15/prototype.js">Prototyp version 1.6.0_rc0</a>.
 
-{% highlight js %}
+<pre>
 bind: function() {
     if (arguments.length < 2 && arguments[0] === undefined) return this;
     var __method = this, args = $A(arguments), object = args.shift();
@@ -117,18 +117,18 @@ bind: function() {
       return __method.apply(object, args.concat($A(arguments)));
     }
   },
-{% endhighlight %}
+</pre>
 
 Code is just a few lines but it's tricky. First thing to notice is that when this javascript is loaded by the browser then the first two lines are executed at that time. Following lines are executed when the DOM loads javascript.
 
-{% highlight js %}
+<pre>
     if (arguments.length < 2 && arguments[0] === undefined) return this;
     var __method = this, args = $A(arguments), object = args.shift();
-{% endhighlight %}
+</pre>
 
 You can put alert statement to verify that. Now  when the event happens (for example a mouse click) then the return function is execute. Let's put three alerts inside the return function to see what happens when we click the button. Modified code is given below.
 
-{% highlight js %}
+<pre>
     return function() {
       alert("args is" + args.inspect());
       alert("arguments  is" + $A(arguments).inspect());            
@@ -137,15 +137,15 @@ You can put alert statement to verify that. Now  when the event happens (for exa
       return __method.apply(object, c);
     }
 
-{% endhighlight %}
+</pre>
 
 Result is:
 
-{% highlight sh %}
+<pre>
 args is [11,12,13]
 arguments is [[OjbectMouseEvent]]
 after concatenation the value is [11,12,13,[ObjectMouseEvent]]
-{% endhighlight %}
+</pre>
 
 We get args as [11,12,13] because during the DOM load we had passed (obj,11,12,13) and ther args was saved after args.shift(). The shift caused the object to be thrown away and args had the value 11,12,13. This was after the DOM was loaded.
 
@@ -160,14 +160,14 @@ Once again bind passes all the arguments and the event object as arguments to th
 
 Now we can see the need for another method that would take this event object and will put this event object as the first item in the list. That is precisely what the method bindAsEventListener does. Let's look at the source code of bindAsEventListener.
 
-{% highlight js %}
+<pre>
  bindAsEventListener: function() {
     var __method = this, args = $A(arguments), object = args.shift();
     return function(event) {
       return __method.apply(object, [event || window.event].concat(args));
     }
   },
-{% endhighlight %}
+</pre>
 
 As you can see from the source code that the event object is the first object in the list and then the arguments come. Now the arguments being passed to the function is [[ObjectMouseEvent],11,12,13]. This is the difference between bind and bindAsEventListener.
 

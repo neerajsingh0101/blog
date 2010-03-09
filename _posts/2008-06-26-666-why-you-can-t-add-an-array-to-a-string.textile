@@ -5,16 +5,16 @@ title: Why you can't add an array to  a string
 If I perform to_s on an array, I get result.
 
 
-{% highlight ruby %}
+<pre>
 a = %w( 1 2 3)
 puts a.to_s #=> 123
-{% endhighlight %}
+</pre>
 
 It means array has a built in to_s method.
 
 Now let's try to concatenate an array with a string
 
-{% highlight ruby %}
+<pre>
 >> a = %w( 1 2 3)
 => ["1", "2", "3"]
 >> 'rub rocks' + a
@@ -22,14 +22,14 @@ TypeError: can't convert Array into String
 	from (irb):2:in `+'
 	from (irb):2
 >> 
-{% endhighlight %}
+</pre>
 
 What happened here? Since array knows about to_s method then why it didn't invoke to_s and got the value.
 
 That is because Matz decided that in such situations the array will be subjected to a method called 'to_str'. Only a handful of Objects implement to_str method. We can obviously fix this problem by defining to_str method.
 
 
-{% highlight ruby %}
+<pre>
 >> class Array
 >>   def to_str
 >>     to_s
@@ -40,6 +40,6 @@ That is because Matz decided that in such situations the array will be subjected
 => ["1", "2", "3"]
 >> 'ruby rocks' + a
 => "ruby rocks123"
-{% endhighlight %}
+</pre>
 
 Now things work fine. I defined to_str method for Array which will do nothing else but to invoke to_s method.

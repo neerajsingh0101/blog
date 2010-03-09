@@ -6,14 +6,14 @@ We all know that in development mode Rails auto loads most of the changes. Howev
 
 Well you can have that. Put this line of code at the bottom of your environment.rb file and you will be able to watch the magic.
 
-{% highlight ruby %}
+<pre>
 # log all auto loading stuff in the log file
 Dependencies.log_activity = true
-{% endhighlight %}
+</pre>
 
 The above code will produce following type of output.
 
-{% highlight ruby %}
+<pre>
 Dependencies: called new_constants_in("Helpers", :Object)
 Dependencies: New constants: PreferencesHelper
 Dependencies: loading /Users/nkumar/scratch/xxxx/app/helpers/preferences_helper.rb defined PreferencesHelper
@@ -29,7 +29,7 @@ Dependencies: removing constant OrganizationsHelper
 Dependencies: removing constant PeopleHelper
 Dependencies: removing constant PreferencesHelper
 
-{% endhighlight %}
+</pre>
 
 
 Nice. Seeing is believing.

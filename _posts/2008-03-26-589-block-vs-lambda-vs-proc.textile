@@ -4,48 +4,48 @@ title: block vs lambda vs proc
 ---
 What is a block in ruby. A block is a piece of code. However a block has to be attached to something.
 
-{% highlight ruby %}
+<pre>
 # this wont' work
 { |x| puts x }
 
 # this won't work either
 temp_block = {|x| puts x }
-{% endhighlight %}
+</pre>
 
 So how do I carry a piece of code from one place to another. Convert that piece of code into a proc.
 
-{% highlight ruby %}
+<pre>
 temp_proc = Proc.new { puts "inside a block" }
 temp_proc.call # inside a block
-{% endhighlight %}
+</pre>
 
 What is temp_proc here. Let's  find out the class of temp_proc.
 
-{% highlight ruby %}
+<pre>
 temp_proc = Proc.new { puts "inside a block" }
 puts temp_proc.class.to_s # Proc
-{% endhighlight %}
+</pre>
 
 What is lamda. Lamda is another way to convert a block of code into a proc. 
 
-{% highlight ruby %}
+<pre>
 temp_lambda = lambda { puts "inside a block" }
 temp_lambda.call # inside a block
-{% endhighlight %}
+</pre>
 
 Let's see what is the class of the temp_lambda.
 
-{% highlight ruby %}
+<pre>
 temp_lambda = lambda { puts "inside a block" }
 puts temp_lambda.class.to_s # Proc
-{% endhighlight %}
+</pre>
 
 temp_lambda is a Proc. It means both lambda and Proc.new create an instance of "Proc". 
 Then what's the different between the two.
 
 Differences between lambda and Proc. I know of two distinctions.
 
-{% highlight ruby %}
+<pre>
 temp_proc = Proc.new {|a,b| puts "sum is #{a + b}" }
 temp_lambda = lambda {|a,b| puts "sum is #{a + b}" }
 
@@ -59,12 +59,12 @@ temp_proc.call (2)
 # nil can't be coerced. Since the second parameter was not supplied, 
 # proc.call supplied nil for the missing parameter
 temp_proc.call(2,3,4) #5
-{% endhighlight %}
+</pre>
 
 First difference is that lambda.call wants the exact number of parameters to be supplied. Otherwise lambda will throw "wrong number of arguments error". While Proc doesn't demand that. For the missing params proc will supply "nil" and any extra parameter is ignored. 
 
 
-{% highlight ruby %}
+<pre>
 def learning_proc
 	temp_proc = Proc.new { return "creating proc" }
 	temp_proc.call # control leaves the method here
@@ -80,13 +80,13 @@ def learning_lambda
 end
 
 puts learning_lambda
-{% endhighlight %}
+</pre>
 
 Second difference has to do with the usage of the word "return" in the context of proc. When there is a return keyword inside the block then proc treats that statement as returning from the method. Hence the statement return "inside method learning_proc" was never executed. Lambda behaves the way ruby behaves in general. The control goes to the next statement after the temp_lambda.call is finished.
 
 The point to be noted is that not all the temp_proc.call will ensure the return from the method at that very instant. It's the usage of the word return that is causing this behavior. This code will work just fine.
 
-{% highlight ruby %}
+<pre>
 def learning_proc
 	temp_proc = Proc.new { "creating proc" }
 	temp_proc.call 
@@ -95,12 +95,12 @@ end
 
 puts learning_proc
 
-{% endhighlight %}
+</pre>
 
 
 In ruby any method can accept a block and the methods do not need to do anything to accept this block of code. All the method has to do is to call "yield" and the piece of code will be invoked.
 
-{% highlight ruby %}
+<pre>
 def learning
 	puts "learning ruby "
 	yield
@@ -113,13 +113,13 @@ learning {puts "learning rake" }
 #learning ruby 
 #learning rake
 #learning rake
-{% endhighlight %}
+</pre>
 
 In the above example method "learning" did not have to do anything to accept the block. This feature is built into ruby.
 
 However if the method wants to detect if a block is being passed to it or not, it can use the method block_given?.
 
-{% highlight ruby %}
+<pre>
 def learning
 	puts "learning ruby "
 	
@@ -137,23 +137,23 @@ learning
 #learning ruby 
 #no block was passed
 #learning rake
-{% endhighlight %}
+</pre>
 
 There is another way to pass a block to a method: as an argument. However this  argument must be the very last argument. It works like this.
 
-{% highlight ruby %}
+<pre>
 def learning(&block)
 	block.call
 end
 
 learning { puts "learning" }
-{% endhighlight %}
+</pre>
 
 In the above case there is an ampersand sign before the name "block". That ampersand sign is important. By using that sign we are telling ruby that a block is being passed and convert that block into a proc and then set the variable name of the block as "block". Now we can invoke "block.call".
 
 We can pass variables to a block. However it is important to understand the scope of the variable. Try this.
 
-{% highlight ruby %}
+<pre>
 def thrice
     x = 100
     yield
@@ -171,11 +171,11 @@ puts "value of x after: #{x}"
 #value of x before: 5
 #value of x inside method is 100
 #value of x after: 8
-{% endhighlight %}
+</pre>
 
 This is something. A block will not touch variables defined inside the method. What happens if outer x is not defined.
 
-{% highlight ruby %}
+<pre>
 def thrice
     x = 100
     yield
@@ -190,7 +190,7 @@ puts "value of x after: #{x}"
 
 #output
 #undefined local variable or method `x' for main:Object (NameError)
-{% endhighlight %}
+</pre>
 
 
 Hopefully this provides some idea about blocks, procs and lambda. I intend to add some more cases later to this article.

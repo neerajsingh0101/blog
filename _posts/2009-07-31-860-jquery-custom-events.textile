@@ -6,11 +6,11 @@ __Following code has been tested with jQuery 1.3 .__
 
 Javascript is all about interactions. When an event happens then something should happen. For example hover, click, foucs, mouseover etc are basic events which are used on a regular basis. jQuery provides a method called "bind":http://docs.jquery.com/Events/bind#typedatafn to bind an action to an event. For example, if we want an alert message when we click on a link then that can be done like this.
 
-{% highlight js %}
+<pre>
 $('a').bind('click', function(){
  alert('I have been clicked');
 });
-{% endhighlight %}
+</pre>
 
 jQuery also allows developers to make use of custom events. How it is going to help us, we are going to see it shortly. First let's take a look at a basic calendar application.
 
@@ -18,7 +18,7 @@ This is a simple javascript calendar which primarily does four things: render ca
 
 Code looks like this.
 
-{% highlight js %}
+<pre>
 function redrawForMonth(d){
   //business logic to render calendar 
    $('#monthly_calendar_umbrella').updateCalendarWithAPIData(); 
@@ -36,7 +36,7 @@ function CollapseAllEvents(){
 function ExpandAllEvents(){
  //business logic
 };
-{% endhighlight %}
+</pre>
 
 In the above case we have four methods. If all the implementation is filled out and helper methods are added then ,in total, we'll have tons of methods.
 
@@ -44,7 +44,7 @@ And slowly, it'll become difficult to see which methods act on the main element 
 
 Let's look at the same functionality if implemented using jQuery custom events.
 
-{% highlight js %}
+<pre>
 $('#monthly_calendar_umbrella')
 
  .bind('redrawForMonth',function(e,d){
@@ -62,7 +62,7 @@ $('#monthly_calendar_umbrella')
  .bind('ExpandAllEvents',function(e){
    
  })
-{% endhighlight %}
+</pre>
 
 First difference, you will notice is how nicely all the actions possible on the main element are laid out. In this case just one look at the code tells me that four actions can be performed on the main element. This was not so obvious from the first verion of the code.
 
@@ -74,6 +74,6 @@ Now, the last part of the discussion is how to trigger custom events. Well, jQue
 
 Note that while binding a function is passed. The first parameter of that function is always an event handler. In the below example I am passing only one parameter even though the function takes two parameters: event handler element and the parameter I defined.
 
-{% highlight js %}
+<pre>
 $('#monthly_calendar_umbrella').trigger('redrawForMonth',new Date())
-{% endhighlight %}<br />
+</pre><br />

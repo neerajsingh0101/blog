@@ -10,7 +10,7 @@ Look at "this wiki":http://wiki.rubyonrails.org/rails/pages/HowToUseCheckBoxes t
 
 Here is how the code will look like.
 
-{% highlight ruby %}
+<pre>
 #migration
 class CreateTodos < ActiveRecord::Migration
   def self.up
@@ -58,4 +58,4 @@ end
  <% end %>
  <%= submit_tag %>
 <% end %>
-{% endhighlight %}
+</pre>

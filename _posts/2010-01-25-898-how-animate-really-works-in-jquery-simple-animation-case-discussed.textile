@@ -8,7 +8,7 @@ I will take a simple case of animating a <tt>div</tt> from height of <tt>34</tt>
 
 Here is test case.
 
-{% highlight js %}
+<pre>
 $(function(){
   $('#lab').css({background: 'yellow', height: '34px', margin: '10px'});
 
@@ -17,26 +17,26 @@ $(function(){
       return false;
     });
 });
-{% endhighlight %}
+</pre>
 
 Html markup is .
 
-{% highlight sh %}
+<pre>
 <a href=''>click me</a>
 <div id='lab'>Hello World</div>
-{% endhighlight %}
+</pre>
 
 Inside the <tt>animate</tt> for each property an fx object is created.
 
-{% highlight js %}
+<pre>
 jQuery.each( prop, function( name, val ) {
   var e = new jQuery.fx( self, opt, name );
 }
-{% endhighlight %}
+</pre>
 
 Calling new on jQuery.fx returns a JavaScript object instance.
 
-{% highlight js %}
+<pre>
 fx: function( elem, options, prop ) {
 	this.options = options;
 	this.elem = elem;
@@ -46,22 +46,22 @@ fx: function( elem, options, prop ) {
 		options.orig = {};
 	}
 }
-{% endhighlight %}
+</pre>
 
 Next in the animate method is a call to <tt>e.custom</tt> .
 
-{% highlight js %}
+<pre>
 start = 34;
 end = 100;
 unit = 'px';
 e.custom( start, end, unit );
-{% endhighlight %}
+</pre>
 
 start, end and unit values are gleaned from the current state of div.
 
 Here is custom method .
 
-{% highlight js %}
+<pre>
 custom: function( from, to, unit ) {
 	this.startTime = now();
 	this.start = from;
@@ -81,13 +81,13 @@ custom: function( from, to, unit ) {
 		timerId = setInterval(jQuery.fx.tick, 13);
 	}
 },
-{% endhighlight %}
+</pre>
 
 As you can see every 13 milliseconds a call to <tt>step</tt> method is made.
 
 <tt>step</tt> method is where real calculation is done. Here is the code.
 
-{% highlight js %}
+<pre>
 step: function( gotoEnd ) {
   var t = now();
   var n = t - this.startTime;
@@ -96,7 +96,7 @@ step: function( gotoEnd ) {
   this.now = this.start + ((this.end - this.start) * this.pos);
   this.update();
 }
-{% endhighlight %}
+</pre>
 
 <tt>this.startTime</tt> is the time when the call to <tt>animate</tt> was invoked. The <tt>step</tt> method is called periodically from custom method. So the value of <tt>t</tt> is constantly changing. Based on the value of <tt>t</tt>, value of <tt>n</tt> will change. Some of the values of <tt>n</tt> I got was 1, 39, 69, 376 and 387. 
 
@@ -110,15 +110,15 @@ Based on the value of <tt>pos</tt> value of <tt>now</tt> is derived. And then <t
 
 <tt>update</tt> method has following code that invokes <tt>_default</tt> method.
 
-{% highlight js %}
+<pre>
 jQuery.fx.step._default)( this )
-{% endhighlight %}
+</pre>
 
 <tt>_default</tt> method has following code which finally updates the element.
 
-{% highlight js %}
+<pre>
 fx.elem.style[ fx.prop ] = Math.max(0, fx.now);
-{% endhighlight %}
+</pre>
 
 fx.now value was set in the custom method and here that value was actually applied to the element.
 

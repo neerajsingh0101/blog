@@ -8,18 +8,18 @@ I committed a changeset and pushed the change to github. Now I want to revert th
 
 If you want to undo the last commit in git and still keep the changes as part of that commit in your working directory then
 
-{% highlight ruby %}
+<pre>
 git reset --soft HEAD^
-{% endhighlight %}
+</pre>
 
 However after committing this change if you try to push the changes to github you might get error like this
 
-{% highlight ruby %}
+<pre>
 failed to push some refs to ...
-{% endhighlight %}
+</pre>
 
 The fix is to do git push with force option.
 
-{% highlight ruby %}
+<pre>
 git push -f 
-{% endhighlight %}<br />
+</pre><br />

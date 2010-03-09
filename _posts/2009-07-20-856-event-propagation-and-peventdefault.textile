@@ -4,17 +4,17 @@ title: Event propagation and peventDefault
 ---
 Let's look at sample html.
 
-{% highlight js %}
+<pre>
 <div id='parent'>
   Languages
   <p>Java</p>
   <p>Javascript</p>
 </div>
-{% endhighlight %}
+</pre>
 
 And here is the javascript code. Run the code with jQuery-1.3.2 .
 
-{% highlight js %}
+<pre>
 $(document).ready(function(){
   $('#parent').click(function(){
     alert('parent was clicked');  
@@ -23,13 +23,13 @@ $(document).ready(function(){
     alert('p was clicked');  
   });
 });
-{% endhighlight %}
+</pre>
 
 When you click on 'Java' then you will get two alerts. That is because the click on element p will propagate outward and it will be caught by element div which has onclick trigger. 
 
 If you do not want the event to propagate then here is a way to stop it.
 
-{% highlight js %}
+<pre>
 $(document).ready(function(){
   $('#parent').click(function(){
     alert('parent was clicked');  
@@ -39,26 +39,26 @@ $(document).ready(function(){
     e.stopPropagation();
   });
 });
-{% endhighlight %}
+</pre>
 
 h2. Stopping the default behavior
 
 Converting a regular html link into an AJAX request is easy. One of the things you need to do is to <tt>return false</tt> so that the click operation does not perform its default behavior.
 
-{% highlight js %}
+<pre>
 $('a').bind('click',function(){
    alert('clicked');
    return false;
 });
-{% endhighlight %}
+</pre>
 
 However there is another way to handle such cases. <tt>preventDefault</tt> stops the default behavior. The same code could be written as
 
-{% highlight js %}
+<pre>
 $('a').bind('click',function(e){
    e.preventDefault();
    alert('clicked');
 });
-{% endhighlight %}
+</pre>
 
 <i>Not sure why but I have noticed that e.preventDefault() should be the first line in the function. If I switch the order of e.preventDefault and alert message in the above javascript then it does not work in Firefox/mac.</i><br />

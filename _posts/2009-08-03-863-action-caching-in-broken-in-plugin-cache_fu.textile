@@ -6,7 +6,7 @@ Y'day I noticed that action caching stopped working when I moved the caching mec
 
 Here is the code from ActionController.rb .
 
-{% highlight ruby %}
+<pre>
 def caches_action(*actions)
   return unless cache_configured?
   options = actions.extract_options!
@@ -25,13 +25,13 @@ class ActionCacheFilter #:nodoc:
   
   ...
 end
-{% endhighlight %}
+</pre>
 
 Notice that when an instance of <tt>ActionCacheFilter</tt> is created, the list of actions on which caching is to be performed is not passed. cache_fu assumes that it has access to <tt>*actions</tt> and that's why the code fails.
 
 Here is snippet from cache_fu .
 
-{% highlight ruby %}
+<pre>
 def self.setup_rails_for_action_cache_options
   puts 'setup_rails_for_action_cache_options called'
   ::ActionController::Caching::Actions::ActionCacheFilter.class_eval do
@@ -49,7 +49,7 @@ def self.setup_rails_for_action_cache_options
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 As you can see in the intialize method of 'ActionCacheFilter' class the first parameter is erroneously named 'actions'. It should be more like options.
 

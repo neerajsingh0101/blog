@@ -6,7 +6,7 @@ Someone who doesn't know anything about Hibernate but has been a programmer for 
 
 In hibernate world we have Hibernate session. One gets a session from the session factory and after the processing is done a call to session.close()  is done to release the connection. As one might have guessed session has a flush method which synchronizes the data in memory with the data in database. The flush method is not called immediately when an object is attached to the session. For example.
 
-{% highlight java %}
+<pre>
 Session session = getSessionFromSomewhere();
 Person person = new Person();
 person.setName('John Smith');
@@ -14,7 +14,7 @@ session.save(person);
 person.setName('James Hamilton');
 session.flush();
 session.close();
-{% endhighlight %}
+</pre>
 
 In the above code,  the synchronization with database will occur only when session.flush is called. It means only one call to the database. No call to database is made when session.save method is called.
 
@@ -24,7 +24,7 @@ In hibernate when session.close is called no call is made to session.flush. No t
 
 I created two classes: Office.java and Employee.java . Office has a uni directional one-to-many relationship with Employee class. Office has set the cascade option to save-update. Let's look at the code now.
 
-{% highlight java %}
+<pre>
 Office office = new Office();
 office.setLocation("100 main street");
 Employee employee = new Employee();
@@ -37,22 +37,22 @@ office.setEmployees(employees);
 session.saveOrUpdate(office);
 session.flush();
 session.close();
-{% endhighlight %}
+</pre>
 
 The code above results in following query.
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into office (location) values (?)
 Hibernate: insert into employee (name) values (?)
 Hibernate: update employee set office_id=? where id=?
-{% endhighlight %}
+</pre>
 
 Everything looks good. Because of the cascade option a record is inserted in office then a record is inserted in employee and then employee table is updated with the foreign key of office. Now let's try the same query but this time we will comment out the session.flush() code. Here is the query that resulted from running the code with commented session.flush().
 
-{% highlight sh %}
+<pre>
 Hibernate: insert into office (location) values (?)
 Hibernate: insert into employee (name) values (?)
-{% endhighlight %}
+</pre>
 
 Result is _not_ good. The foreign key was not inserted in the employee table in spite of the cascade option. This could be fixed in two ways.
 

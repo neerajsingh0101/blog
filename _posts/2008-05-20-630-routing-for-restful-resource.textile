@@ -2,7 +2,7 @@
 layout: post
 title: Routing for RESTful resource
 ---
-{% highlight ruby %}
+<pre>
 # Routing
  map.resources :users
 
@@ -11,34 +11,34 @@ ruby script/console
 >> rs = ActionController::Routing::Routes
 >> rs.recognize_path('/users/2')
 => {:controller=>"users", :action=>"2"}
-{% endhighlight %}
+</pre>
 
 This is not good. After spending a good bit of time I discovered that one needs to pass :method also.
 
-{% highlight ruby %}
+<pre>
 ruby script/console
 >> rs.recognize_path('/users/2', :method => :get)
 => {:controller=>"users", :action=>"show", :id=>"2"}
 >> rs.recognize_path('/users', :method => :post)
 => {:controller=>"users", :action=>"create"}
-{% endhighlight %}
+</pre>
 
 That's much better. Use rs.generate to get the url from the hash.
 
-{% highlight ruby %}
+<pre>
 ruby script/console
 >> rs.generate(:controller => 'users', :action => 'show', :id => 1)
 => "/users/1"
-{% endhighlight %}
+</pre>
 
 Now let's try named routes. When we try users_url we get an error. To fix that error do this.
 
 
-{% highlight ruby %}
+<pre>
 >> include ActionController::UrlWriter
 >> default_url_options[:host] = 'example.com'
 >> users_url
 => 'http://example.com/users'
-{% endhighlight %}
+</pre>
 
 Now I can use this post as reference. Every once in a while I seem to get lost.

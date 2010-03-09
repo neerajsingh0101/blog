@@ -6,7 +6,7 @@ In the "last blog":http://neeraj.name/blog/articles/773-getting-scalar-elements-
 
 However typing the whole sql in this case by hand is not very rubyish. Here is a hack that you can call upon time to time to help get the sql from rails.
 
-{% highlight ruby %}
+<pre>
 # desired sql
 select fname,count(*) as count from users group by fname
 
@@ -18,7 +18,7 @@ select fname,count(*) as count from users group by fname
 
 >> sql = User.send(:construct_finder_sql, options)
 => "SELECT fname, count(*) as count FROM `users`  GROUP BY fname"
-{% endhighlight %}
+</pre>
 
 construct_finder_sql is a private method in ActiveRecord::Base which returns a finder sql for a given options. In this case I used this hack to get the sql that I want rather than hand coding the sql.
 

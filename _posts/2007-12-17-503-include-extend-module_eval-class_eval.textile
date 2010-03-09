@@ -4,7 +4,7 @@ title: include, extend, module_eval, class_eval
 ---
 Ruby is fun. However it took me a while to understand various semantics like include, extend, module_eval, class_eval. It all gets confusing in the beginning. Here are series of cases illustrating the simple concept of having a person with an instance method name and and a class method count.
 
-{% highlight ruby %}
+<pre>
 # Case 1
 # Simple case of a class having an instance method and a class method
 class Person
@@ -19,9 +19,9 @@ end
 
 puts Person.count
 puts Person.new.name
-{% endhighlight %}
+</pre>
 
-{% highlight ruby %}
+<pre>
 # Case 2
 # A class includes a module to have an instance method
 module PersonName
@@ -39,9 +39,9 @@ end
 
 puts Person.count
 puts Person.new.name
-{% endhighlight %}
+</pre>
 
-{% highlight ruby %}
+<pre>
 # Case 3
 # A module with self.method doesn't become a class method as 
 # it might seem on the surface
@@ -62,10 +62,10 @@ puts Person.new.name
 # Following operation does not work. Exception message is undefined 
 # method `count' for Person:Class (NoMethodError)
 puts Person.count 
-{% endhighlight %}
+</pre>
 
 
-{% highlight ruby %}
+<pre>
 # Case 4
 # Including a module and thus creating a class method is a bit tricky. 
 # Simpler solutions are  presented in next versions.
@@ -91,9 +91,9 @@ end
 
 puts Person.new.name
 puts Person.count 
-{% endhighlight %}
+</pre>
 
-{% highlight ruby %}
+<pre>
 # Case 5
 # Extending a module creats the class method. 
 # Contrast it with the include module_name (presented later)
@@ -112,9 +112,9 @@ end
 
 puts Person.new.name
 puts Person.count 
-{% endhighlight %}
+</pre>
 
-{% highlight ruby %}
+<pre>
 # Case 6
 # Mix and match. Use both include and extend to get instance and class methods.
 module PersonModuleCount
@@ -137,9 +137,9 @@ end
 puts Person.new.name
 puts Person.count 
 
-{% endhighlight %}
+</pre>
 
-{% highlight ruby %}
+<pre>
 # Case 7
 # Accessing the anonymous class to create a class method
 
@@ -164,10 +164,10 @@ end
 
 puts Person.new.name
 puts Person.count 
-{% endhighlight %}
+</pre>
 
 
-{% highlight ruby %}
+<pre>
 # Case 8
 # Another way of creating a class method class << person
 
@@ -192,10 +192,10 @@ end
 
 puts Person.new.name
 puts Person.count 
-{% endhighlight %}
+</pre>
 
 
-{% highlight ruby %}
+<pre>
 # Case 9
 # Usage of class_eval
 
@@ -213,10 +213,10 @@ end
 
 puts Person.new.name
 puts Person.count 
-{% endhighlight %}
+</pre>
 
 
-{% highlight ruby %}
+<pre>
 # Case 10
 # Usage of class_eval in different flavor.
 
@@ -235,10 +235,10 @@ EOF
 
 puts Person.new.name
 puts Person.count 
-{% endhighlight %}
+</pre>
 
 
-{% highlight ruby %}
+<pre>
 # Case 11
 # Metaprogramming. Creating methods by defining them on run time.
 
@@ -258,10 +258,10 @@ end
 
 puts Person.new.name
 puts Person.count 
-{% endhighlight %}
+</pre>
 
 
-{% highlight ruby %}
+<pre>
 # Case 12
 # Usage of send to include modules. Plugins use this pattern often.
 
@@ -286,10 +286,10 @@ end
 
 puts Person.new.name
 puts Person.count 
-{% endhighlight %}
+</pre>
 
 
-{% highlight ruby %}
+<pre>
 # Case 13
 # Imagine this case. A class includes a module. An instance of this class is created. 
 # Then a new method is added to the module. Will the object instance willl have 
@@ -343,6 +343,6 @@ puts person.late_name
 # creating an object is well, put it simply, just an object.
 
 # include is a method.
-{% endhighlight %}
+</pre>
 
 I don't think I have covered all possible cases. If you can think of a case that is not covered then please write your idea in comments.

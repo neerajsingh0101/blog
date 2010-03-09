@@ -12,28 +12,28 @@ Let's say that I have an <tt>Event</tt> model where I have three columns related
 
 This is what the code looked like.
 
-{% highlight ruby %}
+<pre>
 # event.rb
 before_save :set_desc_html,:set_desc_plain
 
 def set_desc_plain
  self.desc_plain = strip_tags(self.desc_html)
 end
-{% endhighlight %}
+</pre>
 
 <tt>strip_tags</tt> strips all the html tags and this method comes from <tt>ActiveSupport</tt>. Problem is that inside the model <tt>ActiveSupport</tt> methods are not available. So in order to use <tt>strip_tags</tt> method in the model I had to add following line to environment.rb .
 
-{% highlight ruby %}
+<pre>
 # environment.rb
 #to strip html tags in event model
 include ActionView::Helpers::SanitizeHelper 
-{% endhighlight %}
+</pre>
 
 The proposed solution worked fine with Rails 2.1 and then Rails 2.2 was released. In Rails 2.2 the code surrounding strip_tags was refactored and just including the SanitizeHelper module did not work.
 
 This is where a solution like "sanitize gem":http://www.rubyinside.com/how-to-sanitize-html-and-css-in-ruby-1429.html shines. Now all I needed to do was
 
-{% highlight ruby %}
+<pre>
 # environment.rb
 config.gem "sanitize" ,:source => 'http://gems.github.com'
 
@@ -41,7 +41,7 @@ config.gem "sanitize" ,:source => 'http://gems.github.com'
 def set_html_plain
  self.desc_plain = Sanitize.clean(self.desc_html)
 end
-{% endhighlight %}
+</pre>
 
 It seems performance wise Sanitize is much faster than strip_tags method.
   <br />

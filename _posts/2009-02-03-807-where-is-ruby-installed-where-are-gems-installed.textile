@@ -6,17 +6,17 @@ h2. Where is ruby installed on my machine?
 
 irb can help you.
 
-{% highlight ruby %}
+<pre>
 >  irb  -rrbconfig 
 >> Config::CONFIG["bindir"] 
 => "/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin"
-{% endhighlight %}
+</pre>
 
 That's a tough one. I could never remember that.
 
 A much easier way is 
 
-{% highlight ruby %}
+<pre>
 > gem env
 RubyGems Environment:
   - RUBYGEMS VERSION: 1.3.1
@@ -42,7 +42,7 @@ RubyGems Environment:
      - http://gems.rubyforge.org/
      - http://gems.github.com
      - http://gems.github.com
-{% endhighlight %}
+</pre>
 
 This is much better. Just run <tt>gem env</tt> and you will get <tt>RUBY EXECUTABLE</tt> which lists where ruby is running from.
 

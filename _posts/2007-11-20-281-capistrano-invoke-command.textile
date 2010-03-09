@@ -8,8 +8,8 @@ I have a rake command "rake db:sync" which copies the production data to the sta
 
 With the help of capistrano the code to execute will be
 
-{% highlight sh %}
+<pre>
 cap staging COMMAND="cd /home/neeraj/apps/eii_test/current && /usr/local/bin/rake db:sync" invoke
-{% endhighlight %}
+</pre>
 
 Yes it's clumsy on many fronts.I need to provide the absolute path to my app, absolute path to rake and then there is invoke command in the end.

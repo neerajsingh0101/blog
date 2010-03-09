@@ -4,15 +4,15 @@ title: hash method in ruby
 ---
 I did not know about "hash method in ruby object":http://apidock.com/ruby/Object/hash and I paid a heavy price. While developing "admin_data plugin":http://github.com/neerajdotname/admin_data I proposed to pass certain values in configuration like this.
 
-{% highlight ruby %}
+<pre>
 :column_settings => { Car => { :data => lambda{|model| model.send(:data).inspect}}}
-{% endhighlight %}
+</pre>
 
 With the above settings the code will work fine the very first time in development mode. However if you refresh the page then code was failing. It turns out that when I ask ruby to use a class as a hash key then ruby calls hash method of the class and that output is stored as a key. 
 
 Since rails loads new instances of classes in development every single time, the hash value of the class differs each time. Check this out.
 
-{% highlight ruby %}
+<pre>
 >> User.hash
 => 18513330
 >> reload!
@@ -20,6 +20,6 @@ Reloading...
 => true
 >> User.hash
 => 18403950
-{% endhighlight %}
+</pre>
 
 The fix would be to use symbol (like :user) or string (like 'User') as key of a hash.

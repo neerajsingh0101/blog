@@ -4,8 +4,8 @@ title: Commenting out the code in .rhtml
 ---
 While teaching RoR I encountered many people were commenting out the ruby code in .rhtml wrong way.
 
-{% highlight ruby %}
+<pre>
 < %#  %>
-{% endhighlight %}
+</pre>
 
 This is a valid comment. Everything inside < % %>  is pure ruby code and just like standard ruby code anything after # is ignored.

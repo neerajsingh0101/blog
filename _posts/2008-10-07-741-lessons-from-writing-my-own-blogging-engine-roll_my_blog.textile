@@ -15,10 +15,10 @@ This blog caches all the page. For example this page you are reading is served b
 I am using will_paginate plugin to paginate through the pages. will_paginate by default creates urls like http://neeraj.name/blog/articles?page=3 . These kinds of urls can't be cached by apache. In order for the page caching to work the url should be like 
 http://neeraj.name/blog/articles/page/3 . And this is how it was done.
 
-{% highlight ruby %}
+<pre>
 map.article_pages '/blog/articles/page/:page', :controller => 'articles', :action => 'index'  
 map.resources :articles,:path_prefix => '/blog'                
-{% endhighlight %}
+</pre>
 
 How exactly the caching and sweeper was implemented is super easy. Just look at the code and you will understand.
 
@@ -31,7 +31,7 @@ How is that done?
 
 If you look at the source code of the html page you would see something like this.
 
-{% highlight sh %}
+<pre>
 <script type="text/javascript">
 //<![CDATA[
   
@@ -41,13 +41,13 @@ If you look at the source code of the html page you would see something like thi
 
 </script>  
 <div id="admin_article_edit"></div>
-{% endhighlight %}
+</pre>
 
 What it means is that every single time this page is loaded an ajax request is sent to the application. On the server side I test if the person is logged_in or not. If the person is logged_in then I display edit link.
 
 Here is the code that generates the javascript.
 
-{% highlight sh %}
+<pre>
 <% javascript_tag do -%>  
 new Ajax.Request("<%= url_for :controller => 'admin', :action => 'article_edit', :id => @article %>", { method:'get'});  
 <% end -%>  
@@ -69,6 +69,6 @@ end
 
 # shared/_admin_article_edit.html.erb
 <%= link_to 'Edit', edit_article_path(@article) %>
-{% endhighlight %}
+</pre>
 
 As you can see there is little bit of work involved in making a cached page dynamic. It also means that for each show request an ajax request is handled by the application server. Still caching is a useful tool.

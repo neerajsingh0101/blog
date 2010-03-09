@@ -15,12 +15,12 @@ new is an instance method defined on class Class.
 
 Since new is an instance method of class Class, we are able to do things like Person.new . This is all good. However if new is an instance method of Class then I should not be able to do this.
 
-{% highlight ruby %}
+<pre>
 >> c = Class.new
 => #<Class:0x58d428>
 >> c.class
 => Class
-{% endhighlight %}
+</pre>
 
 In the above case I have invoked the class method 'new' of class Class.
 
@@ -30,7 +30,7 @@ It means class Class has two  new methods: one instance method and one class met
 
 When we use the class method new of class Class then in return we get an anonymous class. This anonymous class does not have a name. When a constant is assigned to this anonymous class then this anonymous class takes the name of the constant. 
 
-{% highlight ruby %}
+<pre>
 > irb
 >> c = Class.new
 => #<Class:0x58d090>
@@ -40,4 +40,4 @@ When we use the class method new of class Class then in return we get an anonymo
 => Person
 >> c.name
 => "Person"
-{% endhighlight %}
+</pre>

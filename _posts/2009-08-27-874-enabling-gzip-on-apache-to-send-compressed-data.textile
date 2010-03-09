@@ -11,43 +11,43 @@ h2. Determining if server is sending compressed data
 First task is to find out if server is sending compressed data or not.
 
 <notextile>
-{% highlight sh %}
+<pre>
 curl --header 'accept-encoding: gzip' http://www.neeraj.name/blog
-{% endhighlight %}
+</pre>
 </notextile>
 
 I see plain text. That means data sent by server is not compressed. In contrast try this and you will see garbled text.
 
-{% highlight sh %}
+<pre>
 curl  --header 'accept-encoding: gzip' http://stackoverflow.com
-{% endhighlight %}
+</pre>
 
 
 h2. My configuration
 
 All the tricks I am discussing here are tested on my machine which has following configuration.
 
-{% highlight sh %}
+<pre>
 > cat /etc/lsb-release
 DISTRIB_ID=Ubuntu
 DISTRIB_RELEASE=8.04
 DISTRIB_CODENAME=hardy
 DISTRIB_DESCRIPTION="Ubuntu 8.04.1"
-{% endhighlight %}
+</pre>
 
 Apache version
 
-{% highlight sh %}
+<pre>
 > apache2 -v
 Server version: Apache/2.2.8 (Ubuntu)
 Server built:   Jun 25 2008 13:54:43
-{% endhighlight %}
+</pre>
 
 h2. mod_deflate
 
 "mod_deflate":http://httpd.apache.org/docs/2.0/mod/mod_deflate.html is an apache module that makes it possible to send compressed data. First task at hand is to find out if apache is loading this module or not.
 
-{% highlight sh %}
+<pre>
 > apache2 -l
 Compiled in modules:
   core.c
@@ -56,59 +56,59 @@ Compiled in modules:
   prefork.c
   http_core.c
   mod_so.c
-{% endhighlight %}
+</pre>
 
 As you can see, current configuration of apache does not load mod_deflate.
 
 I need to find out if deflate is available as a module or not.
 
-{% highlight sh %}
+<pre>
 > cd /etc/apache2/
 > ls mods-available | grep deflate
 deflate.conf
 deflate.load
-{% endhighlight %}
+</pre>
 
 OK. deflate module is available. I have following lines of code in my <tt>apache2.conf</tt> .
 
-{% highlight sh %}
+<pre>
 # Include module configuration:
 Include /etc/apache2/mods-enabled/*.load
 Include /etc/apache2/mods-enabled/*.conf
-{% endhighlight %}
+</pre>
 
 mods_enabled directory is nothing else but symlinks to files in mods_enabled directory.
 
-{% highlight sh %}
+<pre>
 > ls -ltr mods-enabled/
 total 0
 lrwxrwxrwx 1 root root 29 2009-05-31 14:08 status.load -> ../mods-available/status.load
 lrwxrwxrwx 1 root root 29 2009-05-31 14:08 status.conf -> ../mods-available/status.conf
-{% endhighlight %}
+</pre>
 
 To enable mod_deflate, all I need to do is to put a similar symlink.
 
-{% highlight sh %}
+<pre>
 cd mods-enabled
 sudo ln -s ../mods-available/deflate.conf deflate.conf
 sudo ln -s ../mods-available/deflate.load deflate.load
-{% endhighlight %}
+</pre>
 
 Now reload apache configuration
 
-{% highlight sh %}
+<pre>
 sudo /etc/init.d/apache2 reload
-{% endhighlight %}
+</pre>
 
 Now when I try below mentioned command, I get garbled text. It means I am getting compressed data.
 
-{% highlight sh %}
+<pre>
 curl --header 'accept-encoding: gzip' http://www.neeraj.name/blog
-{% endhighlight %}
+</pre>
 
 Also try <tt> --compressed</tt> option and you should see <tt>Content-Encoding</tt> as 'gzip'.
 
-{% highlight sh %}
+<pre>
 > curl --head --compressed http://www.neeraj.name/blog
 HTTP/1.1 200 OK
 Date: Thu, 27 Aug 2009 00:39:38 GMT
@@ -120,13 +120,13 @@ Vary: Accept-Encoding
 Content-Encoding: gzip
 Content-Length: 6524
 Content-Type: text/html
-{% endhighlight %}
+</pre>
 
 h2. Server configuration
 
 Although you are getting compressed output and apache recommends that you explicitly put directive to compress the output. I am using vhost and this is what a typical vhost for me looks like
 
-{% highlight sh %}
+<pre>
 <VirtualHost xx.xx.xx.xx:80>
   ServerName xxxx
   ServerAlias xxxxx
@@ -138,11 +138,11 @@ Although you are getting compressed output and apache recommends that you explic
         Allow from all
   </Directory>
 </VirtualHost>
-{% endhighlight %}
+</pre>
 
 After adding the location tag "as per apache guidelines":http://httpd.apache.org/docs/2.2/mod/mod_deflate.html , it looks like this
 
-{% highlight sh %}
+<pre>
 <VirtualHost xx.xx.xx.xx:80>
   ServerName xxxx
   ServerAlias xxxxx
@@ -174,26 +174,26 @@ Header append Vary User-Agent env=!dont-vary
 
   </Location> 
 </VirtualHost>
-{% endhighlight %}
+</pre>
 
 Reload apache.
 
-{% highlight sh %}
+<pre>
 sudo /etc/init.d/apache2 reload
-{% endhighlight %}
+</pre>
 
 I got following error.
 
-{% highlight sh %}
+<pre>
 Invalid command 'Header', perhaps misspelled or defined by a module not included in the server configuration
    ...fail!
-{% endhighlight %}
+</pre>
 
 That is because headers module is missing. Fixing that is easy.
 
-{% highlight sh %}
+<pre>
 cd mods-enabled
 sudo ln -s ../mods-available/headers.load headers.load
-{% endhighlight %}
+</pre>
 
 Now reload apache and it works fine.<br />

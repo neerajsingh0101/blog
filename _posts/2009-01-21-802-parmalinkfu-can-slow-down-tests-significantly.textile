@@ -6,17 +6,17 @@ title: ParmalinkFu can slow down tests significantly
 
 However it can slow down your tests significantly.
 
-{% highlight ruby %}
+<pre>
 class Venue < ActiveRecord::Base
   has_permalink :address1, :unique => true
 end
-{% endhighlight %}
+</pre>
 
 Every time a venue record is created , PermalinkFu creates a permanent link. This is great. However if that permanent link is already taken then it will add "-1" as suffix and will make a database read to see if the new permanent link is taken or not. If suffix "-1" is taken then it will try with suffix "-2". It will keep moving up incrementally until it finds a record that is not taken and a permanent link will be created. 
 
 I use "factory girl":http://github.com/thoughtbot/factory_girl/tree/master and my factory girl setup looks like this.
 
-{% highlight ruby %}
+<pre>
 Factory.define :venue do |f|
   f.address1 'address1'
   f.address2 'address2'
@@ -27,7 +27,7 @@ Factory.define :venue do |f|
   f.homepage 'www.example.com'
   f.description 'this is random description'
 end
-{% endhighlight %}
+</pre>
 
 Every single time I do <tt>Factory(:venue)</tt> PermalinkFu needs to make a call to database to check if <tt>address1</tt> is taken. Next time it will check for <tt>address1-1</tt>. After that it will check for <tt>address1-2</tt>. If I have been testing for a while then 
 a test that initially took only 2 seconds might take upto 25 seconds to complete.
@@ -36,12 +36,12 @@ PermalinkFu was spending all the time doing select statements. At one point I sa
 
 That is not very efficient. In order to fix this issue, I opened up plugin and added one line.
 
-{% highlight ruby %}
+<pre>
 counter = 1
 # to speed up the test pick a large random number
 counter = rand(1000000000) if Rails.env.test?
 ....
-{% endhighlight %}
+</pre>
 
 Instead of setting the counter to 1 and going up incrementally, in test environment I want the counter to be set to a large random number.
 

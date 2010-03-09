@@ -2,7 +2,7 @@
 layout: post
 title: Saving has many association children after modifying the children
 ---
-{% highlight ruby %}
+<pre>
 class Article < ActiveRecord::Base
   has_many :comments,:dependent => :destroy
   validates_presence_of :title,:body
@@ -27,35 +27,35 @@ VALUES('<p>tbd</p>', '2008-11-17 20:14:22', 'tbd', 'John', NULL, 761, NULL, '200
 INSERT INTO `comments` (`body_html`, `updated_at`, `body`, `author_name`, `author_website`, `article_id`, `author_email`, `created_at`) 
 VALUES('<p>tbd</p>', '2008-11-17 20:14:22', 'tbd', 'John2', NULL, 761, NULL, '2008-11-17 20:14:22')
 
-{% endhighlight %}
+</pre>
 
 Two comments have been saved by adding to article.
 
 Now let's try modifying the comments.
 
 
-{% highlight ruby %}
+<pre>
 >> comments = article.comments
 >> comment1 = comments[0]
 >> comment2 = comments[1]
 
 >> comment1.author_name = 'foo1'
 >> comment2.author_name = 'foo2'
-{% endhighlight %}
+</pre>
 
 comment1 and comment2 are not ready to be saved. We can save each object individually like this.
 
-{% highlight ruby %}
+<pre>
 >> comment1.save
 >> comment2.save
-{% endhighlight %}
+</pre>
  
 or we can save both the objects in one single swoop.
 
-{% highlight ruby %}
+<pre>
 article.comments << [comment1,comment2]
 
 UPDATE `comments` SET `author_name` = 'foo1', `updated_at` = '2008-11-17 20:17:33' WHERE `id` = 326
 UPDATE `comments` SET `author_name` = 'foo2', `updated_at` = '2008-11-17 20:17:33' WHERE `id` = 327
-{% endhighlight %}
+</pre>
  <br />

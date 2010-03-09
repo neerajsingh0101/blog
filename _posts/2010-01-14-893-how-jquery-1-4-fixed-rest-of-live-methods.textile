@@ -19,7 +19,7 @@ However the spec also mentions two additional events called <tt>DOMFocusIn</tt> 
 
 jQuery team decided to pick shorter name and introduced two new events: <tt>focusin</tt> and <tt>focusout</tt>. These two events bubble and hence they can be used with live method. "This commit":http://github.com/jquery/jquery/commit/03481a52c72e417b01cfeb499f26738cf5ed5839 makes focusin/focusout work with live method. Here is code snippet.
 
-{% highlight js %}
+<pre>
 if ( document.addEventListener ) {
 	jQuery.each({ focus: "focusin", blur: "focusout" }, function( orig, fix ) {
 		jQuery.event.special[ fix ] = {
@@ -38,7 +38,7 @@ if ( document.addEventListener ) {
 		}
 	});
 }
-{% endhighlight %}
+</pre>
  
 Once again make sure that you are using <tt>focusin/focusout</tt> instread of <tt>focus/blur</tt> when used with <tt>live</tt> . 
 
@@ -48,7 +48,7 @@ mouseenter and mouseleave events do not bubble in IE. However mouseover and mous
 
 The fix that was applied to map for 'focusin' can be replicated here to fix mousetner and mouseleave issue. "This is the commit":http://github.com/jquery/jquery/commit/d251809912c06478fd0c7711736ef6ea3572723e that fixed mouseenter and mouseleave issue with live method. 
 
-{% highlight js %}
+<pre>
 jQuery.each({
 	mouseenter: "mouseover",
 	mouseleave: "mouseout"
@@ -62,7 +62,7 @@ jQuery.each({
 		}
 	};
 });
-{% endhighlight %}
+</pre>
 
 h2. Event detection
 
@@ -70,7 +70,7 @@ Two more events are left to be handled: submit and change. Before jQuery applies
 
 Juriy Zaytsev posted an excellent blog titled "Detecting event support without browser sniffing":http://perfectionkills.com/detecting-event-support-without-browser-sniffing . Here is the a short and concise way he proposes to find out if an event is supported by a browser.
 
-{% highlight js %}
+<pre>
 var isEventSupported = (function(){
     var TAGNAMES = {
       'select':'input','change':'input',
@@ -90,14 +90,14 @@ var isEventSupported = (function(){
     }
     return isEventSupported;
   })();
-{% endhighlight %}
+</pre>
 
 
 In the comments section John Resig mentioned that this technique can also be used to find out if an event bubbles or not. 
 
 John committed following code to jQuery.
 
-{% highlight js %}
+<pre>
 var eventSupported = function( eventName ) { 
 	var el = document.createElement("div"); 
 	eventName = "on" + eventName; 
@@ -114,7 +114,7 @@ var eventSupported = function( eventName ) {
 
 jQuery.support.submitBubbles = eventSupported("submit");
 jQuery.support.changeBubbles = eventSupported("change");
-{% endhighlight %}
+</pre>
 
 Next task is to actually make a change event or a submit event bubble if ,based on above code, it is determined that browse is not bubbling those events .
 
@@ -124,7 +124,7 @@ On a form a person can change so many things including checkbox, radio button, s
 
 Radio button, checkbox and select changes will be detected via change event. Here is the code.
 
-{% highlight js %}
+<pre>
 click: function( e ) {
 	var elem = e.target, type = elem.type;
 
@@ -132,11 +132,11 @@ click: function( e ) {
 		return testChange.call( this, e );
 	}
 },
-{% endhighlight %}
+</pre>
 
 In order to detect changes on other fields like input field, textarea etc <tt>keydown</tt> event would be used. Here it the code.
 
-{% highlight js %}
+<pre>
 keydown: function( e ) {
 	var elem = e.target, type = elem.type;
 
@@ -146,11 +146,11 @@ keydown: function( e ) {
 		return testChange.call( this, e );
 	}
 },
-{% endhighlight %}
+</pre>
 
 IE has a proprietary event called <tt>beforeactivate</tt> which gets fired before any change happens. This event is used to store the existing value of the field. After the click or keydown event the changed value is captured. Then these two values are matched to see if really a change has happened.  Here is code for detecting the match.
 
-{% highlight js %}
+<pre>
 function testChange( e ) {
 		var elem = e.target, data, val;
 
@@ -175,11 +175,11 @@ function testChange( e ) {
 			return jQuery.event.trigger( e, arguments[1], this );
 		}
 }
-{% endhighlight %}
+</pre>
 
 Here is "the commit":http://github.com/jquery/jquery/commit/d42afd0f657d12d6daba6894d40226bea83fe1b6 that fixed this issue.
 
-{% highlight js %}
+<pre>
 jQuery.event.special.change = {
 	filters: {
 		focusout: testChange, 
@@ -234,7 +234,7 @@ jQuery.event.special.change = {
 var changeFilters = jQuery.event.special.change.filters;
 
 }
-{% endhighlight %}
+</pre>
 
 
 
@@ -243,7 +243,7 @@ h2. Making submit event bubble
 
 In order to detect submission of a form, one needs to watch for click event on a submit button or an image button. Additionally one can hit 'enter' using keyboard and can submit the form. All of these need be tracked. 
 
-{% highlight js %}
+<pre>
 jQuery.event.special.submit = {
 	setup: function( data, namespaces, fn ) {
 		if ( this.nodeName.toLowerCase() !== "form" ) {
@@ -270,7 +270,7 @@ jQuery.event.special.submit = {
 		jQuery.event.remove( this, "keypress.specialSubmit" + (fn ? "."+fn.guid : "") );
 	}
 };
-{% endhighlight %}
+</pre>
 
 As you can see if a submit button or an image is clicked inside a form the submit event is triggered. Additionally keypress event is monitored and if the "keyCode":http://www.cambiaresearch.com/c4/702b8cd1-e5b0-42e6-83ac-25f0306e3e25/Javascript-Char-Codes-Key-Codes.aspx is 13 then the form is submitted.
 

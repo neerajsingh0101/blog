@@ -6,15 +6,15 @@ If you to register or to login it is nice to have the cursor already placed at t
 
 Through javascript it is possible to provide auto focus to the first element of the form so that the user doesn't have to do the extra click. So far I had seen implementations like this.
 
-{% highlight js %}
+<pre>
 <body onload="javascript:document.forms[0].username.focus();">
-{% endhighlight %}
+</pre>
 
 The problem with this approach is that each page that has a form needs a custom onload function. The name of the form is also hardcoded in the onload function. This is brittle and will breakdown pretty soon.
 
 Here is an approach which will make sure that the first element of the form is auto focussed. This code is borrowed from <a href="http://www.bigbold.com/snippets/posts/show/2192">here</a>.
 
-{% highlight js %}
+<pre>
 Event.observe(window, 'load', function() {
   var e = $A(document.getElementsByTagName('*')).find(function(e) {
     return (e.tagName.toUpperCase() == 'INPUT' && (e.type == 'text' || e.type == 'password'))
@@ -22,12 +22,12 @@ Event.observe(window, 'load', function() {
   });
   if (e) e.focus();
 });
-{% endhighlight %}
+</pre>
 
 
 The code works fine excpet that in site <a href="http://EventsInIndia.com">EventsInIndia.com</a> the very first form is the top search form. When a user is on the registration page then I want the first field of the registration form to be in auto focus and not the quick search form. Here is the modified code to achieve my objective.
 
-{% highlight js %}
+<pre>
 Event.observe(window, 'load', function() {
  var topSearchElement = document.getElementById('searchtermTopForm');    
   var e = $A(document.getElementsByTagName('*')).find(function(e) {
@@ -36,6 +36,6 @@ Event.observe(window, 'load', function() {
   });
   if (e) e.focus();
 });
-{% endhighlight %}
+</pre>
 
 This solution will work for all the pages and nothing is hardcoded here.

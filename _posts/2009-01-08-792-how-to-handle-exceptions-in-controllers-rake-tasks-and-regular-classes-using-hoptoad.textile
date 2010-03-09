@@ -10,45 +10,45 @@ Since we are talking about managing exceptions. First let's go through the basic
 
 Usually we handle exceptions like this.
 
-{% highlight ruby %}
+<pre>
 begin
   #...
 rescue => e
   puts e
 end
-{% endhighlight %}
+</pre>
 
 Please note that in the above case only StandardError is caught. Rest of the exceptions are not caught in the above code. For example check this out.
 
-{% highlight ruby %}
+<pre>
 begin
   require 'abcd'
 rescue => e
   puts "ERROR:" + e
 end
-{% endhighlight %}
+</pre>
 
 If you execute the above code then you will see <tt>LoadError: no such file to load — abcd</tt> and rescue does not 
 capture the exception. That is because when <tt>require 'abcd'</tt> fails, ruby throws LoadError exception. LoadError
 is not a subclass of StandardError. In order to solve the above problem a solution could be 
 
-{% highlight ruby %}
+<pre>
 begin
   require 'abcd'
 rescue LoadError => e
   puts "ERROR:" + e
 end
-{% endhighlight %}
+</pre>
 
 So remember if you are not specifying the type of exception you want to handle then ruby , by default, will rescue only StandardError . And if you want to capture all exceptions then the rescue the base exception class itself like this and this will ensure that no matter what type of exception it is, all will be rescued.
 
-{% highlight ruby %}
+<pre>
 begin
  # ..
 rescue Exception => e
  # no exception can escape now
 end
-{% endhighlight %}
+</pre>
 
 
 h2. Handle exceptions in controllers with Hoptoad
@@ -57,11 +57,11 @@ h2. Handle exceptions in controllers with Hoptoad
 
 After you have added <tt>include HoptoadNotifier::Catcher</tt> in application.rb then hoptoad will start reporting exceptions via email. If you need to catch an exception inside a controller and if you want that exception to be reported then do this.
 
-{% highlight ruby %}
+<pre>
 rescue => e
   notify_hoptoad(e)
 end
-{% endhighlight %}
+</pre>
 
 In this way exceptions occuring in controllers is taken care of. If something blows up in model or in views then ultimately the exception will come down to controller and hoptoad will report it.
 
@@ -71,7 +71,7 @@ An exception that is raised in a rake task will not be caught by hoptoad unless 
 
 A typical rake task for me looks like this.
 
-{% highlight ruby %}
+<pre>
 namespace :alert do
   task :run => :environment do
     TASK_ID = "alert:run"
@@ -87,11 +87,11 @@ namespace :alert do
     
   end
 end
-{% endhighlight %}
+</pre>
 
 You will notice that in the case of rake tasks,rescue code is different.
 
-{% highlight ruby %}
+<pre>
 # in rake tasks
 rescue Exception => e
 
@@ -99,7 +99,7 @@ rescue Exception => e
 rescue => e 
 or 
 rescue ArgumentError => e
-{% endhighlight %}
+</pre>
 
 I mentioned earlier in the article that if I want to rescue all types of exceptions then I should rescue Exception class itself. If I use <tt>rescue => e </tt> or <tt>rescue ArgumentError => e</tt> then certain types of exceptions will never be caught in rake.
 
@@ -109,9 +109,9 @@ If we are using <tt>rescue => e</tt> in rake task then NoMemoryError will not be
 
 The above rake task is executed by the cron job. This is the cron entry.
 
-{% highlight sh %}
+<pre>
 10 05 * * * cd /home/neeraj/apps/blog_production/current && /usr/bin/rake alert:run  RAILS_ENV=production >> /home/neeraj/apps/blog_production/current/log/alert_run_cron.log
-{% endhighlight %}
+</pre>
 
 I create one log file per cron job. In the log file I put the rake task name and when the task started the execution. All exceptions are caught and are reported to hoptoad.
 
@@ -119,17 +119,17 @@ h2. Handling exceptions in regular class
 
 In the lib directory I have some standard ruby classes which handles the business logic. Exceptions can occur there too. An example of a regular class is
 
-{% highlight ruby %}
+<pre>
 # lib/alert_util.rb
 class AlertUtil
   def self.generate_alert_report
   end    
 end
-{% endhighlight %}
+</pre>
 
 To handle any exception in this method, add a begin/rescue and in the rescue make a call to hoptoad to report the error.
 
-{% highlight ruby %}
+<pre>
 class AlertUtil
 
   def self.generate_alert_report
@@ -142,6 +142,6 @@ class AlertUtil
     
   end    
 end
-{% endhighlight %}
+</pre>
 
 Notice that in this case I did not even have to include any hoptoad module. The necessary methods are already mixed in if you are using rails application and if you followed the procedure to setup exceptions handling for controllers. <br />

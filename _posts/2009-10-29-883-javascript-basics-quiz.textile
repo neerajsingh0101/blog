@@ -6,14 +6,14 @@ h2. Question 1
 
 What's the output.
 
-{% highlight js %}
+<pre>
 x = 90;
 function f(){
   console.log(x);
   var x = 100;
 }
 f();
-{% endhighlight %}
+</pre>
 
 
 h2. Answer 1
@@ -24,13 +24,13 @@ h2. Question 2
 
 Go to "prototype homepage":http://www.prototypejs.org open firebug and execute following code.
 
-{% highlight js %}
+<pre>
 var a = ['a','b','c'];
 var result = '\n';
 for (i in a){
   result += 'index: '+ i + ' value:' + a[i] + '\n';
 }
-{% endhighlight %}
+</pre>
 
 
 Now go to "jQuery":http://jquery.com homepage and execute the same code. Notice the difference in output. Why the difference?
@@ -39,24 +39,24 @@ h2. Answer 2
 
 Prototype adds additional methods to Array using Array.prototype. Those methods show up when you iterate through them. If you want to ignore methods added through Array.prototype then use this code.
 
-{% highlight js %}
+<pre>
 var a = ['a','b','c'];
 var result = '\n';
 for (i in a){
   if (a.hasOwnProperty(i))
     result += 'index: '+ i + ' value:' + a[i] + '\n';
 }
-{% endhighlight %}
+</pre>
 
 
 h2. Question 3
 
 In order to find if an element with id 'foo' is present, one can do
 
-{% highlight js %}
+<pre>
 if ($('#foo').length > 0)
   console.log('id foo is present');
-{% endhighlight %}
+</pre>
 
 How can you make the conditional statement shorter.
 
@@ -64,17 +64,17 @@ h2. Answer 3
 
 In JavaScript following items evaluate to false in a conditional statement: undefined, null, false, empty string, NaN, 0
 
-{% highlight js %}
+<pre>
 if ($('#foo'))
   console.log('id foo is present');
-{% endhighlight %}
+</pre>
 
 
 h2. Question 4
 
 What is the output in this case. Notice that function bar is defined after the <tt>return</tt> statement.
 
-{% highlight js %}
+<pre>
 function foo(){
   console.log(z);
   console.log(bar());
@@ -88,29 +88,29 @@ function foo(){
 };
 
 foo();
-{% endhighlight %}
+</pre>
 
 h2. Answer 4
 
 Output is
 
-{% highlight sh %}
+<pre>
 undefined
 this is bar
 true
-{% endhighlight %}
+</pre>
 
 h2. Question 5
 
 What's output in this case.
 
-{% highlight js %}
+<pre>
 function logit(n){console.log(n);}
 
 for(i=1;i<5;i++){
  setInterval(function(){logit(i)},2000);
 }
-{% endhighlight %}
+</pre>
 
 h2. Answer 5
 
@@ -122,7 +122,7 @@ Browsers execute JavaScript in a single thread. While that thread is busy execut
 
 Correct implementation would be 
 
-{% highlight js %}
+<pre>
 function logit(n){console.log(n);}
 
 var counter = 0;
@@ -134,7 +134,7 @@ var timer = setInterval(function() {
 	}
 },
 2000);
-{% endhighlight %}
+</pre>
 
 Above code would print <tt>0 1 2 3 4</tt> at an interval of 2 seconds.
 
@@ -143,28 +143,28 @@ h2. Question 6
 
 What's the output in this case.
 
-{% highlight js %}
+<pre>
 flight = { status: 'arrived'}
 console.log(typeof(flight.status));
 console.log(typeof(flight.toString));
 console.log(flight.hasOwnProperty('status'));
 console.log(flight.hasOwnProperty('toString'));
-{% endhighlight %}
+</pre>
 
 h2. Answer 6
 
-{% highlight sh %}
+<pre>
 string
 function
 true
 false
-{% endhighlight %}
+</pre>
 
 h2. Question 7
 
 What's output in this case.
 
-{% highlight js %}
+<pre>
 function Person(name) { this.name = name;}
 Person.prototype.welcome = function(){ return 'welcome ' + this.name}
 
@@ -175,28 +175,28 @@ console.log(p.welcome.call(p));
 o = {name: 'Mary'}
 
 console.log(Person.prototype.welcome.call(o));
-{% endhighlight %}
+</pre>
 
 h2. Answer 7
 
-{% highlight sh %}
+<pre>
 welcome John
 welcome Mary
-{% endhighlight %}
+</pre>
 
 h2. Question 8
 
 JavaScript has <tt>Math</tt> library which can be used like this
 
-{% highlight js %}
+<pre>
 Math.max(6,7,8) // result is 8
-{% endhighlight %}
+</pre>
 
 If I provide an array with certain values then how would you find the max value for that array.
 
-{% highlight js %}
+<pre>
 a = [1,2,3];
-{% endhighlight %}
+</pre>
 
 h2. Answer 8
 
@@ -204,20 +204,20 @@ This answer builds up on the answer provided in #7 .
 
 You can try this but it will fail.
 
-{% highlight js %}
+<pre>
 Math.max(a) //output is NaN
-{% endhighlight %}
+</pre>
 
 You can try this but it will fail too.
 
-{% highlight js %}
+<pre>
 Math.max.call(Math,a); // output is NaN
-{% endhighlight %}
+</pre>
 
 This will work
 
-{% highlight js %}
+<pre>
 Math.max.apply(Math,a); //output is 3
-{% endhighlight %}
+</pre>
 
 <tt>apply</tt> method works because it accepts an array as the argument. <tt>call</tt> method passes the individual params to the called method directly and hence it does not work. You can read more about JavaScript "apply and call methods here":http://odetocode.com/blogs/scott/archive/2007/07/04/function-apply-and-function-call-in-javascript.aspx .

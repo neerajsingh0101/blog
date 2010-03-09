@@ -8,18 +8,18 @@ First of all wordpress is a great tool. I mean it's the best out there. I moved 
 
 Mephisto provides some built in support to move data from wordpress to mehisto database. If you run the following script wordpress data will move to mephisto tables.
 
-{% highlight ruby %}
+<pre>
 ruby script/runner "Mephisto.convert_from :word_press" -e production
-{% endhighlight %}
+</pre>
 
 However the data migration is not perfect.  Look at this
 
-{% highlight sh %}
+<pre>
 # wordpress 
 http://www.neeraj.name/2007/05/07/this-is-my-first-blog the mephisto
 #mephisto
 http://www.neeraj.name/2007/5/7/this-is-my-first-blog the mephisto
-{% endhighlight %}
+</pre>
 
 Notice that '2007/05/07' has changed to '2007/5/7/' . It means all the links cached by search engines and the links referred by other bloggers will break. Not good. This problem can be fixed but I do not like the way link is presented. If even a single letter from this long url is missing (as is often the case with email clients who break the long uls into two separate lines) then the site will throw 404 error.
 
@@ -29,33 +29,33 @@ I ended up creating a table which would map old links to the new links.
 
 In mephisto/lib/mephisto/routing.rb I ended up adding following line
 
-{% highlight ruby %}
+<pre>
 map.connect ':year/:month/:day/*title', :controller => 'mephisto', :action => 'wplinks', :requirement => {:year => /\d+/,:month => /\d+/,:day => /\d+/ }
-{% endhighlight %}
+</pre>
 
 In mephisto/app/controllers/mephisto_controller.rb 
 
-{% highlight ruby %}
+<pre>
 #  cached_references << (@article = site.articles.find_by_permalink(@dispatch_path.first))
     cached_references << (@article = site.articles.find_by_id(@dispatch_path.first[:id]))
-{% endhighlight %}
+</pre>
 
 Added a new table
 
-{% highlight ruby %}
+<pre>
 ruby script/generate model wplink old_url:string new_url:string
-{% endhighlight %}
+</pre>
 
-{% highlight ruby %}
+<pre>
 #mephisto/vendor/plugins/mephisto_converters/lib/converters/base.rb#create_article(..)
 #add following lines after article.save!
 old_url = other_article.guid[0..-2]
 new_url =  "http://neeraj.name/#{article.id}/#{article.permalink}"  #last one is a dash
 Wplink.create(:old_url => old_url, :new_url=> new_url)
-{% endhighlight %}
+</pre>
 
 Now when the data migration is done the wplinks table is properly populated.
 
-{% highlight ruby %}
+<pre>
 ruby script/runner "Mephisto.convert_from :word_press" -e production
-{% endhighlight %}
+</pre>

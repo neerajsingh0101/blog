@@ -6,24 +6,24 @@ Rails Envy tutorial on Acts_As_Ferret is a good place to start. The article cove
 
 For <a href="http://EventsInIndia.com">Events In India</a> site I need to implement a search mechanism where the user can search for the keyword and mention that they only want to see upcoming events.  It means from my search result I need to eliminate events that have start date in the past. 
 
-{% highlight ruby %}
+<pre>
   acts_as_ferret :fields => {
     :name => {:boost=> 100,:store => :yes},
     :desc => {:boost=> 10,:store => :yes}, 
     :start_date_f => {:index => :untokenized}
   },
   :index_dir => "#{RAILS_ROOT}/ferret" 
-{% endhighlight %}
+</pre>
 
 Each event has a start date. And we want to make the keep the start date in ferret in such a fashion that we can run query on them.
 
 First problem is that ferret compares fields lexicographically. It means if we have [1,2,3,10,7] then after sorting the result will look like [1,10,2,3,7]. Not good. In order to overcome this problem any field on which we intend to run range query or sorting they need to be properly padded. If the data is [01,10,02,03,07] then the result will be [01,02,03,07,10].  This is why I have defined start_date_f ( notice _f) in the declaration. In my model I also have
 
-{% highlight ruby %}
+<pre>
   def start_date_f
     self.start_datetime.strftime("%Y%m%d")
   end
-{% endhighlight %}
+</pre>
 
 It means the start date for all events will be stored in 20070807 fashion. I am ignoring hours and minutes since that's not important. 
 
@@ -31,14 +31,14 @@ Also you will notice that I have defined :index => :untokenized for start_date_f
 
 The basic structure for query is 
 
-{% highlight ruby %}
+<pre>
       ferret_query = compose_query
       @total,@events = Event.full_text_search(ferret_query,options)
-{% endhighlight %}
+</pre>
 
 Let's start searching. 
 
-{% highlight ruby %}
+<pre>
 #Let's search for keyword 'events'
 ferret_query = "name|desc:events "
 
@@ -56,24 +56,24 @@ ferret_query << ferret_query << "start_date_f:[#{Time.now.strftime("%Y%m%d")}>"
 
 # If you need to run a query to get events between two different start dates
 #  'start_date_f:[20070203 20071109]'
-{% endhighlight %}
+</pre>
 
 
 By default all the result is sorted based on relevance. If I need to sort based on starting date then I need to pass options. 
 
-{% highlight ruby %}
+<pre>
   ferret_query = compose_query
   # get query
   options = options.update(:sort => 'start_date_f')
   @total,@events = Event.full_text_search(ferret_query,options)
-{% endhighlight %}
+</pre>
 
 That will get the result in ascending order of start date. If you want in the revere order then do the following.
 
-{% highlight ruby %}
+<pre>
   ferret_query = compose_query
   # get query
    tmp = Ferret::Search::SortField.new(:start_date_f, :reverse => false)
   options = options.update(:sort => tmp)
   @total,@events = Event.full_text_search(ferret_query,options)
-{% endhighlight %}
+</pre>

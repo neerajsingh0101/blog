@@ -2,8 +2,8 @@
 layout: post
 title: How to find if my commits are executed in a transaction or not
 ---
-{% highlight ruby %}
+<pre>
 ActiveRecord::Base.connection.supports_ddl_transactions?
-{% endhighlight %}
+</pre>
 
  <br />

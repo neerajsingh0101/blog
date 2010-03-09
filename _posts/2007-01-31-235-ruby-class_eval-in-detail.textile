@@ -4,7 +4,7 @@ title: Ruby class_eval in detail
 ---
 Look at the following code snippet from <a href="http://dev.rubyonrails.org/browser/branches/1-2-stable/activerecord/lib/active_record/associations.rb">associations.rb</a>
 
-{% highlight ruby %}
+<pre>
    class_eval < <-end_eval
           alias_method :#{old_method}, :destroy_without_callbacks
             def destroy_without_callbacks
@@ -12,7 +12,7 @@ Look at the following code snippet from <a href="http://dev.rubyonrails.org/brow
             #{old_method}
           end
    end_eval
-{% endhighlight %}
+</pre>
 
 I keep running into class_eval  and I have no clue what it is.  This is my attempt to understand one of the magics of Ruby and Rails.
 
@@ -20,32 +20,32 @@ h3. class_eval is a method
 
 All object oriented developers know what a class is  and what an object is. When we define a new class by statements like <code> class Person .. end </code> a new local scope is created.
 
-{% highlight ruby %}
+<pre>
 temp = 1
 class Person
   puts temp 
 end 
 #Result
 # undefined local variable or method `temp' for Person:Class
-{% endhighlight %}
+</pre>
 
 As I stated when a new class is created a new local scope is created.  This is important because class_eval behaves differently. 
 
 First of all class_eval is a method which can be invoked on Person class in this case. This method is not available to instance objects.
 
-{% highlight ruby %}
+<pre>
 temp = 1
 Person.class_eval
   puts temp
 end 
 # reslut is : 1
-{% endhighlight %}
+</pre>
 
 <h3>Where would you use class_eval</h3>
 
 Ruby lets you open up any class and add methods to it. Let's add a method called 'ror' to String class.  One way of achieving that is
 
-{% highlight ruby %}
+<pre>
 class String
   def ror
      puts 'RoR is sexy'
@@ -54,11 +54,11 @@ end
 # Result
 # "neeraj".ror
 # RoR is sexy
-{% endhighlight %}
+</pre>
 
 The other way of adding the 'ror' method to String class is
 
-{% highlight ruby %}
+<pre>
 String.class_eval do
    def ror
       puts 'RoR rocks!'
@@ -67,11 +67,11 @@ end
 # Result
 # "neeraj".ror
 # RoR rocks!
-{% endhighlight %}
+</pre>
 
 The other way of writing the same code is:
 
-{% highlight ruby %}
+<pre>
 String.class_eval < <-endofeval
   def ror
        puts 'RoR is super!'
@@ -80,14 +80,14 @@ endofeval
 #Result
 # "neeraj".ror
 # RoR is super!
-{% endhighlight %}
+</pre>
 
 It should be noted that the methods that are marked as def something are instance methods while the methods marked as def self.method_name will be class methods. This is similar to the standard behaviour of Ruby classes.
 
 <h3> class_eval for meta programming</h3>
 class_eval can be used to add methods to classes on run time. Here is an example:
 
-{% highlight ruby %}
+<pre>
 def add_method(obj)  
       # Get the class of the object.  
       obj.class.class_eval do  
@@ -97,7 +97,7 @@ def add_method(obj)
          end  
       end  
  end  
-{% endhighlight %}
+</pre>
 
 <h3>class_eval takes both string and block</h3>
 
@@ -106,52 +106,52 @@ User.class_eval <string> or User.class_eval <block>
 
 However there is a subtle difference. If class_eval is trying access a variable declared outside of current context the string for must be used. To illustrate let's take a look at following case.
 
-{% highlight ruby %}
+<pre>
 message = " This is a message from class_eval"
 class User
  def name
     "Ruby on Rails"
   end
 end
-{% endhighlight %}
+</pre>
 
 Now let's try to add a new method to the class that will output the value of message.
 
-{% highlight ruby %}
+<pre>
 User.class_eval do
   def hi
      puts "#{message}"
  end
 end
-{% endhighlight %}
+</pre>
 
 Try to execute it
 
-{% highlight ruby %}
+<pre>
 @u = User.new
 @u.hi
 NameError: undefined local variable or method `message' for #<User:0x2df18c4>
-{% endhighlight %}
+</pre>
 
 We get error because the code inside the block is not allowed to access the variable declared outside.
 
 In order to access the variable declared outside , we will have to pass string to class_eval.
 
-{% highlight ruby %}
+<pre>
 User.class_eval do <<-END
 def hi
   puts "#{message}"
 end
 END
-{% endhighlight %}
+</pre>
 
 Execute the above code
 
-{% highlight ruby %}
+<pre>
  @u = User.new
 @u.hi
 " This is a message from class_eval"
-{% endhighlight %}
+</pre>
 
 It means if in class_eval you need reference to a variable defined before then you must pass string and not block to class_eval.
 
@@ -162,23 +162,23 @@ Now looking at the code snippet at the top it's clear that class_eval is being u
 <h3> Use class_eval and be safe </h3>
 Let's say that you want to change the behavior of a method in User class.
 
-{% highlight ruby %}
+<pre>
 class User
   def name
     "Neeraj"
   end
 end
-{% endhighlight %}
+</pre>
 
 if the user class is not yet loaded then in stead of modifying the behavior of the method we just created a new class. And if later we load the real user class then this method will be over written and that's not what we wanted. so the safe thing to do is 
 
-{% highlight ruby %}
+<pre>
 User.class_eval do
   def name
     "Neeraj"
 end
 end
-{% endhighlight %}
+</pre>
 
 In this way if the User class is not loaded then we will get an exception. Or in the case of rails the class will get loaded.
 

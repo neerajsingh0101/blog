@@ -4,24 +4,24 @@ title: Ways to create String
 ---
 If I have to create a string I always used to use Q along with curly braces like this.
 
-{% highlight ruby %}
+<pre>
 f = 'foo'      
 puts %Q( This is me #{f} ) #=> This is me foo       
-{% endhighlight %}
+</pre>
 
 Today accidentally I found out that I don't need that capital Q. 
 
-{% highlight ruby %}
+<pre>
 f = 'foo'      
 puts %{ This is me #{f} } #=> This is me foo 
-{% endhighlight %}
+</pre>
 
 Not only that I can use parenthesis <tt>()</tt> in stead of curly braces.
 
-{% highlight ruby %}
+<pre>
 f = 'foo'      
 puts %( This is me #{f} ) #=> This is me foo 
-{% endhighlight %}
+</pre>
 
 All these solutions also work with text being spread across multi line. 
 

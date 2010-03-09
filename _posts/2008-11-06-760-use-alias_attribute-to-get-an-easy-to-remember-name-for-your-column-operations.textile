@@ -4,7 +4,7 @@ title: Use alias_attribute to get an easy to remember name for your column opera
 ---
 I am working on a project where the user table has columns fname and lname. While writing the code I often type first_name and last_name and the code would blow up. Today I found a nice fix. Use alias_attribute.
 
-{% highlight ruby %}
+<pre>
 class User < ActiveRecord::Base
   alias_attribute :first_name,:fname
 end
@@ -17,6 +17,6 @@ end
 => "Foo Bar"
 >> u.first_name
 => "Foo Bar"
-{% endhighlight %}
+</pre>
 
 Rails is really full of surprises and goodies. <br />

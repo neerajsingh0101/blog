@@ -4,7 +4,7 @@ title: Difference between puts "#{y}" and puts y
 ---
 Let's jump right into it.
 
-{% highlight ruby %}
+<pre>
 y = "Another hi from the top"
 
 class Wes
@@ -16,7 +16,7 @@ Wes.class_eval <<-END
     puts y # I get wrong number of arguments error
  end
 END
-{% endhighlight %}
+</pre>
 
 If I execute Wes.new.hello then I get error at the line "puts y". Notice that the line puts"#{y}" works fine.
 

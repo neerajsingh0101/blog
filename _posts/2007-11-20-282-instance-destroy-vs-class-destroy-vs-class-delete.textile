@@ -6,16 +6,16 @@ The basis rule is that delete operation doesn't invoke callbacks and destroy met
 
 For the first time I had a need to delete an instance without invoking callback. So I did @user.delete . I was surprised that there was no such method for the instance object. I looked at the api and found that there are two destroy methods: one for instance and one for class. So I can do 
 
-{% highlight ruby %}
+<pre>
 User.find(1).destroy
 or 
 User.destroy(1)
-{% endhighlight %}
+</pre>
 
 Howere there is no delete method fo instance. So the only way to delete a record is
 
-{% highlight ruby %}
+<pre>
 User.delete(1)
-{% endhighlight %}
+</pre>
 
 I am not sure but it seems the reasoning is that you shouldn't mistakenly type @user.delete instead of @user.destroy. When you write User.delete(1) , you make it very explicit that you don't want to invoke callbacks.

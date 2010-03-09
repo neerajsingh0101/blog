@@ -6,7 +6,7 @@ Let's say that I have a restful resource called cities. I want to create a link 
 
 Try to spot the right one here. I do not know why it took me a while to get the right syntax.
 
-{% highlight ruby %}
+<pre>
 link_to 'Bangalore', city_path(@city),:type => 'up' , {:target => '_blank'} 
 
 link_to 'Bangalore',  { city_path(@city,:type => 'up') } , {:target => '_blank'} 
@@ -14,6 +14,6 @@ link_to 'Bangalore',  { city_path(@city,:type => 'up') } , {:target => '_blank'}
 link_to 'Bangalore', city_path(@city,:type => 'up') , {:target => '_blank'} 
 
 link_to 'Bangalore', city_path(@city), {:type => 'up'} , {:target => '_blank'} 
-{% endhighlight %}
+</pre>
 
 The right answer is third one.

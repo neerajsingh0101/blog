@@ -8,9 +8,9 @@ This method is excellent for building a condition incrementally. A situation lik
 
 This is one way to build a complex query.
 
-{% highlight ruby %}
+<pre>
 conditions = ["sex =? and email =? and created_at > ? and created_at < ?",'male','foo@bar.com',Time.now, Time.now.end_of_day]
-{% endhighlight %}
+</pre>
 
 As you build more complex query it gets messier. The visual mapping between the variable usage and the actual variable gets further and further off.
 

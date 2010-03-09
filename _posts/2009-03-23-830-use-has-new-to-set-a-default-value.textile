@@ -4,7 +4,7 @@ title: Use Has.new to set a default value
 ---
 Very early while learning Ruby I came to know of the fact that while creating a hash you can supply default value.
 
-{% highlight ruby %}
+<pre>
 >> h = Hash.new('foo')
 => {}
 >> h['1'] = 100
@@ -13,7 +13,7 @@ Very early while learning Ruby I came to know of the fact that while creating a 
 => 100
 >> h['2']
 => "foo"
-{% endhighlight %}
+</pre>
 
 As you can see for the key '2' you got the value 'foo' which was the default value.
 
@@ -23,7 +23,7 @@ I knew this behavior of Hash but I never used it myself until now. Now I have st
 
 In order to understand the usefulness of this technique take a look at this piece of code from Rails.
 
-{% highlight ruby %}
+<pre>
 # lib/action_controller/rescue.rb
 
 DEFAULT_RESCUE_RESPONSE = :internal_server_error
@@ -41,17 +41,17 @@ DEFAULT_RESCUE_RESPONSES = {
 
 base.rescue_responses = Hash.new(DEFAULT_RESCUE_RESPONSE)
 base.rescue_responses.update DEFAULT_RESCUE_RESPONSES
-{% endhighlight %}
+</pre>
 
 In the above case the final goal is to create a hash <tt>rescue_responses</tt> . The requirement is that if a key is not found then use the default value. Without the power of the creating a hash with default value you would probably write like this
 
-{% highlight ruby %}
+<pre>
 if base.rescue_responses.has_key(key)
  ...
 else
  return DEFAULT_RESCUE_RESPONSE
 end
-{% endhighlight %}
+</pre>
 
 What it means is that every single time that hash is used then that check has to be done. Also it limits your ability to send the hash around. You cannot send this hash around freely because someone might just look for the key and might not check return the default value incase the key is missing.
 

@@ -6,7 +6,7 @@ If you have developed RESTful application then you know that for update and dele
 
 In the action_controller Rails checks if the method is 'put' or 'delete'.
 
-{% highlight ruby %}
+<pre>
 # actionpack/lib/action_controller/request.rb
 def get?
   method == :get
@@ -23,7 +23,7 @@ end
 def delete?
   request_method == :delete
 end
-{% endhighlight %}
+</pre>
 
 h2. Objective
 
@@ -31,15 +31,15 @@ Where is the code that translates _method into method = 'put' or method = 'delet
 
 The code that makes use of _method is not inside Rails. It is packaged as a gem called 'rack'. If you want to look at the code base of this gem then create a Rails 2.3 application and then unpack gem like this.
 
-{% highlight ruby %}
+<pre>
 rails demo
 cd demo
 rake rails:freeze:gems
-{% endhighlight %}
+</pre>
 
 Now go to vendor/rails/actionpack/actioncontroller/vendor/rack/methodoverride.rb . There you will see code like this
 
-{% highlight ruby %}
+<pre>
 module Rack
   class MethodOverride
     HTTP_METHODS = %w(GET HEAD PUT POST DELETE OPTIONS)
@@ -67,17 +67,17 @@ module Rack
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 As you can see above if the request method is POST and if there is value for params '_method' then request method is set to 'put' or 'delete'.
 
 As I said this functionality is not directly coded in Rails. This functionality is distributed as rack module which means Sinatra and other ruby frameworks can make use of this feature. When you installed Rails 2.3 then rack gem also gets installed. To see the listing of this gem do this
 
-{% highlight ruby %}
+<pre>
 > gem list rack
 
 *** LOCAL GEMS ***
 
 rack (1.0.0, 0.4.0)
-{% endhighlight %}
+</pre>
  <br />

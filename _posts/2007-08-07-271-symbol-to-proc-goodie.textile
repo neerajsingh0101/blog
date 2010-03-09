@@ -4,15 +4,15 @@ title: Symbol to proc goodie
 ---
 We are all familiar with this type of code.
 
-{% highlight ruby %}
+<pre>
 people.collect { |p| p.name }
-{% endhighlight %}
+</pre>
 
 Same result can be achieved this way too.
 
-{% highlight ruby %}
+<pre>
 people.collect(&:name)
-{% endhighlight %}
+</pre>
 
 Let's see what's going on here.
 
@@ -22,13 +22,13 @@ Ruby also says that if the input item is not a proc then it will invoke a method
 
 The fact that to_proc is called on the incoming parameter opens up a few possibilities. Rails guys implemented to_proc method for Symbol in the following manner.
 
-{% highlight ruby %}
+<pre>
 class Symbol
   def to_proc
     Proc.new { |*args| args.shift.__send__(self, *args) }
   end
 end
-{% endhighlight %}
+</pre>
 
  __send__ is another way to invoke a method on the object. Instead of @user.name you can do something like @user.send(:name) or @user.__send__(:name).
 
@@ -38,7 +38,7 @@ So simply stated the whole thing translates into  @people.name which is what we 
 
 Overall Symbol to proc trick is much less verbose and easily lets us chain things.
 
-{% highlight ruby %}
+<pre>
 people.collect(&:is_manager?).collect(&:name)  
 people.collect(|p| p.is_manager?).collect(|p| p.name)  
-{% endhighlight %}
+</pre>

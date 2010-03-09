@@ -4,7 +4,7 @@ title: Functional scope in Javascript and how Javascript continues to surprise m
 ---
 Javascript continues to surprise me. Check out this code.
 
-{% highlight js %}
+<pre>
 function foo(){
 
 var x = 100;
@@ -18,13 +18,13 @@ alert(x);
 
 foo();
 
-{% endhighlight %}
+</pre>
 
 What do you think the value of second alert will be. I thought it would be 100 but the answer is 11. That's because the scope of a local variable in Javascript is not limited to the loop. Rather the scope of a local variable is felt all over the function.
 
 Before you look at the next piece of code remember that defining a variable without the <tt>var</tt> prefix makes that variable a global variable. 
 
-{% highlight js %}
+<pre>
 fav_star = 'Angelina'; /* it is a global variable */
 
 function foo(){
@@ -38,7 +38,7 @@ function foo(){
 };
 
 foo();
-{% endhighlight %}
+</pre>
 
 What do you think would be the alert value first time? I thought it would be 'Angelina' but the correct answer is 'undefined'. That is because it does not matter where the variable is defined. As long as the variable is defined anywhere within a function then that variable will be set to 'undefined'. It is when the statement is executed then the value of the variable changes from 'undefined' to 'Jennifer'.
 

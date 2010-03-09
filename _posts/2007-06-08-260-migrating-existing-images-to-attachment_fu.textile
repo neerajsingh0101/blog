@@ -6,7 +6,7 @@ title: Migrating existing images to attachment_fu
 
 Although I found using attachment_fu easy, the task of migrating  the existing images to attachment_fu was difficult. I guess after a lot of search I found a tip in the mailing list. Sorry  I don't have the link to give credit. Here is the rake task that did it for me.
 
-{% highlight ruby %}
+<pre>
 # save this file as process_event_images.rake
 # run it as rake process_event_images
 
@@ -72,4 +72,4 @@ class LocalUploadedFile
   end
 end
 
-{% endhighlight %}
+</pre>

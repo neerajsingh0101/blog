@@ -12,44 +12,44 @@ I am running Ubuntu 8.04.1 on my slice that I got from slicehost.com . The instr
 
 If you are using mac or linux then try 
 
-{% highlight sh %}
+<pre>
 ssh root@123.45.67.890
 # to change password
 passwd
-{% endhighlight %}
+</pre>
 
 <h2> Adding a new user </h2>
 Let's create a new user named 'neeraj'
 
-{% highlight sh %}
+<pre>
 adduser neeraj
 #It will prompt for password and password confirmation. 
-{% endhighlight %}
+</pre>
 
 Let's provide sudo access to this user 'neeraj'
 
-{% highlight sh %}
+<pre>
 visudo
-{% endhighlight %}
+</pre>
 
 Go to the end of file and add the following line .
 
-{% highlight sh %}
+<pre>
 neeraj ALL=(ALL) ALL
-{% endhighlight %}
+</pre>
 
 save the data and exit.
 
 Logout of your slice and log back in with userid neeraj and password you used to create this userid. In fact now you don’t need to login as root ever. Login as neeraj and when you need root access all you need to do is
 
-{% highlight sh %}
+<pre>
 sudo -i
-{% endhighlight %}
+</pre>
 
 <h2> ssh setup </h2>
 
 
-{% highlight sh %}
+<pre>
 # get out of slicehost and make sure that you are at your local
 # machine prompt
 
@@ -74,11 +74,11 @@ chmod 700 /home/neeraj/.ssh
 
 # change permission
 chmod 600 /home/neeraj/.ssh/authorized_keys
-{% endhighlight %}
+</pre>
 
 <h2> Check the OS we are running </h2>
 
-{% highlight sh %}
+<pre>
 cat /etc/lsb-release
 
 # the ouptput would be something like
@@ -86,11 +86,11 @@ DISTRIB_ID=Ubuntu
 DISTRIB_RELEASE=8.04
 DISTRIB_CODENAME=hardy
 DISTRIB_DESCRIPTION="Ubuntu 8.04.1" 
-{% endhighlight %}
+</pre>
 
 <h2> Set aliases </h2>
 
-{% highlight sh %}
+<pre>
 vi ~/.bash_profile
 
 # add following lines to .bash_profile
@@ -99,53 +99,53 @@ alias update="sudo aptitude update"
 alias install="sudo aptitude install" 
 alias upgrade="sudo aptitude safe-upgrade" 
 alias remove="sudo aptitude remove" 
-{% endhighlight %}
+</pre>
 
 <h2> Configure bash profile </h2>
 
-{% highlight sh %}
+<pre>
 vi ~/.bash_profile
 # Add following line at the bottom of the file
 export PS1="\n\[\e[36;1m\]\u@\[\e[32;1m\]\H:\w\n> \[\e[0m\]" 
-{% endhighlight %}
+</pre>
 
 Get out of file and reload the changes by running
 
-{% highlight sh %}
+<pre>
 source ~/.bash_profile
-{% endhighlight %}
+</pre>
 
 <h2> Set locale </h2>
 
-{% highlight sh %}
+<pre>
 sudo locale-gen en_GB.UTF-8
 sudo /usr/sbin/update-locale LANG=en_GB.UTF-8
 mkdir ~/tmp
-{% endhighlight %}
+</pre>
 
 <h2> uptodate your machine </h2>
 
-{% highlight sh %}
+<pre>
 sudo aptitude safe-upgrade
 sudo aptitude full-upgrade
 sudo apt-get update
 sudo aptitude install build-essential
 sudo apt-get install build-essential
-{% endhighlight %}
+</pre>
 
 restart the box
 
-{% highlight sh %}
+<pre>
 sudo shutdown -r now
-{% endhighlight %}
+</pre>
 
 
 <h2> Change ssh password </h2>
 
 If sometime later you need to change the ssh password then use this command.
 
-{% highlight sh %}
+<pre>
 passwd
-{% endhighlight %}
+</pre>
 
 It will prompt for old and new passwords.

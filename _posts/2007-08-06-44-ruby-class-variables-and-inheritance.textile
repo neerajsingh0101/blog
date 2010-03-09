@@ -5,7 +5,7 @@ title: Ruby class variables and inheritance
 44
 Let's look at this example
 
-{% highlight ruby %}
+<pre>
 class User
   @@base_salary = 5.75
   def self.base_salary
@@ -19,7 +19,7 @@ class Tester < User
   @@base_salary = 32.00
 end
 puts Developer.base_salary
-{% endhighlight %}
+</pre>
 
 Since the base_salary of Developers is 35.00 I was expecting '35.00' in the result. But the result was '32.00'. Why is that?
 
@@ -32,7 +32,7 @@ The answer is that class variables aren't truly class variables; they belong not
 
 So how to fix the code. First let's see the solution.
 
-{% highlight ruby %}
+<pre>
 class User
   @@base_salary = 5.75
   class  << self
@@ -46,7 +46,7 @@ class Tester <   User
   self.base_salary = 32.00
 end
 puts Developer.base_salary
-{% endhighlight %}
+</pre>
 
 Because of the stated issue with the class variables we ditched the class variable approach completely. In the solution base_salary is no more a class level variable. Rather it is a class instance variable.
 

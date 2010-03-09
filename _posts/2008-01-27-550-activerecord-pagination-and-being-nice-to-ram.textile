@@ -4,13 +4,13 @@ title: ActiveRecord pagination and being nice to RAM
 ---
 There are over 10,000 events in database for "EventsInIndia.com":http://www.EventsInIndia.com . If I need to update the events table with some information then one way to achieve that would be 
 
-{% highlight ruby %}
+<pre>
  find(:all).each {|event| event.save! }
-{% endhighlight %}
+</pre>
 
 This will work but this might kill the server too. When find(:all) is executed then all 10,000 records are instantiated before any iteration is done. If you are running with 512MB RAM then that would be tremendous constraint on the server. A better way would be to not to instantiate all the records at the same time but to use pagination concept where only the items being shown on that page is instantiated. In this regard this is an "excellent work":http://www.dweebd.com/ruby/activerecord-pagination-for-destructive-migrations/#comments . I had a home grown solution but the solution presented by duncan is  much better.
 
-{% highlight ruby %}
+<pre>
 module ActiveRecord
   class Base
     # Step through and instantiate each member of the class and execute on it,
@@ -44,19 +44,19 @@ module ActiveRecord
       end until all_ids.empty?
     end
   end
-{% endhighlight %}
+</pre>
 
 Put this code in in config/initializers and now I can use following command in my migration.
 
-{% highlight ruby %}
+<pre>
     User.each_by_page(15) do |user| 
       puts user.id
       user.save! 
       end
-{% endhighlight %}
+</pre>
 
 The query generate might look like this
 
-{% highlight sh %}
+<pre>
 SELECT * FROM `users` WHERE (id IN ('2','4','6','7','8','9','10','11','12','13','14','15','16','21','22')) ORDER BY CASE id WHEN 2 THEN 0 WHEN 4 THEN 1 WHEN 6 THEN 2 WHEN 7 THEN 3 WHEN 8 THEN 4 WHEN 9 THEN 5 WHEN 10 THEN 6 WHEN 11 THEN 7 WHEN 12 THEN 8 WHEN 13 THEN 9 WHEN 14 THEN 10 WHEN 15 THEN 11 WHEN 16 THEN 12 WHEN 21 THEN 13 WHEN 22 THEN 14 END
-{% endhighlight %}
+</pre>

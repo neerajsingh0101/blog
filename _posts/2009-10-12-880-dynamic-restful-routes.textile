@@ -6,10 +6,10 @@ Restul routes are awesome. All you have to do is add one line to routes file <tt
 
 How about the case where the names of models are not know before hand and ,at run time, you need to handle such cases. Lets take an example. If you have two restful routes for users and houses then they would be defined like this.
 
-{% highlight ruby %}
+<pre>
 map.resources :houses
 map.resources :users
-{% endhighlight %}
+</pre>
 
 In this case there is one declaration for each resource. How would you design the routes if the names of resources (houses and users) is supplied at run time and not at development time.
 
@@ -17,16 +17,16 @@ While developing plugin admin_data such a case was handled. This plugin reads th
 
 Here is snippet of routes file from admin_data plugin.
 
-{% highlight ruby %}
+<pre>
  admin_data.resources  :on_k,
                        :as => ':klass',
                        :path_prefix => 'admin_data',
                        :controller => 'main'
-{% endhighlight %}
+</pre>
 
 Now if I want the url for the index method for model user then I would say
 
-{% highlight ruby %}
+<pre>
 #index 
 admin_data_on_k_index_path(:klass => klass.name.underscore) 
 
@@ -35,7 +35,7 @@ admin_data_on_k_path(:klass => klass.name.underscore, :id => record.id)
 
 #new
 new_admin_data_on_k_path(:klass => klass.name.underscore)
-{% endhighlight %}
+</pre>
 
 They key thing is that by looking at the "routes documentation for as":http://guides.rubyonrails.org/routing.html#using-as you would not guess that it could take a variable. 
 

@@ -6,7 +6,7 @@ You would think it would be easy to find number of days in a given year in Ruby/
 
 There are multiple solutions and you can follow the discussion "here":http://groups.google.com/group/ruby-talk-google/browse_thread/thread/a6a4bf5ca179dfa1/1b3517a25ec17338?show_docid=1b3517a25ec17338&pli=1 . However the best solution was posted at the very end.
 
-{% highlight ruby %}
+<pre>
 # yday represents the day of the year
 >> Time.now.yday
 => 302
@@ -17,6 +17,6 @@ There are multiple solutions and you can follow the discussion "here":http://gro
 => 366
 >> DateTime.new(2009,12,31).yday
 => 365
-{% endhighlight %}
+</pre>
 
 Nifty usage of yday method.

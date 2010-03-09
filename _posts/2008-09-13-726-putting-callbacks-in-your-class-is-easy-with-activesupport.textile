@@ -8,7 +8,7 @@ Let's assume that we have a class and we want to add some callbacks. We go about
 
 In the following code we wan to have a callback whenever the method make_payment is called.
 
-{% highlight ruby %}
+<pre>
 require 'rubygems'
 require 'activesupport'
 
@@ -25,4 +25,4 @@ class MyEvent < Event
 end
 
 MyEvent.new.make_payment
-{% endhighlight %}
+</pre>

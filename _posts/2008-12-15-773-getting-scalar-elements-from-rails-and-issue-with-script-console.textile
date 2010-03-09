@@ -4,35 +4,35 @@ title: Getting scalar elements from Rails and issue with script/console
 ---
 I want to retrieve all the unique first names and the number of occurrences of each of these first names from my table. The sql might look like this
 
-{% highlight ruby %}
+<pre>
 select fname,count(*) as count from users group by fname
-{% endhighlight %}
+</pre>
 
 The rails code will look like this
 
-{% highlight ruby %}
+<pre>
 sql = "select fname,count(*) as count from users group by fname limit 20"
 result = User.find_by_sql(sql)
-{% endhighlight %}
+</pre>
 
 I have added limit 20 so that we have smaller set to play with. Now let's try to look inside the result.
 
-{% highlight ruby %}
+<pre>
 >> result[0]
 => #<User fname: "Ashish">
-{% endhighlight %}
+</pre>
 
 When I look in console I only the value for 'fname'. What happened to count. Did rails loose this value. 
 
 Well when we execute result[0] then the method inspect gets called. Rails overrides this method for Active Record models. However the new inspect method defined by rails doesn't take into account virtual attributes. The value count is there but rails is not displaying them when we invoke inspect.
 
-{% highlight ruby %}
+<pre>
 >> result[0].attributes
 => {"fname"=>"Ashish", "count"=>"12"}
 
 >> result[0].count
 => "12"
-{% endhighlight %}
+</pre>
 
 So don't freak out if you don't see your scalar elements in script/console.
  <br />

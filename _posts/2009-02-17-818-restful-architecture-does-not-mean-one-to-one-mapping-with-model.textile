@@ -4,9 +4,9 @@ title: Restful architecture does not mean one to one mapping with model
 ---
 Rails makes it easy to adapt Restful architecture. All you have to do is
 
-{% highlight ruby %}
+<pre>
 map.resources :pictures    
-{% endhighlight %}
+</pre>
 
 I started putting all pictures related activitites in pictuers_controller.rb . In the beginning it was simple. 
 
@@ -28,9 +28,9 @@ Being restful does not mean that there has be a one to one mapping between the m
 
 I am going to create a new controller called user_pictures_controller.rb that will take on all the functionality related to users dealing with picture. And this is going to be restful.
 
-{% highlight ruby %}
+<pre>
 map.resources :user_pictures
-{% endhighlight %}
+</pre>
 
 Above I have defined a resource called <tt>user_pictures</tt>. To keep it simple this controller would do only three things. 
 
@@ -46,7 +46,7 @@ h2. Controller
 
 Here is the code for controller.
 
-{% highlight ruby %}
+<pre>
 # user_pictures_controller.rb
 class UserPicturesController < ApplicationController
   
@@ -95,14 +95,14 @@ class UserPicturesController < ApplicationController
   
 end
 
-{% endhighlight %}
+</pre>
 
 
 h2. View
 
 # index.html.erb
 
-{% highlight ruby %}
+<pre>
 <h1>Listing pictures</h1>
 
 <table>
@@ -129,12 +129,12 @@ h2. View
 <br />
 
 <%= link_to 'New picture', new_user_picture_path %>
-{% endhighlight %}
+</pre>
 
 
 # edit.html.erb
 
-{% highlight ruby %}
+<pre>
 <h1>Editing picture</h1>
 
 <% form_for(:picture, 
@@ -157,12 +157,12 @@ h2. View
 
 <%= link_to 'Show', user_picture_path(@picture) %> |
 <%= link_to 'All', user_pictures_path %>
-{% endhighlight %}
+</pre>
 
 
 # new.html.erb
 
-{% highlight ruby %}
+<pre>
 <h1>New picture</h1>
 
 <% form_for(:picture, :url => user_pictures_path, :html => {:method => :post}) do |f| %>
@@ -182,12 +182,12 @@ h2. View
 <% end %>
 
 <%= link_to 'All', user_pictures_path %>
-{% endhighlight %}
+</pre>
 
 
 # show.html.erb
 
-{% highlight ruby %}
+<pre>
 <p>
   <b>Name:</b>
   <%=h @picture.name %>
@@ -201,7 +201,7 @@ h2. View
 
 <%= link_to 'Edit', edit_user_picture_path(:id => @picture) %> |
 <%= link_to 'All', user_pictures_path %>
-{% endhighlight %}
+</pre>
 
 
 h2. Another use case

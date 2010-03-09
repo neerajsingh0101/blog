@@ -4,17 +4,17 @@ title: Iterating through models in small chunks
 ---
 If you have more than 100,00 users in your database and if you do something like this
 
-{% highlight ruby %}
+<pre>
 ruby script/console
 User.find(:all).each { |user| puts user.name }
-{% endhighlight %}
+</pre>
 
 then there might be memory issue. That is because User.find(:all) loads all records into the memory.
 
 To overcome that one has to step through records in chunks. This is what I had in my initializer.
 
 
-{% highlight ruby %}
+<pre>
 module ActiveRecord
   class Base
     # Step through and instantiate each member of the class and 
@@ -61,12 +61,12 @@ module ActiveRecord
   end
 end
 
-{% endhighlight %}
+</pre>
 
 The above code works but today while browsing through the source code of beast I came across a better solution
 
 
-{% highlight ruby %}
+<pre>
 class << ActiveRecord::Base
   def paginated_each(options = {}, &block)
     page = 1
@@ -78,6 +78,6 @@ class << ActiveRecord::Base
     end
   end
 end
-{% endhighlight %}
+</pre>
 
 This one leverages will_paginate and works like charm.

@@ -5,23 +5,23 @@ title: Beware of capitalize method
 
 Ruby's capitalize method turns the first character to uppercase and turns rest of characters to lowercase. This could be tricky. 
 
-{% highlight ruby %}
+<pre>
 >> "please meet Mr. John".capitalize
 => "Please meet mr. john"
-{% endhighlight %}
+</pre>
 
 One easy way to solve it would be 
 
-{% highlight ruby %}
+<pre>
 >> tmp = "please meet Mr. John"
 => "please meet Mr. John"
 >> tmp = tmp[0,1].upcase + tmp[1..-1] unless tmp.blank?
 => "Please meet Mr. John"
-{% endhighlight %}
+</pre>
 
 However a better solution will be 
 
-{% highlight ruby %}
+<pre>
 class ::String
   def firstcap
     self.gsub(/^(\w)/) { $1.chars.capitalize }
@@ -31,6 +31,6 @@ end
 >> "please meet Mr. John".firstcap
 => "Please meet Mr. John"
 
-{% endhighlight %}
+</pre>
 
 I found the above proposed solution in a ruby forum. <br />

@@ -7,38 +7,38 @@ I keep getting requests regarding how to get started with Ruby on Rails. Here is
 Install ruby by downloading the exe file from "https://rubyforge.org/frs/?group_id=167":https://rubyforge.org/frs/?group_id=167
 Execute the following command and you should get the version of ruby. This is ensure that ruby installation is good.
 
-{% highlight ruby %}
+<pre>
 ruby -v
-{% endhighlight %}
+</pre>
 
 Next install rails by running following command
 
-{% highlight ruby %}
+<pre>
 gem install -v=1.2.6 -y
 
 # once the installation is done the execute the following command
 # you should see the rails version as 1.2.6
 rails -v
-{% endhighlight %}
+</pre>
 
 Next we need to install mysql. Go to "http://dev.mysql.com/downloads/mysql/5.0.html#win32":http://dev.mysql.com/downloads/mysql/5.0.html#win32 and download the without installer file. unzip this file at c:\
 
 Mysql is installed. In order to start the mysql server open the command prompt and run the following command
 
-{% highlight sh %}
+<pre>
 C:\mysql-5-xxxxx\bin\mysqld
-{% endhighlight %}
+</pre>
 
 This will start mysql server. 
 
 Now we need a mysql client. I use mysqlyog. Go to "http://webyog.com/en/downloads.php":http://webyog.com/en/downloads.php and download file "SQLyog MySQL GUI - Community Edition 6.15 (Stable)" from "Community Edition". Start mysqlyog. Click on 'new'. 
 
-{% highlight sh %}
+<pre>
 Host Address: 127.0.0.1
 user name: root
 password: leave it empty
 port:3306
-{% endhighlight %}
+</pre>
 
 Now you can create a new database and the tables using this client.
 
@@ -49,18 +49,18 @@ Unzip the file and you will see radrails.exe .
 
 Next create a rails application. 
 
-{% highlight sh %}
+<pre>
 Go to d drive. 
 Create a directory called dev. 
 cd dev
 rails demo
-{% endhighlight %}
+</pre>
 
 A demo project has been created.
 
 Now let's import this project in radrails IDE. Start radrails. 
 
-{% highlight sh %}
+<pre>
 click on File at the top. 
 click new
 click on rails to expand it
@@ -82,7 +82,7 @@ status will become 'started'
 
 Now open browser and go to http://localhost:3000 . 
 You should see the Ruby on Rails homepage. It means RoR application is working fine.
-{% endhighlight %}
+</pre>
 
 Now you can directly start with chapter six of "Agile development with Rails (second edition)":http://www.pragprog.com/titles/rails2
 

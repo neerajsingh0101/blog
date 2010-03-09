@@ -6,11 +6,11 @@ In "this screencast":http://railscasts.com/episodes/127-rake-in-background Ryan 
 
 In short this is the solution he proposes.
 
-{% highlight ruby %}
+<pre>
 def call_rake
   system "rake #{task} &"
 end  
-{% endhighlight %}
+</pre>
 
 It is a short and sweet solution when you do not want to roll out other background job processing tools. It works pretty well. However I discovered one issue with the solution.
 
@@ -18,18 +18,18 @@ While developing "validation functionality in admin_data":http://demo.neeraj.nam
 
 Let's say that I start a rake task on background which lasts for 10 minutes. In the next 10 minutes if I kill my script/server ( I am in development mode) and if I try to start my server, I was getting following message.
 
-{% highlight sh %}
+<pre>
 Address already in use - bind(2) (Errno::EADDRINUSE)
-{% endhighlight %}
+</pre>
 
 It seems that when the rake job is pushed to background, it inherits all the properties of the parent process including the port number of the server. It means that as long as the child process is alive, the parent process's port number is taken.
 
 This solution fixes the problem.
 
-{% highlight ruby %}
+<pre>
 command = "rake #{task} #{args.join(' ')}" 
 p1 = Process.fork { system(command) } 
 Process.detach(p1) 
-{% endhighlight %}
+</pre>
 
 This was my first introduction to the murky world of ruby fork and process. I read a few good blogs on this topic and will be posting more about the same topic soon.
