@@ -1,0 +1,33 @@
+---
+layout: post
+title: Evaluating a boolean operation can return non boolean value in both ruby and in JavaScript
+---
+{% highlight ruby %}
+a = 10
+b = 20
+c = a && b
+puts c #=> 20
+{% endhighlight %}
+
+When  I look at code like this, my brain assumes that return value would be a boolean and not 20.
+
+However that is slowly changing. 
+
+As I spend more time looking a JavaScript code I am embracing this style of coding. The above code is ruby code and I do not see many cases of assigning a value like this in ruby. May be it is not in the cultural DNA of ruby. In ruby world I have used or operation to assign value to a variable.
+
+{% highlight ruby %}
+a = 10
+b = 20
+c = a || b
+puts c #=> 10
+{% endhighlight %}
+
+However in JavaScript land it is a different story. Checkout following code from jQuery.
+
+{% highlight js %}
+complete: fn || !fn && easing || jQuery.isFunction( speed ) && speed
+{% endhighlight %}
+
+At first I thought second condition would assign a boolean value to <tt>complete</tt>. However if second condition is true then value assigned to complete would be <tt>easing</tt> which is a <tt>truthy</tt> value.
+
+Embracing a new language is making brain unlearn a few things.

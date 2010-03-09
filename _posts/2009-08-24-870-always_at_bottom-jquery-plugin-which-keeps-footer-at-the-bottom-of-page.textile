@@ -1,0 +1,37 @@
+---
+layout: post
+title: always_at_bottom  jQuery plugin which keeps footer at the bottom of  page
+---
+__Following code has been tested with jQuery 1.3 .__
+
+If you have a really really short page then footer comes up right in the middle of page. There are a number of solutions available and most of them are CSS based. I found all those solutions to be too clunky. I'm using jQuery in all of my projects and decided to fix this problem using jQuery.
+
+Before I get started, here are some of the basics.
+
+h2. $(window).height()
+
+window is the area of the browser that is available for your viewing. Let's assume that the window height is 600px. Now if you open firebug then some of the window area is getting lost and now you will have reduced window height. Also note that window height is not dependent on the length of the page content. If the content of the page is long then you will have vertical scroll bar. The window height does not change whether page has vertical scroll bar or not.
+
+h2. $(document.body).height()
+
+document body height is what indicates height of the content. If web page is small then the value of document.body height will be small. If web page has a lot of content then there will be vertical scroll bar and the height of the document will be a big number.
+
+h2. css absolution positioning
+
+In css, if an element is positioned absolutely, then that element will appear precisely where it is asked to stay put pixel by pixel. It's like that element is taken out of document flow and is pinned at the position it has been asked to stay put. More information about css positioning is available at "this article": http://www.barelyfitz.com/screencast/html-training/css/positioning/
+
+Note that absolute positioning is impacted by margin and padding. If an element is absolutely positioned then <tt>top:0; right:0;</tt> then that element will be at the very top right corner. However if that element has a margin of <tt>30px</tt> then the element would be positioned at 30px from top and 30px from right even though the element was absolutely positioned at top 0 and right 0.
+
+h2. Back to original problem
+
+Back to the original problem of making sure that footer always appears at the very bottom. 
+
+The logic goes like this. If body height is more than window height then ,it means, there is  vertical scroll bar and footer is already at the bottom. No need to do anything in this case.
+
+However if body height is less than window height, then footer element needs to be absolutely positioned so that it stays at the bottom of the page.
+
+I would position the footer at the very bottom. That is easy. <tt> bottom: 0</tt>. However if the footer element has <tt>margin-bottom</tt> then that needs to be taken care of.
+
+Another  thing to be taken care of is that css properties are not available for safari and chrome until the full <tt>window.onload</tt> event has been fired.
+
+This jQuery plugin is available for "browsing and download here":http://github.com/neerajdotname/always_at_bottom/tree/master . I tested this plugin with Firefox, safari, IE6 and IE7.<br />

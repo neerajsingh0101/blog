@@ -1,0 +1,53 @@
+---
+layout: post
+title: extending self in a module
+---
+What does this code do.
+
+{% highlight ruby %}
+module Say
+ extend self
+end
+{% endhighlight %}
+
+One of the characteristics of module is that you can't make an instance of it. This will fail.
+
+{% highlight ruby %}
+Say.new
+{% endhighlight %}
+
+However you can invoke a method on a module. 
+
+{% highlight ruby %}
+module Say
+  def self.drink
+    puts 'drinking'
+  end
+end
+Say.drink
+{% endhighlight %}
+
+You can't invoke an instance method of a module from a module. This will not work.
+
+{% highlight ruby %}
+module Say
+  def bark
+    puts 'barking'
+  end
+end
+Say.bark #=> undefined method ‘bark’ for Say:Module
+{% endhighlight %}
+
+However using extend self, method bark can be made available to module Say.
+
+{% highlight ruby %}
+module Say
+  def bark
+    puts 'barking'
+  end
+  extend self
+end
+Say.bark #=> 'barking'
+{% endhighlight %}
+
+Statement <tt>extend self</tt> is an executable statement. When module is being loaded then self if the moduel itself. So that's like saying <tt>extend Say</tt>. And that's what happens. When a module extends another module then first module gets to invoke all the instance methods of the other module. That's how in this case Say module is able to invoke method <tt>bar</tt> .<br />

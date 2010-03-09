@@ -1,0 +1,223 @@
+---
+layout: post
+title: JavaScript Basics Quiz
+---
+h2. Question 1
+
+What's the output.
+
+{% highlight js %}
+x = 90;
+function f(){
+  console.log(x);
+  var x = 100;
+}
+f();
+{% endhighlight %}
+
+
+h2. Answer 1
+
+The result is <tt>undefined</tt> . In JavaScript a variable exists in the scope of a function and that variable can be defined anywhere in the function. To find out more about lexical scope read "here":http://stackoverflow.com/questions/1047454/what-is-lexical-scope and "here":http://en.wikipedia.org/wiki/Scope_(programming) .
+
+h2. Question 2
+
+Go to "prototype homepage":http://www.prototypejs.org open firebug and execute following code.
+
+{% highlight js %}
+var a = ['a','b','c'];
+var result = '\n';
+for (i in a){
+  result += 'index: '+ i + ' value:' + a[i] + '\n';
+}
+{% endhighlight %}
+
+
+Now go to "jQuery":http://jquery.com homepage and execute the same code. Notice the difference in output. Why the difference?
+
+h2. Answer 2
+
+Prototype adds additional methods to Array using Array.prototype. Those methods show up when you iterate through them. If you want to ignore methods added through Array.prototype then use this code.
+
+{% highlight js %}
+var a = ['a','b','c'];
+var result = '\n';
+for (i in a){
+  if (a.hasOwnProperty(i))
+    result += 'index: '+ i + ' value:' + a[i] + '\n';
+}
+{% endhighlight %}
+
+
+h2. Question 3
+
+In order to find if an element with id 'foo' is present, one can do
+
+{% highlight js %}
+if ($('#foo').length > 0)
+  console.log('id foo is present');
+{% endhighlight %}
+
+How can you make the conditional statement shorter.
+
+h2. Answer 3
+
+In JavaScript following items evaluate to false in a conditional statement: undefined, null, false, empty string, NaN, 0
+
+{% highlight js %}
+if ($('#foo'))
+  console.log('id foo is present');
+{% endhighlight %}
+
+
+h2. Question 4
+
+What is the output in this case. Notice that function bar is defined after the <tt>return</tt> statement.
+
+{% highlight js %}
+function foo(){
+  console.log(z);
+  console.log(bar());
+  return true;
+
+  function bar(){
+    return 'this is bar';
+  };
+
+  var z = 'zzz';
+};
+
+foo();
+{% endhighlight %}
+
+h2. Answer 4
+
+Output is
+
+{% highlight sh %}
+undefined
+this is bar
+true
+{% endhighlight %}
+
+h2. Question 5
+
+What's output in this case.
+
+{% highlight js %}
+function logit(n){console.log(n);}
+
+for(i=1;i<5;i++){
+ setInterval(function(){logit(i)},2000);
+}
+{% endhighlight %}
+
+h2. Answer 5
+
+The result would be output <tt>5 5 5 5</tt> and all the four output will appear together in one shot. Then after 2 seconds another set of similar data would appear. This would continue forever.
+
+Question is why do I see the output in one single shot and why do I see value 5 for all four cases.
+
+Browsers execute JavaScript in a single thread. While that thread is busy executing 'for loop' the thread makes note of additional instructions like setInterval. Since the thread is already running 'for loop', the same thread can't run setInterval. So the thread finishes the 'for loop' and then looks up additional tasks to be performed. It find setInterval task to be waiting. It executes the function. While it is executing the function ,by virtue of closure, the value of i is 5. Hence you see <tt> 5 5 5 5</tt> and you see all that in one single shot.
+
+Correct implementation would be 
+
+{% highlight js %}
+function logit(n){console.log(n);}
+
+var counter = 0;
+var timer = setInterval(function() {
+	logit(counter);
+	counter++
+	if (counter == 5) {
+		clearTimeout(timer);
+	}
+},
+2000);
+{% endhighlight %}
+
+Above code would print <tt>0 1 2 3 4</tt> at an interval of 2 seconds.
+
+
+h2. Question 6
+
+What's the output in this case.
+
+{% highlight js %}
+flight = { status: 'arrived'}
+console.log(typeof(flight.status));
+console.log(typeof(flight.toString));
+console.log(flight.hasOwnProperty('status'));
+console.log(flight.hasOwnProperty('toString'));
+{% endhighlight %}
+
+h2. Answer 6
+
+{% highlight sh %}
+string
+function
+true
+false
+{% endhighlight %}
+
+h2. Question 7
+
+What's output in this case.
+
+{% highlight js %}
+function Person(name) { this.name = name;}
+Person.prototype.welcome = function(){ return 'welcome ' + this.name}
+
+p = new Person('John');
+
+console.log(p.welcome.call(p));
+
+o = {name: 'Mary'}
+
+console.log(Person.prototype.welcome.call(o));
+{% endhighlight %}
+
+h2. Answer 7
+
+{% highlight sh %}
+welcome John
+welcome Mary
+{% endhighlight %}
+
+h2. Question 8
+
+JavaScript has <tt>Math</tt> library which can be used like this
+
+{% highlight js %}
+Math.max(6,7,8) // result is 8
+{% endhighlight %}
+
+If I provide an array with certain values then how would you find the max value for that array.
+
+{% highlight js %}
+a = [1,2,3];
+{% endhighlight %}
+
+h2. Answer 8
+
+This answer builds up on the answer provided in #7 .
+
+You can try this but it will fail.
+
+{% highlight js %}
+Math.max(a) //output is NaN
+{% endhighlight %}
+
+You can try this but it will fail too.
+
+{% highlight js %}
+Math.max.call(Math,a); // output is NaN
+{% endhighlight %}
+
+This will work
+
+{% highlight js %}
+Math.max.apply(Math,a); //output is 3
+{% endhighlight %}
+
+<tt>apply</tt> method works because it accepts an array as the argument. <tt>call</tt> method passes the individual params to the called method directly and hence it does not work. You can read more about JavaScript "apply and call methods here":http://odetocode.com/blogs/scott/archive/2007/07/04/function-apply-and-function-call-in-javascript.aspx .

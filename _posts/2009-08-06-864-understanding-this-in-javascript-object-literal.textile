@@ -1,0 +1,124 @@
+---
+layout: post
+title: Understanding this in Javascript object literal
+---
+Here is code.
+
+{% highlight js %}
+var foo = {
+
+   first: function(){
+     console.log('I am first');
+   },
+
+   second: function(){
+     console.log('I am second');
+   },
+};
+
+foo.first();
+foo.second();
+{% endhighlight %}
+
+Everything works fine. 
+
+Now there is a need for function 'second' to call function 'first'. Try this and it will fail.
+
+{% highlight js %}
+var foo = {
+
+   first: function(){
+     console.log('I am first');
+   },
+
+   second: function(){
+     console.log('I am second');
+     first();
+   },
+};
+
+foo.second();
+{% endhighlight %}
+
+One way to fix this problem is to hardcode value 'foo' inside the 'second' function. Following code works.
+
+{% highlight js %}
+var foo = {
+
+   first: function(){
+     console.log('I am first');
+   },
+
+   second: function(){
+     console.log('I am second');
+     foo.first();
+   },
+};
+
+foo.second();
+{% endhighlight %}
+
+Above code works but hardcoding the value of 'foo' inside the object literal is not good. A better way would be to replace the hardcoded name with 'this'.
+
+{% highlight js %}
+var foo = {
+
+   first: function(){
+     console.log('I am first');
+   },
+
+   second: function(){
+     console.log('I am second');
+     this.first();
+   },
+};
+
+foo.second();
+{% endhighlight %}
+
+All is good.
+
+h2.  chasing this
+
+Javascript allows one to create function inside a function. Now I am changing the implementation of method 'second'. Now this method would return another function.
+
+{% highlight js %}
+var foo = {
+
+   first: function(){
+       console.log('I am first');
+   },
+
+   second: function(){
+     return function(){
+         this.first();
+     }
+   },
+};
+
+foo.second()();
+{% endhighlight %}
+
+Also note that in order to invoke the returned function I have double ()() at the end. 
+
+Above code does not work. It did not work because <tt>this</tt> has changed. Now 'this' in 'second' function refers to the global object rather than referring to the 'foo' object.
+
+Fix is simple. In the function 'second' store the value of 'this' in a temporary variable and the inner function should use that temporary variable. This solution will work because of Javascript's inherent support for closure.
+
+{% highlight js %}
+var foo = {
+
+   first: function(){
+       console.log('I am first');
+   },
+
+   second: function(){
+     var self = this;
+     return function(){
+         self.first();
+     }
+   },
+};
+
+foo.second()();
+{% endhighlight %}<br />

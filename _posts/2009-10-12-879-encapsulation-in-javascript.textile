@@ -1,0 +1,91 @@
+---
+layout: post
+title: Encapsulation in JavaScript
+---
+JavaScript does not allow you to define a method as public or private. This is a limitation users need to get around to, because in real life you don't want to expose all methods as public method.
+
+Here is a simple implementation of the case where you want to verify input code.
+
+{% highlight js %}
+function verifycode(code){
+  console.log(code.length);
+  return code.length == 4 ? true : false;
+}
+
+function info(code){
+  if (verifycode(code)){
+    console.log(code + ' is valid');
+  } else {
+    console.log(code + ' is wrong');
+  }
+}
+
+info('abcd');
+info('rty');
+{% endhighlight %}
+
+In the above implementation anyone can call the method verifycode. Not good. Here is one way to fix this problem.
+
+{% highlight js %}
+var Lab = Lab || {};
+Lab = (function() {
+	var verifycode = function(code) {
+		console.log(code.length);
+		return code.length == 4 ? true: false;
+	}
+	return {
+		info: function(code) {
+			if (verifycode(code)) {
+				console.log(code + ' is valid');
+			} else {
+				console.log(code + ' is wrong');
+			}
+		}
+	}
+})();
+
+Lab.info('abcd');
+Lab.info('rty');
+Lab.verifycode('abcd'); //verifycode is private
+{% endhighlight %}
+
+Another way to solve the same problem would be to create a constructor function. Here is an implementation.
+
+{% highlight js %}
+function Lab(code) {
+        this.code = code;
+	var verifycode = function() {
+		return code.length == 4 ? true: false;
+	};
+	this.info = function() {
+		if (verifycode()) {
+			console.log(code + ' is valid');
+		} else {
+			console.log(code + ' is wrong');
+		}
+	}
+}
+(new Lab('abcd')).info();
+{% endhighlight %}
+
+Here is another way to solve the same problem. In this case I have moved all the public methods to prototype.
+
+{% highlight js %}
+function Lab(code) {
+	this.code = code;
+	this.verifycode = function() {
+		l = code.length;
+		return l == 4 ? true: false;
+	};
+}
+
+Lab.prototype.info = function() {
+	if (this.verifycode()) {
+		console.log(this.code + ' is valid');
+	} else {
+		console.log(this.code + ' is wrong');
+	}
+};
+
+(new Lab('abcd')).info();
+{% endhighlight %}<br />

@@ -1,0 +1,58 @@
+---
+layout: post
+title: action caching in broken in plugin cache_fu
+---
+Y'day I noticed that action caching stopped working when I moved the caching mechanism from 'file storage' to 'memcached'. After some investigation I found that "cache_fu":http://github.com/defunkt/cache_fu/tree/master is broken.
+
+Here is the code from ActionController.rb .
+
+{% highlight ruby %}
+def caches_action(*actions)
+  return unless cache_configured?
+  options = actions.extract_options!
+  filter_options = { :only => actions, :if => options.delete(:if), :unless => options.delete(:unless) }
+
+  cache_filter = ActionCacheFilter.new(:layout => options.delete(:layout), 
+                                       :cache_path => options.delete(:cache_path), 
+                                       :store_options => options)
+  around_filter(cache_filter, filter_options)
+end
+
+class ActionCacheFilter #:nodoc:
+  def initialize(options, &block)
+    @options = options
+  end
+  
+  ...
+end
+{% endhighlight %}
+
+Notice that when an instance of <tt>ActionCacheFilter</tt> is created, the list of actions on which caching is to be performed is not passed. cache_fu assumes that it has access to <tt>*actions</tt> and that's why the code fails.
+
+Here is snippet from cache_fu .
+
+{% highlight ruby %}
+def self.setup_rails_for_action_cache_options
+  puts 'setup_rails_for_action_cache_options called'
+  ::ActionController::Caching::Actions::ActionCacheFilter.class_eval do
+    # convert all actions into a hash keyed by action named, with a value of a ttl hash (to match other cache APIs)
+    def initialize(*actions, &block)
+      puts 'initialize in action is called'
+      if [].respond_to?(:extract_options!)
+        #edge
+        puts "actions is #{actions.inspect}"
+        @options = actions.extract_options!
+        @actions = actions.inject(@options.except(:cache_path)) do |hsh, action|
+            action.is_a?(Hash) ? hsh.merge(action) : hsh.merge(action => { :ttl => nil })
+          end
+      ...
+    end
+  end
+end
+{% endhighlight %}
+
+As you can see in the intialize method of 'ActionCacheFilter' class the first parameter is erroneously named 'actions'. It should be more like options.
+
+"The fix is easy":http://gist.github.com/160741 . We need to do three things which are at line numbers 20,33 and 55.
+
+ <br />

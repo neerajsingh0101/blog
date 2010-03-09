@@ -1,0 +1,70 @@
+---
+layout: post
+title: Calling collect method on an array with single item
+---
+Ruby offers a lot of goodies and one of them is "inject":http://ruby-doc.org/core/classes/Enumerable.html#M003140 . Jay Fields wrote a "good article":http://blog.jayfields.com/2008/03/ruby-inject.html about various ways in which you can use inject . As per the documentation if you do not specity an input value for inject then inject will treat the first element as the first value and will start with second item.
+
+Code will make it easier to understand.
+
+{% highlight ruby %}
+foo = %w(a b c)
+output = foo.inject('') do |sum, element|
+  puts "currently processing element #{element}"
+  sum = sum + element
+end
+puts output
+{% endhighlight %}
+
+You will get output like this.
+
+{% highlight sh %}
+currently processing element a
+currently processing element b
+currently processing element c
+abc
+{% endhighlight %}
+
+Now try change the code so that the empty string is not being passed to inject call. 
+
+{% highlight ruby %}
+foo = %w(a b c)
+output = foo.inject do |sum, element|
+  puts "currently processing element #{element}"
+  sum = sum + element
+end
+puts output
+{% endhighlight %}
+
+This time the output is
+
+{% highlight sh %}
+currently processing element b
+currently processing element c
+abc
+{% endhighlight %}
+
+Notice that even though the final result is same, no iteration was done for the element 'a'.
+
+Now try running the same code with array having only one element.
+
+{% highlight ruby %}
+foo = %w(a)
+output = foo.inject do |sum, element|
+  puts "currently processing element #{element}"
+  sum = sum + element
+end
+puts output
+{% endhighlight %}
+
+This time the output is
+
+{% highlight sh %}
+a
+{% endhighlight %}
+
+Notice that this time code inside the loop was not executed.
+
+
+Today I refactored some code where I converted a lot of <tt>each</tt> methods into <tt>inject</tt> methods. Some of the tests started failing. That was because inside each method a lot of different concerns were also being handled. When I refactored the code to use inject then code inside iteration will not get executed if the array length is 1.
+
+I had to refactor the code further to not to handle different responsibilities in one single loop.

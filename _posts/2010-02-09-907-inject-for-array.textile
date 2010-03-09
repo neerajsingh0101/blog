@@ -1,0 +1,35 @@
+---
+layout: post
+title: Inject for array
+---
+"Inject":http://ruby-doc.org/core/classes/Enumerable.html#M003140 is awesome.  I was going through comments of "this blog":http://buddingrubyist.com/2008/02/05/why-i-like-to-inject/ and learned something new today.
+
+Given below is a case where I need to add all the numbers. One way to solve would be something like this.
+
+{% highlight ruby %}
+ar = [[:a, 1], [:b, 2], [:c, 3]]
+c = ar.inject(0) do |sum, record|
+  sum += record[1]
+end
+puts c #=> 6
+{% endhighlight %}
+
+Here is another way to solve the same problem.
+
+{% highlight ruby %}
+ar = [[:a, 1], [:b, 2], [:c, 3]]
+d = ar.inject(0) do |sum, (first, second)|
+  sum += second
+end
+puts d
+{% endhighlight %}
+
+The second parameter in the block is split based on pattern. If the inner array has three elements then all the three elements can be split based on  pattern.
+
+{% highlight ruby %}
+ar = [[:a, 1, 11], [:b, 2, 22], [:c, 3, 33]]
+d = ar.inject(0) do |sum, (first, second, third)|
+  sum += third
+end
+puts d #=> 66
+{% endhighlight %}

@@ -1,0 +1,67 @@
+---
+layout: post
+title: Fixing ActiveRecord  Base.all and making it friendlier to named_scope
+---
+__Following code has been tested with Rails 2.3 .__
+
+Search feature of this blog is powered by following named_scope.
+
+{% highlight ruby %}
+named_scope :search, lambda { |search_term|
+   { :conditions => ["title LIKE :search_term or body LIKE :search_term", { :search_term => "%#{search_term}%"} ]  }
+}
+{% endhighlight %}
+
+I want to search for all <tt>sinatra</tt> related articles.
+
+{% highlight ruby %}
+>> Article.search('sinatra')
+SELECT * FROM `articles` WHERE (title LIKE '%sinatra%' or body LIKE '%sinatra%') 
+{% endhighlight %}
+
+I want to search for all articles in <tt>published</tt> status.
+
+{% highlight ruby %}
+>> Article.all(:conditions => {:status => 'published'})
+SELECT * FROM `articles` WHERE (`articles`.`status` = 'published') 
+{% endhighlight %}
+
+Now I want to combine the above two requirements: search for 'sinatra' related articles which are in 'published' status. Should be easy, Right.
+
+{% highlight ruby %}
+>> Article.all(:conditions => {:status => 'published'}).search('sinatra')
+NoMethodError: undefined method `search' for #<Array:0x22bbdd8>
+{% endhighlight %}
+
+Now try the same search as above in reverse order: put named_scope 'search' first and then apply 'all'.
+
+{% highlight ruby %}
+>> Article.search('sinatra').all(:conditions => {:status => 'published'})
+SELECT * FROM `articles` WHERE (`articles`.`status` = 'published') AND (title LIKE '%sinatra%' or body LIKE '%sinatra%') 
+{% endhighlight %}
+
+This one worked. Why is that?
+
+That's because <tt>ActiveRecord::Base.all</tt> method is defined like this
+
+{% highlight ruby %}
+def all(*args)
+  find(:all, *args)
+end
+{% endhighlight %}
+
+
+So the main problem is that <tt>all</tt> is not a named_scope. And since it is not a named_scope  <tt>Article.all(:conditions => {:status => 'published'}).search('sinatra')</tt> failed.
+
+
+Fix is to create a named_scope called <tt>all</tt>.
+
+{% highlight ruby %}
+module ActiveRecord
+   class Base
+      named_scope :all, lambda { |args| args ||= {} }
+   end
+end
+{% endhighlight %}
+
+Now the order does not matter and you can use <tt>all</tt> any way you please.<br />

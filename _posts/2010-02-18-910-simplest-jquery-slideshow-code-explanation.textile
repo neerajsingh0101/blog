@@ -1,0 +1,75 @@
+---
+layout: post
+title: Simplest jQuery slideshow code explanation
+---
+"Jonathan Snook":http://snook.ca wrote a blog titled "Simplest jQuery SlideShow":http://snook.ca/archives/javascript/simplest-jquery-slideshow .  Checkout the "demo page":http://snook.ca/technical/fade/fade.html . 
+
+The full JavaScript code in its entirety is given below. If you understand this code  then you don't need to read rest of the article. 
+
+{% highlight js %}
+$(function(){
+    $('.fadein img:gt(0)').hide();
+    setInterval(function(){
+      $('.fadein :first-child').fadeOut()
+         .next('img').fadeIn()
+         .end().appendTo('.fadein');}, 
+      3000);
+});
+{% endhighlight %}
+
+h2.  appendTo removes and attaches elements
+
+In order to understand what's going on above, I am constructing a simple test page. Here is the html markup.
+
+{% highlight sh %}
+<div id='container'>
+  <div class='lab'>This is div1 </div>
+  <div class='lab'>This is div2 </div>
+</div>
+{% endhighlight %}
+
+Open this page in browser and execute following command in firebug.
+
+{% highlight js %}
+$('.lab:first').appendTo('#container');
+{% endhighlight %}
+
+Run the above command 5/6 times to see its effect. Every single time you run JavaScript the order is changing. 
+
+The order of <tt>div</tt> elements with class <tt>lab</tt> is changing because if a jQuery element is already part of document and that element is being added somewhere else then jQuery will do <tt>cut and paste</tt> and *not* <tt>copy and paste</tt> . Again elements that already exist in the document get plucked out of document and then they are inserted somewhere else in the document.
+
+h2. Back to original problem
+
+In the original code the very first image is being plucked out of document and that image is being added to set again. In simpler terms this is what is happening. Initially the order is like this.
+
+{% highlight sh %}
+Image1
+Image2
+Image3
+{% endhighlight %}
+
+After the code is executed the order becomes this.
+
+{% highlight sh %}
+Image2
+Image3
+Image1
+{% endhighlight %}
+
+After the code is executed again then the order becomes this.
+
+{% highlight sh %}
+Image3
+Image1
+Image2
+{% endhighlight %}
+
+After the code is executed again then the order becomes this.
+
+{% highlight sh %}
+Image1
+Image2
+Image3
+{% endhighlight %}
+
+And this cycle continues forever.

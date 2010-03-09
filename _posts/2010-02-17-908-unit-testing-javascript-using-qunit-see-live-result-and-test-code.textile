@@ -1,0 +1,25 @@
+---
+layout: post
+title: Unit Testing JavaScript using Qunit . See live result and test code.
+---
+<i>If you are in a hurry then take a look at these "two":http://demo.neeraj.name/admin_data/jstest "links":http://github.com/neerajdotname/admin_data/tree/master/lib/js/test/ and you are done.</i>
+
+h2. Introduction
+
+Six months ago I wrote about "JavaScript testing using blue-ridge, Screw.Unit, env.js and Rhino":http://www.neeraj.name/blog/articles/873-testing-javascript-with-blue-ridge-screw-unit-env-js-and-rhino-in-a-rails-application . Since then I have changed my thoughts about JavaScript testing in fundamental ways and I do not recommend writing JavaScript unit tests that would *not* run on an actual browser.
+
+I could never do as good a job as Nicholas did on "his blog":http://www.nczonline.net/blog/2009/11/17/the-curious-case-of-javascript-unit-testing/ on capturing thoughts on JavaScript unit testing. I agree with him 100%. 
+
+Since I do not recommend using rhino,  what I do recommend. I like "Qunit":http://docs.jquery.com/QUnit . 
+
+h2. Getting started
+
+Sometimes getting started is the most difficult part. There are lot of "JavaScript testing tools":http://stackoverflow.com/questions/300855/looking-for-a-better-javascript-unit-test-tool in the market and the documentation of most of them show simple case of testing <tt>2 + 2</tt>. That is not very helpful.
+
+The good thing with Qunit is that if you ever want to see how to use Qunit then just look at the test code of jQuery. At the bottom of "this":http://docs.jquery.com/QUnit page you will find links of other projects that user Qunit to write tests.
+
+h2. I don not want to look at jQuery test code. I use ruby on rails and I just want to get started
+
+For "my admin_data plugin":http://github.com/neerajdotname/admin_data I wrote a bunch of "JavaScript tests":http://github.com/neerajdotname/admin_data/tree/master/lib/js/test/ . Take a look at them to get a feel for how to use Qunit for you ruby on rails application.  Get the code from github and you can play with JavaScript test code.
+
+"Click here":http://demo.neeraj.name/admin_data/jstest  to see the test result for the tests written for admin_data. I have tested this test page with Firefox, Chrome, Safari, IE 6, IE 7 and IE 8 .

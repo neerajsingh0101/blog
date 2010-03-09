@@ -1,0 +1,28 @@
+---
+layout: post
+title: Easy partials
+---
+__Following code has been tested with Rails 2.3 .__
+
+Traditional way of rendering partials.
+
+{% highlight ruby %}
+render :partial => 'comments/comment', :locals => { :comment => comment, :show_article_title => false}
+{% endhighlight %}
+
+Above code can also be written as 
+
+{% highlight ruby %}
+render 'comments/comment', :comment => comment, :show_article_title => false
+{% endhighlight %}
+
+One more example.
+
+{% highlight ruby %}
+render :partial => 'comment', :locals => { :comment => comment, :show_article_title => true }
+render 'comment', :comment => comment, :show_article_title => true
+{% endhighlight %}
+
+I continue to see everyone use the version with keyword 'partial'. 
+
+"This change":http://ryandaigle.com/articles/2008/11/20/what-s-new-in-edge-rails-render-stops-being-high-maintenance captures a bit of what I am talking about.<br />

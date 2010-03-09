@@ -1,0 +1,42 @@
+---
+layout: post
+title: Dynamic restful routes
+---
+Restul routes are awesome. All you have to do is add one line to routes file <tt>map.resources :users</tt> and you are is done. 
+
+How about the case where the names of models are not know before hand and ,at run time, you need to handle such cases. Lets take an example. If you have two restful routes for users and houses then they would be defined like this.
+
+{% highlight ruby %}
+map.resources :houses
+map.resources :users
+{% endhighlight %}
+
+In this case there is one declaration for each resource. How would you design the routes if the names of resources (houses and users) is supplied at run time and not at development time.
+
+While developing plugin admin_data such a case was handled. This plugin reads the models folder at run time and then it needs to handle each model as a restful resource. It is not a good idea to do <tt> map.resources :resource_x</tt> for each of the models.
+
+Here is snippet of routes file from admin_data plugin.
+
+{% highlight ruby %}
+ admin_data.resources  :on_k,
+                       :as => ':klass',
+                       :path_prefix => 'admin_data',
+                       :controller => 'main'
+{% endhighlight %}
+
+Now if I want the url for the index method for model user then I would say
+
+{% highlight ruby %}
+#index 
+admin_data_on_k_index_path(:klass => klass.name.underscore) 
+
+#show
+admin_data_on_k_path(:klass => klass.name.underscore, :id => record.id)
+
+#new
+new_admin_data_on_k_path(:klass => klass.name.underscore)
+{% endhighlight %}
+
+They key thing is that by looking at the "routes documentation for as":http://guides.rubyonrails.org/routing.html#using-as you would not guess that it could take a variable. 
+
+Not directly related to this blog but admin_data also uses "namespaces resources":http://guides.rubyonrails.org/routing.html#namespaced-resources .<br />

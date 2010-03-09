@@ -1,0 +1,125 @@
+---
+layout: post
+title: How animate really works in jQuery. Simple animation case discussed.
+---
+jQuery has "animate method":http://api.jquery.com/animate/ which  is just awesome. Today I looked into jQuery source code to see exactly how animate works. 
+
+I will take a simple case of animating a <tt>div</tt> from height of <tt>34</tt> to <tt>100</tt>.
+
+Here is test case.
+
+{% highlight js %}
+$(function(){
+  $('#lab').css({background: 'yellow', height: '34px', margin: '10px'});
+
+  $('a').click(function(){
+    $('#lab').animate({height: '100'});
+      return false;
+    });
+});
+{% endhighlight %}
+
+Html markup is .
+
+{% highlight sh %}
+<a href=''>click me</a>
+<div id='lab'>Hello World</div>
+{% endhighlight %}
+
+Inside the <tt>animate</tt> for each property an fx object is created.
+
+{% highlight js %}
+jQuery.each( prop, function( name, val ) {
+  var e = new jQuery.fx( self, opt, name );
+}
+{% endhighlight %}
+
+Calling new on jQuery.fx returns a JavaScript object instance.
+
+{% highlight js %}
+fx: function( elem, options, prop ) {
+	this.options = options;
+	this.elem = elem;
+	this.prop = prop;
+
+	if ( !options.orig ) {
+		options.orig = {};
+	}
+}
+{% endhighlight %}
+
+Next in the animate method is a call to <tt>e.custom</tt> .
+
+{% highlight js %}
+start = 34;
+end = 100;
+unit = 'px';
+e.custom( start, end, unit );
+{% endhighlight %}
+
+start, end and unit values are gleaned from the current state of div.
+
+Here is custom method .
+
+{% highlight js %}
+custom: function( from, to, unit ) {
+	this.startTime = now();
+	this.start = from;
+	this.end = to;
+	this.unit = unit || this.unit || "px";
+	this.now = this.start;
+	this.pos = this.state = 0;
+
+	var self = this;
+	function t( gotoEnd ) {
+		return self.step(gotoEnd);
+	}
+
+	t.elem = this.elem;
+
+	if ( t() && jQuery.timers.push(t) && !timerId ) {
+		timerId = setInterval(jQuery.fx.tick, 13);
+	}
+},
+{% endhighlight %}
+
+As you can see every 13 milliseconds a call to <tt>step</tt> method is made.
+
+<tt>step</tt> method is where real calculation is done. Here is the code.
+
+{% highlight js %}
+step: function( gotoEnd ) {
+  var t = now();
+  var n = t - this.startTime;
+  this.state = n / this.options.duration;
+  pos = jQuery.easing['swing'](this.state, n, 0, 1, this.options.duration);
+  this.now = this.start + ((this.end - this.start) * this.pos);
+  this.update();
+}
+{% endhighlight %}
+
+<tt>this.startTime</tt> is the time when the call to <tt>animate</tt> was invoked. The <tt>step</tt> method is called periodically from custom method. So the value of <tt>t</tt> is constantly changing. Based on the value of <tt>t</tt>, value of <tt>n</tt> will change. Some of the values of <tt>n</tt> I got was 1, 39, 69, 376 and 387. 
+
+While invoking animate method I did not specify a speed. jQuery picked up the default speed of 400. In this case the value of this.options.duration is <tt>400</tt>.  The value of state would change in each run and it would something along the line of 0.0025, 0.09, 0.265, 0.915 and 0.945 .
+
+If you don't know what easing is then you should read "this article":http://www.learningjquery.com/2009/02/quick-tip-add-easing-to-your-animations by Brandon Aaron. Since I did not specify easing option, jQuery will pickup <tt>swing</tt> easing .
+
+In order to get the value of next position this easing algorithm needs state, n and duration. When all of it was supplied then <tt>pos</tt> would be derived. The value of <tt>pos</tt> over the period of animation would change and it would be something like 0, 0.019853157161528467, 0.04927244144387716, 0.9730426794137726, 0.9973960708808632. 
+
+Based on the value of <tt>pos</tt> value of <tt>now</tt> is derived. And then <tt>update</tt> method is called to update the screen.
+
+<tt>update</tt> method has following code that invokes <tt>_default</tt> method.
+
+{% highlight js %}
+jQuery.fx.step._default)( this )
+{% endhighlight %}
+
+<tt>_default</tt> method has following code which finally updates the element.
+
+{% highlight js %}
+fx.elem.style[ fx.prop ] = Math.max(0, fx.now);
+{% endhighlight %}
+
+fx.now value was set in the custom method and here that value was actually applied to the element.
+
+You will have much better understanding of how animate works if you look at the source code. I just wanted to know at a high level what's going on and these are my findings.

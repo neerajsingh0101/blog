@@ -1,0 +1,50 @@
+---
+layout: post
+title: Use end more often in jQuery while building DOM elements
+---
+I want to create following markup dynamically using jQuery.
+
+{% highlight sh %}
+<div>
+  <p>
+    This is p
+  </p>
+</div>
+{% endhighlight %}
+
+Following jQuery code will do the work.
+
+{% highlight js %}
+$(document).ready(function() {
+  var div = $('<div></div>');
+  var p = $('<p></p>').text('this is p')
+                      .appendTo(div);
+
+  $('body').append(div);
+});
+{% endhighlight %}
+
+A better way to accomplish the same is presented below.
+
+{% highlight js %}
+$('<div></div>')
+  .append('<p></p>')
+    .find('p')
+    .text('this is p')
+    .end()
+  .appendTo('body');
+{% endhighlight %}
+
+Using <tt>.end()</tt> you can go back one level. And you can use <tt>.end()</tt> any number of times to get out of a deeply nested tag.
+
+{% highlight js %}
+$('<div></div>')
+  .append('<p></p>')
+    .find('p')
+    .append('<span></span>')
+      .find('span')
+      .text('this is span')
+      .end()
+    .end()
+  .appendTo('body');
+{% endhighlight %}

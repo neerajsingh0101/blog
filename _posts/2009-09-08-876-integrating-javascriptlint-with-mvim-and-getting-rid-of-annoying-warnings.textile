@@ -1,0 +1,36 @@
+---
+layout: post
+title: Integrating JavaScriptLint with mvim and getting rid of annoying warnings
+---
+I use "JavaScriptLint":http://www.javascriptlint.com along with "JavaScriptLint.vim":http://www.vim.org/scripts/script.php?script_id=2578 on mvim to catch any JavaScript syntax error or missing semicolons. It works great except in cases when I am chaining methods like this.
+
+{% highlight js %}
+var select_col1 = $('<select></select>')
+  .addClass('ram_drop_down')
+  .addClass('ram_drop_down_col1')
+  .attr('name','adv_search['+random_num+'_row][col1]')
+  .attr('id',random_num+'_ram_drop_down_col1');
+{% endhighlight %}
+
+In such cases JavaScriptLint had warnings for me.
+
+{% highlight sh %}
+unexpected end of line. It is ambiguous whether these lines are part of the same statment.
+{% endhighlight %}
+
+JavaScriptLint wants me to put the dot at the end of the line and not at the beginning of the line. Well, I like having dots at the beginning of lines and I wanted to turn off such warning.
+
+JavaScriptLint comes with a default config file. I copied the config file to a personal directory and disabled the warning.
+
+{% highlight sh %}
+before: +ambiguous_newline 
+after: -ambiguous_newline
+{% endhighlight %}
+
+Also I had to comment out <tt>+process jsl-test.js</tt> at the very bottom. Now tell your plugin to to use this configuration file rather than the default one. Add the following line to your vimrc file.
+
+{% highlight sh %}
+let jslint_command_options = '-conf "/Users/neeraj/vim/plugin/jslint/jsl.custom.conf" -nofilelisting -nocontext -nosummary -nologo -process'
+{% endhighlight %}
+
+"This is the vim settings":http://github.com/neerajdotname/vim/tree/master I use and it has been configured to take care of it. Just go to <tt>vimrc.local</tt> and change the path to your config file. Also don't forget to remove <tt>"</tt> at the beginning of the line to uncomment it.<br />

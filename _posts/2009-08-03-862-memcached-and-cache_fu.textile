@@ -163,15 +163,15 @@ h2. fragment caching
 
 If want to use memcached for fragment caching then you need to open up config/memcached.yml and change
 
-<pre>
+{% highlight ruby %}
 fragments: false
-</pre>
+{% endhighlight %} 
 
 to
 
-<pre>
+{% highlight ruby %}
 fragments: true
-</pre>
+{% endhighlight %} 
 
 h2. Example of fragment caching
 

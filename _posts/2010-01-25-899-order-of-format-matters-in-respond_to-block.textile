@@ -1,0 +1,49 @@
+---
+layout: post
+title: Order of format matters in respond_to block
+---
+This is a standard Rails code. I am using Rails 2.3.5 .
+
+{% highlight ruby %}
+class UsersController < ApplicationController
+  def index
+    @users = User.all
+    respond_to do |format|
+      format.html
+      format.js  { render :json => @users }      
+    end
+  end
+end
+{% endhighlight %}
+
+Accidentally in one of my controllers the order of formats got reversed. The altered code looks like this.
+
+{% highlight ruby %}
+class UsersController < ApplicationController
+  def index
+    @users = User.all
+    respond_to do |format|
+      format.js  { render :json => @users }      
+      format.html      
+    end
+  end
+end
+{% endhighlight %}
+
+I thought order of format declaration does not matter. I was wrong.
+
+{% highlight sh %}
+> curl -I http://localhost:3000/users
+HTTP/1.1 200 OK
+Connection: close
+Date: Mon, 25 Jan 2010 22:32:16 GMT
+ETag: "d751713988987e9331980363e24189ce"
+Content-Type: text/javascript; charset=utf-8
+X-Runtime: 62
+Content-Length: 2
+Cache-Control: private, max-age=0, must-revalidate
+{% endhighlight %}
+
+Notice the the Content-Type of in the response header is <strong>text/javascript</strong> in stead of <strong>text/html</strong> .
+
+Well I guess the order of format matters. I hope it is fixed in Rails 3.

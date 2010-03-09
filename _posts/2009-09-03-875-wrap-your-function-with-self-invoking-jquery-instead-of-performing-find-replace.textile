@@ -1,0 +1,57 @@
+---
+layout: post
+title: Wrap your function with self invoking jQuery instead of performing find/replace
+---
+__Following code is tested with jQuery 1.3 .__
+
+I have following code which depends on jQuery. 
+
+{% highlight js %}
+var Search = {
+		initAction: function($elm) {
+			if ($elm.attr('value').length === 0) {
+				$elm.attr('value', 'search');
+			}
+		},
+
+		blurAction: function($elm) {
+			if ($elm.attr('value') === 'search') {
+				$elm.attr('value', '');
+			}
+		}
+
+};
+
+Search.initAction($('#query_term_input'));
+Search.blurAction($('#query_term_input'));
+{% endhighlight %}
+
+Everything is cool. 
+
+Next, company decides to use a cool JavaScript widget that depends on Prototype library. After adding the Prototype library my code starts failing. I have been asked to fix my code.
+
+I can obviously go through the code and do a mass find <tt>$</tt> and replace $ with <tt>jQuery</tt>. This is error prone.
+
+A better solution would be to make use of "self invoking function":http://www.neeraj.name/blog/articles/821-understanding-jquery-plugin-pattern-and-self-invoking-javascript-function and redefine $ to jQuery. 
+
+{% highlight js %}
+var Search = (function($) {
+	return {
+		initAction: function($elm) {
+			if ($elm.attr('value').length === 0) {
+				$elm.attr('value', 'search');
+			}
+		},
+
+		blurAction: function($elm) {
+			if ($elm.attr('value') === 'search') {
+				$elm.attr('value', '');
+			}
+		}
+
+	}; // return
+})(jQuery);
+
+Search.initAction(jQuery('#query_term_input'));
+Search.blurAction(jQuery('#query_term_input'));
+{% endhighlight %}<br />

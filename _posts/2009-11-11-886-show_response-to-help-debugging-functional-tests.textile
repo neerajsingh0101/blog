@@ -1,0 +1,38 @@
+---
+layout: post
+title: show_response to help debugging functional tests
+---
+While writing functional tests, I use <tt>assert_tag</tt> a lot. Many times the assertion fails and debugging  with 'response text' dump on terminal is not easy. It would be much easier to debug if the response text is opened in a browser. This is how that can be done.
+
+In your <tt>test/test_helper.rb</tt> add a new method called <tt>show_response</tt>.
+
+{% highlight ruby %}
+class Test::Unit::TestCase
+  def show_response
+    Dir.mkdir(File.join(RAILS_ROOT, 'tmp')) unless File.directory?(File.join(RAILS_ROOT,'tmp'))
+    response_html = File.join(RAILS_ROOT, 'tmp', 'response.html')
+    File.open(response_html,'w') { |f| f.write(@response.body) }
+    system 'open ' + File.expand_path(response_html) rescue nil
+  end
+end
+{% endhighlight %}
+
+This is how I use this method while debugging.
+
+{% highlight ruby %}
+context 'get show for comment which belongs to another class' do
+  setup do
+    @comment = Factory(:comment, :article => @article)
+    get :show, {:id => @comment.id, :klass => @comment.class.name.underscore }
+    show_response
+  end
+  should_respond_with :success
+  should 'have belongs_to message' do
+    assert_tag( :tag => 'p',
+                :attributes => {:class => 'belongs_to'},
+                :descendant => {:tag => 'a', :child => /Article/})
+  end
+end
+{% endhighlight %}
+
+If you are using mac then running this test will open a new web page with full response text. Now I can easily see why my assertion might be failing. <tt>show_response</tt> also works with ajax request.

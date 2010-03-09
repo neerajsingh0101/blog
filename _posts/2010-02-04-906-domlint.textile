@@ -1,0 +1,33 @@
+---
+layout: post
+title: DOMLint
+---
+I have seen "JSLint":http://www.jslint.com ,
+"JavaScript Lint":http://www.javascriptlint.com ,
+"JSON Lint":http://www.jsonlint.com and
+"jQuery Lint":http://james.padolsey.com/javascript/jquery-lint .
+
+Today I came across "DOM Lint":http://yura.thinkweb2.com/domlint/ in this "jQuery thread":http://forum.jquery.com/topic/using-bind#14737000000685714 .
+
+
+I never really thought it before but what if  the name of a form is <tt>getElementById</tt>.
+
+{% highlight sh %}
+<form name="getElementById">
+    ...
+</form>{% endhighlight %}
+
+How about <tt>addEventListener</tt> as the id of a div.
+
+{% highlight sh %} <div id="addEventListener">
+    ...
+  </div>{% endhighlight %}
+
+I am quoting Dave here. He explained the problem very well.
+
+<blockquote>
+I strongly recommend against using using name/id attributes that are identical to the elements or properties. Specifically, don't name an input element "select", "id", "name", "form", "action", "method", "value", or any other name that is documented to be used by form or input elements. Here is why. The form element allows you to access its inputs by saying formname.inputname. So if you have an input named "myinput" you can use form.myinput to access it. But what if you name an input "id"? Now when you say form.id do you mean the "id" property of the form, or do you mean the "id" input inside the form?
+</blockquote>
+
+
+If you run into those cases then you can use "DOMLint":http://yura.thinkweb2.com/domlint  .  "Source code":http://github.com/kangax/domlint is on github and here is the "initial announcement":http://perfectionkills.com/domlint-resolving-name-conflicts/ .

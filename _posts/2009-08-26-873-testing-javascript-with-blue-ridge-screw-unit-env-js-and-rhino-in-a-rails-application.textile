@@ -1,0 +1,221 @@
+---
+layout: post
+title: Testing JavaScript with blue-ridge, Screw.Unit, env.js and Rhino in a rails application
+---
+__Following code is tested with Rails 2.3 .__
+
+Testing Javascript without browser is not easy. However, others have a done a lot of hard work which makes it possible to test JavaScript using command line.
+
+h2. Seeing is believing
+
+First let's see some JavaScript testing in action. 
+
+{% highlight sh %}
+git clone git://github.com/neerajdotname/kite_runner.git 
+cd kite_runner
+rake test:javascripts
+{% endhighlight %}
+
+h2. What makes it possible to test JavaScript on server side
+
+JavaScript is all about interacting with browser, finding DOM elements, attaching events callbacks and a lot of things. How is it possible to mimick all those things on server side.
+
+Let's go through how it all came about.
+
+* "Rhino":http://www.mozilla.org/rhino/ is an open-source implementation of JavaScript written entirely in Java. Rhino is an implementation of the core language only and doesn't contain objects or methods for manipulating HTML documents. 
+
+* "env.js":http://ejohn.org/blog/bringing-the-browser-to-the-server/ picked up where Rhino left. The good work of John Resig literally brought browser to server. env.js is browser/DOM environment, written in JavaScript, that runs on top of Rhino. It is capable of running JavaScript libraries like jQuery and Prototype. As per "this comment":http://ejohn.org/blog/bringing-the-browser-to-the-server/#comment-208272 from John Resig, this library is a simulation of a browser engine, not a JavaScript runtime.
+
+* "Screw.Unit":http://github.com/nkallen/screw-unit/tree/master is a Behavior-Driven Testing Framework for JavaScript. 
+
+* "Blue-Ridge":http://github.com/relevance/blue-ridge/tree/master is a JavaScript Testing Rails Plugin that adds support for command-line and in-browser JavaScript unit tests to rails application.
+
+h2. All the code presented here is available for download
+
+All the JavaScript code presented here is taken from blogging platform "kite_runner":http://github.com/neerajdotname/kite_runner which powers this blog. You can always get all JavaScript code and test code at "kite_runner":http://github.com/neerajdotname/kite_runner .
+
+h2. Testing a simple JavaScript that hides an element
+
+I keep all my JavaScripts in separate files. One of JavaScript files is "this one":http://www.neeraj.name/javascripts/app/hide_author_email.js?1251230512 which just hides an element.
+
+To get started with testing, you need to install Blue-Ridge plugin.
+
+{% highlight ruby %}
+ruby script/plugin install git://github.com/relevance/blue-ridge.git
+ruby script/generate blue_ridge
+{% endhighlight %}
+
+Create a file called <tt>hide_author_email_spec.js</tt> . Also create a fixture.
+
+{% highlight sh %}
+touch test/javascript/hide_author_email_spce.js
+touch test/javascript/fixtures/hide_author_email.html
+{% endhighlight %}
+
+The plugin loads the fixture when file hide_author_email_spec.js is executed.
+
+The content of hide_author_email_spec.js looks like this.
+
+{% highlight js %}
+require("spec_helper.js");
+require("../../public/javascripts/app/hide_author_email.js");
+
+Screw.Unit(function(){
+
+  describe("hide_author_email", function(){
+    it("author_email element should be hidden",function(){
+      expect($('#author_email:invisible').length).to(equal,1);  
+      expect($('#author_email:visible').length).to(equal,0);  
+    });
+  }); //end describe
+
+}); //end Screw.unit
+{% endhighlight %}
+
+All JavaScript does is hides an element on document ready. I have created a fixture that has an element <tt>author_email</tt>. When the fixture is loaded then document ready function will be executed. All I need to do is to assert that the element in question is indeed hidden.
+
+
+h2. Testing search.js
+
+"kite_runner":http://github.com/neerajdotname/kite_runner uses search.js which looked like this before refactoring.
+
+{% highlight js %}
+$(document).ready(function(){
+  var $query_term_input = $('#query_term_input');
+
+  $query_term_input
+    .bind('init',function(e){  
+      if($(this).attr('value').length === 0){
+        $(this).attr('value','search');
+      }        
+    })
+
+    .bind('blur',function(e){  
+      if ($(this).attr('value') === 'search'){
+        $(this).attr('value','');
+      }         
+    })
+
+    .bind('focus',function(e){ 
+      if ($(this).attr('value') === 'search'){
+        $(this).attr('value','');
+      }         
+    });
+
+  $query_term_input.trigger('init');
+});
+{% endhighlight %}
+
+In the above code, three different events are bound to the element <tt>query_term_input</tt>. Two of them are native and one is a "custom event":http://www.neeraj.name/blog/articles/860-jquery-custom-events .
+
+Since the current implementation uses anonymous functions, it is really difficult to test them. Let's refactor the current implementation before we worry about how to test them. Here is the refactored version.
+
+{% highlight js %}
+var Search = (function($){
+    return {
+      initAction: function($elm){
+        if($elm.attr('value').length === 0){
+          $elm.attr('value','search');
+        }
+      },
+
+      blurAction: function($elm){
+        if ($elm.attr('value') === 'search'){
+          $elm.attr('value','');
+        } 
+      }
+
+    }; // return
+})(jQuery);
+
+
+(function($){
+  $(document).ready(function(){
+    var $query_term_input = $('#query_term_input');
+
+    $query_term_input
+      .bind('init',function(e){ Search.initAction($(this)); })
+      .bind('blur',function(e){ Search.blurAction($(this)); })
+      .bind('focus',function(e){ Search.blurAction($(this)); });
+
+    $query_term_input.trigger('init');
+  });
+})(jQuery);
+{% endhighlight %}
+
+And here is the test which kind of explains itself.
+
+{% highlight js %}
+require("spec_helper.js");
+require("../../public/javascripts/app/search.js");
+
+Screw.Unit(function(){
+
+  describe("Search", function(){
+    after(function(){ teardownFixtures() });
+
+    describe('initAction',function(){
+      it("initAction should populate value search", function(){
+        expect($('#query_term_input').length).to(equal, 1);
+        Search.initAction($('#query_term_input'));
+        expect($('#query_term_input').attr('value')).to(equal, 'search');
+      });
+    });
+
+    describe('blurAction',function(){
+      it("blurAction should set the value to empty ", function(){
+        $('#query_term_input').attr('value','search');
+        Search.blurAction($('#query_term_input'));
+        expect($('#query_term_input').attr('value').length).to(equal, 0);
+      });
+
+      it("blurAction should leave the value to as it is ", function(){
+        $('#query_term_input').attr('value','sinatra');
+        Search.blurAction($('#query_term_input'));
+        expect($('#query_term_input').attr('value')).to(equal, 'sinatra');
+      });
+    });
+
+  }); //end describe
+
+});//end Screw.unit
+{% endhighlight %}
+
+This is the fixture I used.
+
+{% highlight sh %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <title>Application | JavaScript Testing Results</title>
+  <link rel="stylesheet" href="screw.css" type="text/css" charset="utf-8" /> 
+  <script type="text/javascript" src="../../../vendor/plugins/blue-ridge/lib/blue-ridge.js"></script>
+</head>
+
+<body>
+
+  <form action='/blog/articles/search' id='searchform' method='get'>
+    <div>
+      <input id='query_term_input' name='q' type='text' value='' />
+    </div>
+  </form>  
+  
+</body>
+</html>
+{% endhighlight %}
+
+You can see that I have written no test for this section of code.
+
+{% highlight js %}
+$query_term_input
+  .bind('init',function(e){ Search.initAction($(this)); })
+  .bind('blur',function(e){ Search.blurAction($(this)); })
+  .bind('focus',function(e){ Search.blurAction($(this)); });
+{% endhighlight %}
+
+As per "README":http://github.com/relevance/blue-ridge/tree/master of the Blue-Ridge plugin, above code is considered wiring code and can be safely ignored.
+
+h2. Debugging JavaScript
+
+In order to debug your JavaScript test code use <tt>debug</tt> statements. However, if you want to debug your JavaScript code (not test code) and would like to see the debug statements on stdout then use <tt>console.debug</tt> .<br />

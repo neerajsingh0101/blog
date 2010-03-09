@@ -1,0 +1,51 @@
+---
+layout: post
+title: ensure method in ruby
+---
+Here is code.
+
+{% highlight ruby %}
+def hello
+    yield
+  ensure
+    puts 'in ensure block'
+    true
+end
+
+puts hello { puts 'world'; false }
+{% endhighlight %}
+
+I thought if I call hello method then the final returned value will be true. The common ruby convention is that last value gets returned. In this case the very last value is true so I was expecting true to be the returned value.
+
+If I execute above code this will be the output.
+
+{% highlight sh %}
+world
+in ensure block
+false
+{% endhighlight %}
+
+Question is why the final output is false and not true ?
+
+The implicitly returned value from the ensure block is discarded and hence in the above case the final returned value is false. I said *implicitly* returned values are discarded. 
+
+However if ensure value explicitly uses <tt>return</tt> statement to return something then ensure behaves quite differently and "Less Hill has a nice blog on this topic":http://blog.leshill.org/blog/2009/11/17/ensure-with-explicit-return.html .
+
+
+Also note than if you are not explicitly returning something and if yield block raises an exception then ensure will be called. However after the ensure block finishes then that exception will be raised. It means that ensure block will not eatup the exeption.
+
+Once again if you are using explicit return statement in ensure block then exceptions are eaten up as mentioned by Less Hill.
+
+What could be a good candidate for ensure. It depends on business problem but "here is a one usage":http://matthewbass.com/2009/11/18/time-zone-warp/ .
+
+{% highlight ruby %}
+def pretend_zone_is(zone)
+  original_zone = Time.zone
+  begin
+    Time.zone = zone
+    yield
+  ensure
+    Time.zone = original_zone
+  end
+end
+{% endhighlight %}

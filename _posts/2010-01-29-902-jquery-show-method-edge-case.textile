@@ -1,0 +1,54 @@
+---
+layout: post
+title: jQuery show method edge case
+---
+Here is a simple case of invoking <tt>show</tt> method on a hidden element.
+
+{% highlight sh %}
+<style>
+  p { display: inline; }
+  #hello p { display: none;}
+</style>
+
+<div id='container'>
+  <div  id='hello'>
+    Hello World
+    <p>this is p inside hello</p>
+  </div>
+</div>
+{% endhighlight %}
+
+jQuery code.
+
+{% highlight js %}
+$('p').show();
+{% endhighlight %}
+
+You can see the result "here":http://jsfiddle.net/d5uW7/  . Notice that when <tt>p</tt> is shown then <tt>display</tt> property of <tt>p</tt> is <tt>inline</tt> which is what it should be. All is well.
+
+Now I'll change the css a little bit and will try the same code again. New css is .
+
+{% highlight sh %}
+<style>
+  #container p { display: inline; }
+  #hello p { display: none;}
+</style>
+{% endhighlight %}
+
+See the result "here":http://jsfiddle.net/qj6PT/ . Notice that <tt>display</tt> property of <tt>p</tt> is <tt>block</tt> instead of <tt>inline</tt> .
+
+h3. Where did jQuery go wrong?
+
+jQuery did not do anything wrong. It is just being a bit lazy. I'll explain.
+
+Since the element was hidden when jQuery was asked to display it, jQuery had no idea where the element should have display property <tt>inline</tt> or <tt>block</tt>. So jQuery attempts to find out the display property of the element by asking browser what the display property should be. 
+
+jQuery first finds out the nodeName of the element. In this case value would be <tt>P</tt>. Then jQuery adds a <tt>P</tt> to body and then asks browser what is the display property of this newly added element. Whatever is the return value jQuery applies that value to the element that was asked to be shown.
+
+In the first experiment, css style <tt> p { display: inline; }</tt>said that all p elements are inline. So when jQuery added a new p element to body and asked browser for the display property, browser replied 'inline' and 'inline' was applied to the element. All was good.
+
+In the second case, I changed the stylesheet <tt>#container p { display: inline; }</tt> to have only p elements under id <tt>hello</tt> to have inline property. So when jQuery added a p element to body and asked for display type, browser correctly replied as 'block'. 
+
+So what's the fix.
+
+Find the parent element (#hello) of the element in question ( p in this case) . jQuery should add  a new p element to the #hello and then jQuery would get the right display property.

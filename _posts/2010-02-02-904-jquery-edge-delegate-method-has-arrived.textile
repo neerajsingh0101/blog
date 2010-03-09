@@ -1,0 +1,58 @@
+---
+layout: post
+title: jQuery edge  delegate method has arrived
+---
+One of the issues with live method is that live method first searches through all the elements then throws away the result.
+
+{% highlight js %}
+$('p').live('click', function({})
+{% endhighlight %}
+
+In the above case jQuery does nothing with the selected <tt>p</tt> elements. Since the result does not really matter, it is a good idea to remove such codes from the <tt>document ready</tt> callbacks list.
+
+So instead of doing this 
+
+{% highlight js %}
+$(function(){
+$('p').live('click', function({})
+})
+{% endhighlight %}
+
+just do this
+
+{% highlight js %}
+$('p').live('click', function({})
+{% endhighlight %}
+
+h2. Going a step further
+
+John just landed "this commit which adds delegate":http://github.com/jquery/jquery/commit/31432e048f879b93ffa44c39d6f5989ab2620bd8#comments method . 
+
+Html markup
+
+{% highlight sh %}
+<div id='lab'>
+  <p>p inside lab</p>
+</div>
+<p>p outside lab</p>
+{% endhighlight %}
+
+If you want to track all the clicks on p then you could write like this.
+
+{% highlight js %}
+$(document).delegate('p','click', function(){
+  log('p was clicked');
+});
+{% endhighlight %}
+
+However if you only want to track clicks on 'p' which are inside the id <tt>lab</tt> then you can write like this.
+
+{% highlight js %}
+$('#lab').delegate('p','click', function(){
+  log('p was clicked');
+});
+{% endhighlight %}
+
+Note this functionality is in jQuery edge and is not available in jQuery 1.4.1. So you will have to get jQuery code from github to play with it.
+
+If you are interested in the jQuery.live vs jQuery.fn.live discussion then follow "this thread":http://forum.jquery.com/topic/jquery-live-jquery-fn-live-discussion.

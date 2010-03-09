@@ -1,0 +1,281 @@
+---
+layout: post
+title: How live method works in jQuery. Why it does not work in some cases. When to use livequery
+---
+<i> Following code has been tested with jQuery 1.3.2 version . </i>
+
+All the JavaScript code mentioned in this blog should be tried on firebug.
+
+The super popular "live method":http://docs.jquery.com/Events/live was added to jQuery 1.3 . It works just great. Except when it does not work. As per the documentation this method does not work in following cases: blur, focus, mouseenter, mouseleave, change, submit . 
+
+
+h2. How binding events work in jQuery
+
+{% highlight js %}
+$('a').click(function(){
+  console.log('clicked');
+});
+{% endhighlight %}
+
+In above case 'click' event is bound to all the links in the 'document'. jQuery stores such binding information as 'data' attribute of the bound  element. This is how I can access the list of all functions bound to an element.
+
+{% highlight js %}
+$('a').data('events');// Object click=Object
+{% endhighlight %}
+
+If a new link is dynamically added then that new link will not get this click behavior. Tosolve this problem I can use live method.
+
+h2. Trying out live event
+
+{% highlight js %}
+$('a').live('click',function(){
+  console.log('clicked');
+});
+{% endhighlight %}
+
+If I add a new 'a' tag dynamically then that tag will automatically get the new click behavior. That's great.
+
+Just like the previous section, now I am going to find the events bound to 'a' element. However when I execute following code I get undefined.
+
+
+{% highlight js %}
+$('a').data('events')); //undefined
+{% endhighlight %}
+
+Why is that. In the previous section I showed that all the events bound to an element are stored as the data attribute of that element. Well, live is different. live events are not bound to the element directly. They are bound to the top level 'document'. I can verify this by trying out this code 
+
+{% highlight js %}
+jQuery.data(document, 'events').live; //Object
+{% endhighlight %}
+
+h2. How does live method work
+
+live methods do not set anything on elements directly. All the event handlers are set at the document level. It means that in order for live methods to work, event bubbling is required. If you don't know what event bubbling is then "read here":http://www.quirksmode.org/js/events_order.html . It also means that event should not be stopped while it is propagating to document. If event propagation is stopped then event handlers bound at the document level will never know about that event and live method will fail.
+
+The strategy to let someone else deal with the event is called 'event delegation'. You can read more about "event delegation here":http://icant.co.uk/sandbox/eventdelegation .
+
+When live method is called then a binding is done at the document level. Loosely translated this is what is basically happening.
+
+{% highlight js %}
+$(document).bind('click', function(event){
+  var $target = $(event.target);
+  if($target.is('p')){
+    console.log('p was clicked');      
+  }
+});
+{% endhighlight %}
+
+As you can see when a click on 'p' bubbles all the way to the top then that event is captured by document and necessary action is taken if the target element matches.
+
+It is clear that if the click event is stopped before it reaches document then live method will not work. I will show you an example.
+
+{% highlight js %}
+<div id='parent'> 
+ Languages 
+ <p>Java</p> 
+ <p>Javascript</p> 
+</div>
+
+$('p').live('click',function(e){ 
+  console.log('p was clicked'); 
+});
+{% endhighlight %}
+
+If I click on 'Java' or 'Javascript' I get a message on console. live is working great. Now I'll  stop the event propagation when event reaches to div.
+
+{% highlight js %}
+$('p').live('click',function(e){ 
+  console.log('p was clicked'); 
+});
+
+$('#parent').click(function(e){ 
+  console.log('stopping propagation'); 
+  e.stopPropagation();
+});
+{% endhighlight %}
+
+Now you will notice that live is no more working.
+
+h2. live does not work when event bubbling is not supported
+
+In the previous section I showed that when event does not bubble up to document then live fails. It means that all the events that do not bubble will not work. Which means that events like blur, focus, mouseenter, mouseleave, change and submit which do bubble in IE will not work in IE. However note that these events will continue to work in Firefox.
+
+{% highlight js %}
+<select id='lab1a' name="sweets" multiple="multiple">
+<option>Chocolate</option>
+<option selected="selected">Candy</option>
+<option>Taffy</option>
+<option selected="selected">Caramel</option>
+<option>Fudge</option>
+<option>Cookie</option>
+</select>
+<div id='lab1b' style='color:red;'></div>
+
+$("#lab1a").live('change',function () {
+  var str = "";
+  $("select option:selected").each(function () {
+    str += $(this).text() + " ";
+  });
+  $("#lab1b").text(str);
+});
+{% endhighlight %}
+
+Above code will work in firefox but it will not work in IE.
+
+Here is an example of an event that does not work in IE: onchange event.
+
+DOM models suggest that "onchange event should bubble":http://msdn.microsoft.com/en-us/library/ms536912%28VS.85%29.aspx . However msdn documentation clearly says that "onchange event does not bubble":http://msdn.microsoft.com/en-us/library/ms536912%28VS.85%29.aspx .
+
+h2.  make all the live method problems go away
+
+To recap live method will not work in following cases:
+
+* live method works on event propagation, if an event is stopped while it is bubbling then live will not work.
+* IE does not support bubbling for certain events. live method on those events will not work in IE.
+
+There is a way to get around to both the problems. 
+
+"Brandon Aaron":http://brandonaaron.net/code developed "livequery plugin":http://docs.jquery.com/Plugins/livequery which was finally merged into jQuery as live method. livequery plugin solves both the problems listed above and the code works in IE too.
+
+First step is to include this plugin
+
+{% highlight js %}
+<script src="http://github.com/brandonaaron/livequery/raw/master/jquery.livequery.js" type="text/javascript"></script>         
+{% endhighlight %}
+
+Now try this code.
+
+{% highlight js %}
+$('p').livequery('click',function(e){ 
+  alert('p was clicked'); 
+}); 
+
+$('#parent').click(function(e){ 
+  alert('stopping progpagation'); 
+  e.stopPropagation(); 
+});
+
+$("#lab1a").livequery('change',function () { 
+  var str = ""; 
+  $("select option:selected").each(function () { 
+    str += $(this).text() + " "; 
+  }); 
+  $("#lab1b").text(str); 
+});
+
+<select id='lab1a' name="sweets" multiple="multiple">
+  <option>Chocolate</option>
+  <option selected="selected">Candy</option>
+  <option>Taffy</option>
+  <option selected="selected">Caramel</option>
+  <option>Fudge</option>
+  <option>Cookie</option>
+</select>
+<div id='lab1b' style='color:red;'></div>
+<div id='parent'> 
+ Languages 
+ <p>Java</p> 
+ <p>Javascript</p> 
+</div>
+{% endhighlight %}
+
+If I click on 'Java' or 'Javascript' I will get proper response even though event propagation is being stopped. Also even though change event does not bubble in IE, above code works in IE.
+
+livequery works because livequery ,unlike live, method does not do binding at the document level. livequery does binding at the element level. You can find that out by running following code.
+
+{% highlight js %}
+$('p').data('events');
+{% endhighlight %}
+
+Above code will produce result if I am using livequery. Above code will not produce any result if I am  using live method.
+
+The key piece of code in the plugin that makes all this work is
+
+{% highlight js %}
+// Create a timeout to check the queue and actually run the Live Queries
+$.livequery.timeout = setTimeout($.livequery.checkQueue, 20);{% endhighlight %}
+
+Every 20 milliseconds livequery runs all the bindings defined in livequery and then binds the matched element with the event.
+
+
+By understanding the internals of how live and livequery are implemented, now you can choose to use livequery in certain cases where live will not work. Also it helps to understand how live actually works.<br />
+
+h2. Live method finds elements and then throws it away. Not very efficient.
+
+A typical use of live method is something like this.
+
+{% highlight js %}
+$('p').live('click',function(e){ 
+  console.log('p was clicked'); 
+});
+{% endhighlight %}
+
+As it has already been discussed a live method registers events at document level.
+
+However when <tt>$('p').live(...)</tt> is evaluated then jQuery first goes and finds all the 'p' elements. And then what does it do with those elements. Nothing. That's right. jQuery throws away all those 'p' elements which were just found without using them. What a waste.
+
+If your application has a lot of live methods and this might slow down the performance of the application. 
+
+A better solution would have been to design an API like this one:
+
+{% highlight js %}
+$.live('p', 'click', function(){..});
+{% endhighlight %}
+
+jQuery is flexible and I can create my own live method but it will add to the confusion. Another solution would be to make the call to live method without first finding all those 'p' element. Here is how it can be done.
+
+{% highlight js %}
+var myDocument = $(document);
+myDocument.selector = 'p';
+myDocument.live('click', function(){
+  console.log('p was clicked');
+});
+{% endhighlight %}
+
+In the above case no element will be selected only to be thrown away. This is much better.
+
+h2. Seeing is believing
+
+In the previous section, I showed how live method can be made to work without first selecting the elements. However a friend of mine asked me if I could conclusively prove that in the real live method a find is *actually* done. And in my solution a find call is *not* done.
+
+Here I am showing you the overriding *find* method. In this method I am overriding the original find method. I will put a log message before passing the find method to the original method.
+
+{% highlight js %}
+(function() {
+  var originalFindMethod = jQuery.fn.find;
+  jQuery.fn.find = function() {
+    console.log('find was called');
+    originalFindMethod.apply(this, arguments);
+  };
+})();
+
+$(document).ready(function() {
+  $('p').live('click', function() {
+    console.log('p was clicked');
+  });
+});
+{% endhighlight %}
+
+In the above case you will get message on firebug console confirming that find is indeed invoked when live method is called.
+
+Here is revised version of live. Try this one.
+
+{% highlight js %}
+(function() {
+  var originalFindMethod = jQuery.fn.find;
+  jQuery.fn.find = function() {
+    console.log('find was called');
+    originalFindMethod.apply(this, arguments);
+  };
+})();
+
+$(document).ready(function() {
+  var myDocument = $(document);
+  myDocument.selector = 'p';
+  myDocument.live('click', function() {
+    console.log('p was clicked');
+  });
+});
+{% endhighlight %}
+
+Above version does not print 'find was called'.

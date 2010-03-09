@@ -1,0 +1,237 @@
+---
+layout: post
+title: Ruby EventMachine  a short introduction
+---
+h1. Introduction
+
+Before answering what is EventMachine, first I will try to explain the problem that EventMachine solves.
+
+A network server like http server or chat server usually works in  a threaded model. What it means is that on a particular port, a process is listening for connections. When a client makes a connection then this process spawns a new thread and that thread is handed over the task of responding to that client.  If server is getting too much traffic then the number of threads created by the main process goes up very quickly.
+
+The job of newly created thread is to service client request. And while this thread is servicing the request of client, it can't do anything else even if it means waiting for other stuff. What are the other stuff a thread might wait for. Well I/O operations are usually slow. A thread might be waiting for I/O operation. Or it might be connecting to an external resource and the handshake might be taking a while. Or connecting to a database etc. The point is that threads can't do anything else while they are waiting on other resource. Such a waste!
+
+This process of creating a new thread to handle a new client can be called 'threaded framework'. An alternative is 'event driven framework'. In a 'event driven network' calls are non-blocking. What it means is that the server will react to events. Let me show you a simple case.
+
+{% highlight ruby %}
+temp = make_a_webservice_call_to_weather_dot_com_to_get_temperature
+puts temp
+
+c = 50
+d = 20
+puts c - d
+{% endhighlight %}  
+
+In an 'threaded framework' when thread comes across the line of code where a web service call is made, thread will pause and will not move on until a response has come from web service. In a 'event driven framework', thread will make a web service call. It will make note of the handlers and it will move on to next instruction. In this case rather than waiting for the response from weather site to come, thread will start executing next set of instructions. And it is quite possible that it will get the result of 50 - 20 to the user before it receives a response from weather site. When the thread does get a response from weather site then it will do whatever it has been instructed to do.
+
+If you have done any AJAX programming then you will understand what I am talking about. Event driven frameworks work exactly like asynchronous calls.
+
+h1. Event driven tools
+
+There are some tools available in the market which operate on event driven model. The newest one is "node.js":http://nodejs.org/ .  I would encourage you to watch "this video presentation":http://jsconf.eu/2009/video_nodejs_by_ryan_dahl.html by the creator of node.js which was presented at "The European JavaScript Conference 2009":http://jsconf.eu/2009/ .
+
+"Thin web server":http://code.macournoyer.com/thin is built on event driven framework.
+
+"Twisted":http://twistedmatrix.com/trac is an event driven networking engine built in Python. 
+
+"EventMachine":http://rubyeventmachine.com is and event driven engine written in ruby.  In many ways it is similar to Twisted .
+
+h1. EventMachine
+
+EventMachine is a ruby implementation of event driven framework. It separates the networking logic and business logic. It allows consumers to concentrate on business logic and it takes care of all the issues related to sockets and networking layer. Because event driven frameworks are not tied to a single request, they usually have very good performance. 
+
+h2. How to install EventMachine
+
+{% highlight ruby %}
+sudo gem install eventmachine
+{% endhighlight %}
+
+You need c++ compiler to build native extensions.
+
+h1.  EventMachine as simple echo server
+
+Below is code for a simple echo server. Save this file as <tt>server.rb</tt>
+
+{% highlight ruby %}
+require 'rubygems'
+require 'eventmachine'
+
+module EchoServer
+  def receive_data(data)
+    send_data "server received: #{data}"
+    close_connection if data =~ /quit|exit/i
+  end
+end
+
+EventMachine::run {
+  EventMachine::start_server "127.0.0.1", 6789, EchoServer
+}
+{% endhighlight %}
+
+Start the server.
+{% highlight ruby %}
+ruby server.rb
+{% endhighlight %}
+
+telent into the server and issue some commands.
+
+{% highlight sh %}
+> telnet 127.0.0.1 6789
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+Hello World
+server received: Hello World
+EventMachine rocks
+server received: EventMachine rocks
+quit
+Connection closed by foreign host.
+{% endhighlight %}
+
+I will discuss step by step instructions in later section.
+
+h1.  EventMachine as a client
+
+EventMachine can also act as client.
+
+{% highlight ruby %}
+require 'rubygems'
+require 'eventmachine'
+
+module Client
+  def post_init
+    send_data "GET /\r\n\r\n"
+  end
+ 
+  def receive_data(data)
+    puts data
+  end
+end
+
+EventMachine::run do
+  EventMachine::connect 'www.rubyonrails.org', 80, Client
+end
+{% endhighlight %}
+
+Running the code brings this result.
+
+{% highlight sh %}
+> ruby client.rb
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+ <head>
+  <title>Index of /</title>
+ </head>
+ <body>
+<h1>Index of /</h1>
+<table><tr><th><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th><th><a href="?C=D;O=A">Description</a></th></tr><tr><th colspan="5"><hr></th></tr>
+<tr><th colspan="5"><hr></th></tr>
+</table>
+<address>Apache/2.2.9 (Ubuntu) Phusion_Passenger/2.0.3 Server at gems.rubyonrails.org Port 80</address>
+</body></html>
+{% endhighlight %}
+
+h1. How EventMachine really works
+
+In this section I am going to discuss the callback mechanism of EventMachine. I'm going to start with a sever. Here is code for server.
+
+{% highlight ruby %}
+require 'rubygems'
+require 'eventmachine'
+
+ module EchoServer
+   def post_init
+     puts "-- someone connected to the echo server!"
+   end
+
+   def receive_data data
+     send_data ">>>you sent: #{data}"
+     close_connection if data =~ /quit/i
+   end
+
+   def unbind
+     puts "-- someone disconnected from the echo server!"
+   end
+ end
+
+ EventMachine::run {
+   EventMachine::start_server "127.0.0.1", 6789, EchoServer
+ }
+{% endhighlight %}
+
+As you can see, I am asking EventMachine to start a server at 127.0.0.1 listening on port 6789.  When I start the server then EventMachine starts running and it will run forever until I kill it.  Now that EventMachine is running, it is able to accept client connections. 
+
+The third and the final argument while starting the server was a module ( EchoServer in this case ). When a client connects to server then EventMachine creates an anonymous class. EventMachine mixes in the module supplied  (EchoServer) in that class. The anonymous class that EventMachine created is on the server side. Client is not even aware of it. As far as server is concerned client might or might not be a ruby application. The key thing is that when that client makes a second request then EventMachine will bring up the same anonymous class that it used in the first case. It means that the state stored in the anonymous class during the first request will be available to the client during the second request. If you do not get all this on your first read then don't worry about it. It took me forever to understand this simple concept that EventMachine will bring up the *same* anonymous class and hence the state is preserved.
+
+When a client makes the connection to a EventMachine server then *post_init* method is called. This method is invoked only once when client connect to sever. After connecting to server, if client sends a message then method *receive_data* is invoked. The server can send data back to client by calling method *send_data* . When client terminates the connection then method *unbind* is called. 
+
+Note that when client closes the connection then it means that client is not connected to server anymore. The server is still running and listening on the specified port. 
+
+Recap: The module that is passed to the server (EchoServer) is the module that is mixed into an anonymous class. Exactly one anonymous class is created per connected client. If a client closes the connection and if it reconnects then that client is going to get a new anonymous class and all previously saved state is gone.
+
+Let's say that I have two clients: client1 and client2 connected to an EventMachine server. if client1 sends a message to server and if server's *receive_data* is defined as
+
+{% highlight ruby %}
+def receive_data data
+     send_data ">>>you sent: #{data}"
+ end
+{% endhighlight %}
+
+then only the client that sent the message is going to get the echo back. It goes like this
+
+{% highlight sh %}
+client1 connects to server
+client2 connects to server
+client1 sends a message to server
+client2 sends  a message to server
+server sends the echo back to client1
+server sends the echo back to client2
+{% endhighlight %}
+
+EventMachine comes into discussion a lot with chat server and some assume that the reply sent by server is a broadcast to all connected clients. That is not true. Each *send_data* call sends message to a client. If you want to send message to all connected clients then you will have to do that yourself.
+
+When clients connect to server then server can store that list of clients connected and when times comes to broadcast the message then messages can be sent to each of the clients like this.
+
+{% highlight ruby %}
+require 'rubygems'
+require 'eventmachine'
+ 
+module EchoServer
+  def post_init
+    $clients_list ||= {}
+    @identifier = self.object_id
+    $clients_list.merge!({@identifier => self})
+  end
+ 
+  def receive_data data
+    # broadcast this message to all clients
+    $clients_list.values.each do |client|
+      client.send_data(data)
+    end
+  end
+ 
+  def unbind
+    $clients_list.delete(@identifier)
+  end
+end
+ 
+EventMachine::run {
+EventMachine::start_server "127.0.0.1", 6789, EchoServer
+}
+{% endhighlight %}
+
+In the above case a chat message is being broadcasted to all the connected clients.
+
+
+h1. TCP Connection
+
+If you are writing a chat application and the controller needs to connect to an instance of EventMachine server then this is how it can be done.
+
+{% highlight ruby %}
+socket = TCPSocket.open(ip_address, port)
+data = {:client_id => 'ibm', :message => 'hello world'}
+socket.send(data)
+response = socket.gets
+socket.close
+{% endhighlight %}
+
+There are a lot more articles on EventMachine. Just google for them. Here is "one article":http://www.igvita.com/2008/05/27/ruby-eventmachine-the-speed-demon/ which describes how fast EventMachine could be compared to a 'threaded framework'.
