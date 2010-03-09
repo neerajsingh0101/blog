@@ -1,0 +1,122 @@
+---
+layout: post
+title: Ruby Conference Video   Coding for Failure
+---
+
+I finished watching the video "Coding for Failure":http://rubyconf2008.confreaks.com/coding-for-failure.html presetend by Tameer Salah at RubyConf 2008.
+
+Here are my notes from this presentation.
+
+h2. Handling exceptions
+
+{% highlight ruby %}
+x = foo.bar rescue nil
+{% endhighlight %}
+
+Above code will rescue only the StandardErrors. Be aware of that. Same is true for this code.
+
+{% highlight ruby %}
+begin
+  require 'Foobar'
+rescue
+end
+{% endhighlight %}
+
+
+If you want to rescue all exceptions ( not a good idea) then rescue Exception like this.
+
+{% highlight ruby %}
+begin
+ require 'Foobar'
+rescue Exception => e
+end
+{% endhighlight %}
+
+h2. In cron job use &&
+
+{% highlight ruby %}
+# cron job command
+cd directory; rm -rf
+{% endhighlight %}
+
+The above cron job command is risky. Even if the cd to directory fails the next command of deleting all the stuff will be executed. Not good. A better solution is
+
+{% highlight ruby %}
+cd directory && rm -rf
+{% endhighlight %}
+
+In the above cron job command because of <code>&&</code> if the cd to directory fails then the next operation will not be executed.
+
+
+
+h2. Always check response code after *nix command
+
+Anytime any *nix command is executed either through system command or backtick check for response code.
+
+{% highlight ruby %}
+files = `cd /etc && ls`
+unless $?.success?
+  fail "command failed: #{$?}"
+end
+{% endhighlight %}
+
+
+h2. Fail loud
+
+Not only fail fast but also fail loud.
+
+{% highlight ruby %}
+users.each do |user|
+ user.activated = true
+ user.save
+end
+{% endhighlight %}
+
+In the above code if the user.save fails for say some validation reason then no feedback is sent back. This is not good. A better solution would be to save loud.
+
+{% highlight ruby %}
+users.each do |user|
+ user.activated = true
+ user.save! # failing loud
+end
+{% endhighlight %}
+
+h2. Manage Exceptions when sending out emails
+
+{% highlight ruby %}
+SERVER_EXCEPTIONS = [
+                    TimeoutError,
+                    IOError,
+                    Net::SMTPUnknownError,
+                    Net::SMTPServerBusy,
+                    Net::SMTPAuthenticationError  
+                    ]
+                    
+CLIENT_EXCEPTIONS = [
+                    Net::SMTPFatalError,
+                    Net::SMTPSyntaxError
+                    ]                   
+                    
+EXCEPTIONS = SERVER_EXCEPTIONS + CLIENT_EXCEPTIONS
+
+
+# sending out email in real time
+begin
+  Mailer.deliver_message
+rescue *CLIENT_EXCEPTIONS
+  flash[:error] = 'The email address supplied is invalid.'
+  redirect_to ...
+rescue *SEVER_EXCEPTIONS
+  flash[:error] = 'We encountered an internal issue while attempting to deliver this email. Please try again in a few minutes'
+  redirect_to ..
+end
+
+# in a rake task
+begin
+  Mailer.deliver_message
+rescue *EXCEPTIONS => e
+  notify_hoptoad(e)
+end                       
+{% endhighlight %}
+
+

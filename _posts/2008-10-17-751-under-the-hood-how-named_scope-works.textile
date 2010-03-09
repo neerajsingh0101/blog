@@ -1,0 +1,322 @@
+---
+layout: post
+title: Under the hood  how named_scope works
+---
+Rails recently added named_scope feature  and it is a wonderful thing. If you don't know what named_scope is then you can find out more about it from "here":http://ryandaigle.com/articles/2008/3/24/what-s-new-in-edge-rails-has-finder-functionality and "here":http://railscasts.com/episodes/108 .
+
+This article is not about how to use named_scope. This article is about how named_scope does what it does so well.
+
+h2. Understanding with_scope
+
+ActiveRecord has something called with_scope which is not associated with named_scope. The two are entirely separate thing. However named_scope relies on the workings on with_scope to do its magic. So in order to understand how named_scope works first let's try to understand what with_scope is.
+
+with_scope let's you add scope to a model in a very extensible manner. 
+
+{% highlight ruby %}
+def self.all_male
+  with_scope(:find => {:conditions => "gender = 'm'"}) do
+    all_active
+  end
+end
+
+def self.all_active
+  with_scope(:find => {:conditions => "status = 'active'"}) do
+    find(:first)
+  end
+end
+
+# User.all_active
+# SELECT * FROM "users" WHERE (status = 'active') LIMIT 1
+
+# User.all_male
+# SELECT * FROM "users" WHERE ((gender = 'm') AND (status = 'active')) LIMIT 1
+{% endhighlight %}
+
+We can see that when User.all_male is called, it internally calls all_active method and the final sql has both the conditions.
+
+with_scope allows nesting and all the conditions nested together are used to form one single query. And named_scope uses this feature of with_scope to form one single query from a lot of named_scopes.
+
+<h2>Writing our own named_scope called mynamed_scope </h2>
+
+The best way to learn named_scope is by implementing the functionality of named_scope ourselves. We will build this functionality incrementally. To avoid any confusion we will call our implementation mynamed_scope.
+
+To keep it simple in the first iteration we will not support any lamba operation. We will support simple conditions feature. Here is a usage of mynamed_scope .
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  mynamed_scope :active, :conditions => {:status =>  'active'}
+  mynamed_scope :male, :conditions => {:gender => 'm'}
+end
+{% endhighlight %}
+
+We expect following queries to provide right result.
+
+{% highlight ruby %}
+User.active
+User.male
+User.active.male
+User.male.active
+{% endhighlight %}
+
+h2. Let's implement mynamed_scope
+
+At the top of user.rb add the following lines of code
+
+{% highlight ruby %}
+module ActiveRecord
+  module MynamedScope
+    def self.included(base)
+      base.extend ClassMethods
+    end
+    
+    module ClassMethods
+      def mynamed_scope(name,options = {})
+        puts "name is #{name}"
+      end
+    end
+    
+  end
+end
+ActiveRecord::Base.send(:include, ActiveRecord::MynamedScope)
+{% endhighlight %}
+
+Now in script/console if we do User then the code will not blow up.
+
+Next we need to implement functionalities so that mynamed_scope creates class methods like active and male.
+
+What we need is a class where each mynamed_scope could be stored. If 7 mynamed_scopes are defined on User then we should have a way to get reference to all those mynamed_scopes. We are going to add class level attribute myscopes which will store all the mynamed_scopes defined for that class.
+
+{% highlight ruby %}
+def myscopes
+  read_inheritable_attribute(:myscopes) || write_inheritable_attribute(:myscopes, {})
+end
+{% endhighlight %}
+
+This discussion is going to be tricky. 
+
+We are storing all the mynamed_scope information in a variable called myscopes. This will contain all the mynamed_scopes defined on User.
+
+However we need one more way to track the scoping. When we are executing User.active then the active mynamed_scope should be invoked on the User. However when we perform User.male.active then the mynamed_scope active should be performed in the scope of User.male and not directly on User.
+
+This is really crucial. Let's try one more time. In the case of User.active the condition that was supplied while defining the mynamed_scope 'active' should be acted on User directly. However in the case of User.male.active the condition that was supplied while defining mynamed_scope 'active' should be applied  on the scope that was returned by User.male .
+
+So we need a class which will store proxy_scope and proxy_options.
+
+{% highlight ruby %}
+class Scope
+  attr_reader :proxy_scope, :proxy_options        
+  def initialize(proxy_scope, options)
+    @proxy_scope, @proxy_options = proxy_scope, options
+  end
+end # end of class Scope
+{% endhighlight %}
+
+Now the question is when do create an instance of Scope class. The instance must be created at run time. When we execute User.male.active, until the run time we don't know the scope object active has to work upon. It means that User.male should return a scope and on that scope active will work upon. 
+
+So for User.male the proxy_scope is the User class. But for User.male.active,  mynamed_scope 'active' gets (User.male) as the proxy_scope.
+
+Also notice that proxy_scope happens to be the value of self.
+
+Base on all that information we can now write the implementation of mynamed_scope like this.
+
+{% highlight ruby %}
+def mynamed_scope(name,options = {})
+  name = name.to_sym
+  myscopes[name] = lambda { |proxy_scope| Scope.new(proxy_scope,options) }
+
+  (class << self; self end).instance_eval do
+    define_method name do 
+      myscopes[name].call(self) 
+    end
+  end
+end
+{% endhighlight %}
+
+At this point of time the overall code looks like this.
+
+{% highlight ruby %}
+module ActiveRecord
+  module MynamedScope
+    def self.included(base)
+      base.extend ClassMethods
+    end
+    
+    module ClassMethods
+      
+      def myscopes
+        read_inheritable_attribute(:myscopes) || write_inheritable_attribute(:myscopes, {})
+      end
+      
+      def mynamed_scope(name,options = {})
+        name = name.to_sym
+        myscopes[name] = lambda { |proxy_scope| Scope.new(proxy_scope,options) }
+
+        (class << self; self end).instance_eval do
+          define_method name do
+            myscopes[name].call(self) 
+          end
+        end
+      end
+      
+      class Scope
+        attr_reader :proxy_scope, :proxy_options        
+        def initialize(proxy_scope, options)
+          @proxy_scope, @proxy_options = proxy_scope, options
+        end
+      end # end of class Scope
+      
+    end # end of module ClassMethods
+    
+  end # endof module MynamedScope
+end
+ActiveRecord::Base.send(:include, ActiveRecord::MynamedScope)
+
+
+class User < ActiveRecord::Base
+  mynamed_scope :active, :conditions => {:status =>  'active'}
+  mynamed_scope :male, :conditions => {:gender => 'm'}
+end
+
+{% endhighlight %}
+
+On script/console 
+
+{% highlight ruby %}
+>> User.active.inspect
+  SQL (0.000549)    SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+
+=> "#<ActiveRecord::MynamedScope::ClassMethods::Scope:0x203201c @proxy_scope=User(id: integer, gender: string, status: string, created_at: datetime, updated_at: datetime), @proxy_options={:conditions=>{:status=>"active"}}>"
+>> 
+{% endhighlight %}
+
+What we get is an instance of Scope. What we need is a way to call sql statement at this point of time.
+
+But calling sql can be tricky. Remember each scope has a reference to the proxy_scope before it. This is the way all the scopes are chained together.
+
+What we need to do is to start walking through the scope graph and if the previous proxy_scope is an instance of scope then add the condition from the scope to with_scope and then go to the previous proxy_scope. Keep walking and keep nesting the with_scope condition until we find the end of chain when proxy_scope will NOT be an instance of Scope but it will be a sub class of ActiveRecord::Base. 
+
+One way of finding if it is an scope or not is to see if it responds to find(:all). If the proxy_scope does not respond to find(:all) then keep going back because in the end User will be able to respond to find(:all) method.
+
+{% highlight ruby %}
+# all these two methods to Scope class
+def inspect
+  load_found
+end
+
+def load_found
+  find(:all)
+end
+{% endhighlight %}
+
+Now in script/console you will get undefined method find. That is because find is not implemented by Scope.
+
+Let's implement method_missing.
+
+{% highlight ruby %}
+def method_missing(method, *args, &block)
+  if proxy_scope.myscopes.include?(method)
+    proxy_scope.myscopes[method].call(self)
+  else
+    with_scope :find => proxy_options do
+      proxy_scope.send(method,*args)
+    end
+  end
+end
+{% endhighlight %}
+
+Statement User.active.male invokes method 'male' and since method 'male'  is not implemented by Scope, we don't want to call proxy_scope yet since this method 'male' might be a mynamed_scope. Hence in the above code a check is done to see if the method that is missing is a declared mynamed_scope or not. If it is not a mynamed_scope then the call is sent to proxy_scope for execution. Pay attention to with_scope. Because of this with_scope all calls to proxy_scope are nested.
+
+However Scope class doesn't implement with_scope method. However the first proxy_scope ,which will be User in our case, implements
+with_scope method. So we can delegate with_scope method to proxy_scope like this.
+
+delegate :with_scope,  :to => :proxy_scope 
+
+At this point of time the code looks like this
+
+{% highlight ruby %}
+module ActiveRecord
+  module MynamedScope
+    def self.included(base)
+      base.extend ClassMethods
+    end
+    
+    module ClassMethods
+      
+      def myscopes
+        read_inheritable_attribute(:myscopes) || write_inheritable_attribute(:myscopes, {})
+      end
+      
+      def mynamed_scope(name,options = {})
+        name = name.to_sym
+        myscopes[name] = lambda { |proxy_scope| Scope.new(proxy_scope,options) }
+
+        (class << self; self end).instance_eval do
+          define_method name do
+            myscopes[name].call(self) 
+          end
+        end
+      end
+      
+      class Scope
+        attr_reader :proxy_scope, :proxy_options
+        delegate :with_scope,  :to => :proxy_scope                
+        def initialize(proxy_scope, options)
+          @proxy_scope, @proxy_options = proxy_scope, options
+        end
+        
+        def inspect
+          load_found
+        end
+        
+        def load_found
+          find(:all)
+        end
+        
+        def method_missing(method, *args, &block)
+          if proxy_scope.myscopes.include?(method)
+            proxy_scope.myscopes[method].call(self)
+          else
+            with_scope :find => proxy_options do
+              proxy_scope.send(method,*args)
+            end
+          end
+        end
+        
+      end # end of class Scope
+      
+    end # end of module ClassMethods
+    
+  end # endof module MynamedScope
+end
+ActiveRecord::Base.send(:include, ActiveRecord::MynamedScope)
+
+
+class User < ActiveRecord::Base
+  mynamed_scope :active, :conditions => {:status =>  'active'}
+  mynamed_scope :male, :conditions => {:gender => 'm'}
+end
+{% endhighlight %}
+
+Let's checkout the result in script/console
+
+{% highlight sh %}
+>> User.active
+SELECT * FROM "users" WHERE ("users"."status" = 'active') 
+>> User.male
+SELECT * FROM "users" WHERE ("users"."gender" = 'm') 
+>> User.active.male
+SELECT * FROM "users" WHERE (("users"."gender" = 'm') AND ("users"."status" = 'active')) 
+>> User.male.active
+SELECT * FROM "users" WHERE (("users"."status" = 'active') AND ("users"."gender" = 'm')) 
+
+# you can also see count
+>> User.active.count
+SELECT count(*) AS count_all FROM "users" WHERE ("users"."status" = 'active') 
+=> 2
+{% endhighlight %}
+
+named_scope supports a lot more things than what we have shown. named_scope supports passing lambda instead of conditions and it also supports joins and extensions.
+
+However in the process of building mynamed_scope we got to see the workings of the named_scope implementation.

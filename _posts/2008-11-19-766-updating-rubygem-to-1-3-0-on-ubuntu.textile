@@ -1,0 +1,31 @@
+---
+layout: post
+title: Updating rubygem to 1.3.0 on ubuntu
+---
+Rails 2.2 changes are dependent on rubygem version 1.3 .
+
+First find out what gem version you are running
+
+{% highlight ruby %}
+neeraj~> gem -v
+1.2.0
+{% endhighlight %}
+
+To upgrade the gem, the recommened way is to execute
+
+{% highlight ruby %}
+sudo gem update --system
+{% endhighlight %}
+
+However the above command takes forever on my slicehost and does nothing. 
+
+A better approach is this. I found this solution "here":http://albertux.ayalasoft.com/2008/09/30/rubygems-update-issue-on-ubuntu/
+
+{% highlight ruby %}
+wget http://rubyforge.org/frs/download.php/43984/rubygems-update-1.3.0.gem
+sudo gem install rubygems-update-1.3.0.gem 
+sudo update_rubygems
+sudo gem update --system
+{% endhighlight %}
+
+It worked for me. <br />

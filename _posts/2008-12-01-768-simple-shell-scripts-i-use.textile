@@ -1,0 +1,91 @@
+---
+layout: post
+title: Simple shell scripts I use
+---
+
+Given below are the four useful scripts when I use time to time.
+
+I created  a directory called 'scripts' .
+
+{% highlight sh %}
+mkdir ~/scripts
+{% endhighlight %}
+ 
+h2. gemmate
+
+I use this script to look at the source code of any gem. You can type gemmate rails and then hit tab and the script will try to autocomplete.
+
+Save the following file as <code>~/scripts/gemmate</code> . Notice there is no extension.
+
+{% highlight sh %}
+#!/bin/sh
+
+# Usage: gemmate activerec[tab]
+# Source: http://effectif.com:8000/2008/3/29/opening-ruby-gems-in-textmate
+usage()
+{
+     echo "Usage: $(basename $0) <gem>" 1>&2
+     exit 1
+}
+
+GEM="$1"
+
+[ -z "$GEM" ] && usage
+mate "$(gem environment gemdir)/gems/$GEM"
+{% endhighlight %}
+
+
+h2. ipfor
+
+This is used to get ip address for a url.  Save the following file as <code>~/scripts/ipfor</code>
+
+{% highlight sh %}
+#!/usr/bin/env ruby
+require 'resolv'
+
+unless ARGV.size == 1
+  puts "-> Usage: ipfor www.rollstream.com" 
+  exit
+end
+
+# only works on mac
+def paste(str)
+  %x[echo "#{str}" | pbcopy]
+  puts "-> Pasted #{str} to your clipboard" 
+end
+
+begin
+  paste(Resolv.getaddress(ARGV.first))
+rescue Resolv::ResolvError
+  puts "-> Could not resolve '#{ARGV.first}'" 
+end
+{% endhighlight %}
+
+h2. myip_from_inside
+
+This is used to get the ipaddress of my machine from inside. Save this file as <code>~/scripts/myip_from_inside</code>
+
+{% highlight sh %}
+#http://www.askdavetaylor.com/how_do_i_figure_out_my_ip_address_on_a_mac.html
+ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2
+{% endhighlight %}
+
+h2. myip_from_outside
+
+This is used to get the ipaddress of my machine from outside. Save this file as <code>~/scripts/myip_from_outside</code>
+
+{% highlight sh %}
+# the script is being displayed in two lines. You should put
+# them in one single line
+curl -s http://checkip.dyndns.org | awk '{print $6}' | awk ' BEGIN { FS = "<" } { print $1 } '
+{% endhighlight %}
+
+Now let's add scripts directory to the path . Go to command prompt and execute following commands
+
+{% highlight sh %}
+touch ~/.bash_profile
+echo 'export PATH=$PATH:~/scripts' >> ~/.bash_profile
+chmod x ~/scripts/*
+{% endhighlight %}
+
+Now close all shells. Start a new shell and you should be able to use these shell commands. <br />

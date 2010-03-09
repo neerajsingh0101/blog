@@ -1,0 +1,33 @@
+---
+layout: post
+title: show_sql method to see sql statements in script/console
+---
+
+ruby script/console is a great utility. However when you perform an operation like 
+
+{% highlight ruby %}
+User.first
+{% endhighlight %}
+
+I would like to see the sql being generate right on the console rather going to the log file to see the sql.
+
+Ideally you should configure your .irbrc as mentioned "here":http://toolmantim.com/article/2007/2/6/system_wide_script_console_logging . And if you do that then you will always get sql statements in your console.
+
+However if you have not configured your .irbrc then in order to make it easy to see sql statements on console Jamis has a great tip.
+
+def show_sql(stream = STDOUT)
+  ActiveRecord::Base.logger = Logger.new(stream)
+  ActiveRecord::Base.clear_active_connections!
+end
+
+I put above code as an initializer in all the projects. Now anytime in script/console if you want to see the sql then just type show_sql and you will start seeing all the sql statements on console.
+
+If you are running edge rails then "Pratik has posted a fix":http://m.onkey.org/2008/9/15/active-record-tips-and-tricks
+
+
+{% highlight ruby %}
+def log_to(stream=$stdout)
+  ActiveRecord::Base.logger = Logger.new(stream)
+  ActiveRecord::Base.connection_pool.clear_reloadable_connections!
+end
+{% endhighlight %}

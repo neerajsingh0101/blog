@@ -1,0 +1,28 @@
+---
+layout: post
+title: Testing  Getting your code tested is side benefit
+---
+You can't escape from it. Everyone keeps insisting that you need to test your code. I agree. However the reason why I agree is slightly different.
+
+By writing tests, you make sure that the code does what it claims to do. And that is a big gain.
+
+However more than 70% of the money in IT is spent on maintenance project. To keep the maintenance cost low it is important that code that is written is modular and adheres to the coding principles.
+
+And I think by writing test you code becomes much more beautiful. 
+
+Take a look at this named scope which I had.
+
+{% highlight ruby %}
+named_scope :published, :conditions => "status='published'"
+{% endhighlight %}
+
+Above code works. However when I wrote the shoulda test it blows up. In order to make the shoulda test pass, I had to refactor to this.
+
+{% highlight ruby %}
+named_scope :published, :conditions => {:status => 'published'}
+
+# test
+should_have_named_scope :published, :conditions => {:status => 'published'}
+{% endhighlight %}
+
+It was a minor change and but is a good example of why writing tests make your code so much more beautiful. <br />
