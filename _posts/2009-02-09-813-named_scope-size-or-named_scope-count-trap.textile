@@ -38,8 +38,6 @@ Comment.recent_comments(5).count
 # resulting sql
 SELECT count(*) AS count_all FROM `comments` LIMIT 5 ORDER BY id desc
 
-
-
 # new
 Comment.recent_comments(5).length
 # resulting sql

@@ -2,6 +2,7 @@
 layout: post
 title: Query caching, random records and how to overcome query caching issue
 ---
+
 I have users table and on the homepage I need to display three random users every single time someone comes to the homepage. Since I am using mysql I can make use of <tt>rand()</tt> feature. Here is the code I had in my controller.
 
 {% highlight ruby %}
@@ -107,7 +108,3 @@ User.uncached do
  random_user3 = User.find(:first, :order => 'rand()')
 end
 {% endhighlight %}
-
-
-
- <br />

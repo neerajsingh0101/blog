@@ -2,7 +2,6 @@
 layout: post
 title: rescue_action_in_public, local_request? and how to configure local_request
 ---
-
 h2. How does Rails handle exceptions
 
 Rails exception handling depends on two factors and we are going to discuss both of them here.

@@ -2,7 +2,6 @@
 layout: post
 title: Dirty object check and pushing more functionalities to model from controller
 ---
-
 We have a simple User model where one of the columns is <tt>activation_status</tt> . This is a boolean column with default value of false.
 
 The requirement is that whenever the activation_status changes to true then send out a welcome email.

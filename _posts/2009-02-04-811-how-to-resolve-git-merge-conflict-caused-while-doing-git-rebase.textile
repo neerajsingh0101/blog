@@ -8,7 +8,7 @@ Sometimes while performing <tt>git rebase master</tt> I get merge conflicts. In 
 
 h2. Setup
 
-{% highlight sh %}
+<pre>
 > mkdir demo
 > cd demo
 > touch ruby.txt rails.txt java.txt perl.txt
@@ -35,13 +35,13 @@ h2. Setup
 # now open perl.txt and add a new line 'comment added in 
 # master branch' 
 # save perl.txt
-{% endhighlight %}
+</pre>
 
 h2. run rebase
 
 Setup is done. let's run rebase.
 
-{% highlight sh %}
+<pre>
 > git co experiment
 > git rebase master
 First, rewinding head to replay your work on top of it...
@@ -63,8 +63,7 @@ Patch failed at 0001.
 When you have resolved this problem run "git rebase --continue".
 If you would prefer to skip this patch, instead run "git rebase --skip".
 To restore the original branch and stop rebasing run "git rebase --abort".
-
-{% endhighlight %}
+</pre>
 
 Notice that the output clearly tells that there were conflicts in rails.txt and ruby.txt .
 
