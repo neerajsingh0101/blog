@@ -1,0 +1,19 @@
+---
+layout: post
+title: Hash can have comma at the end
+---
+Check this out. Pay attention to the last comma in options.
+
+{% highlight ruby %}
+options = {
+  :limit => 20,
+  :order => 'created_at',
+  :conditions => {},
+}
+
+User.find(:all,options)
+{% endhighlight %}
+
+Ryan told me that hash can have a trailing comma and ruby does not complain about it. This could be useful if you want to move the last key to the very top.
+
+However it looks weird to me to have a dangling comma at the end. I don't think I would put a trailing comma even though ruby does not complain about it. <br />

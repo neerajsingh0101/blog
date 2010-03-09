@@ -1,0 +1,79 @@
+---
+layout: post
+title: When to use self in ActiveRecord callbacks
+---
+h3. Problem Definition
+
+Users table has following four columns: fname, lname, name1 and name2. I have following callback on the User model.
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  def before_save
+    self.name1 = fname + ' ' + lname
+    name2 = fname + ' ' + lname
+  end
+end
+{% endhighlight %}
+
+Once a record is created column 'name1' is properly populated. However column 'name2' is nil. Why?
+
+Before we get to the answer let's go over some of the basics of Ruby.
+
+h3. In ruby a method and a variable can have the same name.
+
+It is not a good practice to define a method and a variable with the same name. But it is possible. Ruby allows it.
+
+{% highlight ruby %}
+def a
+   puts 'inside method a'
+   return "a"
+end
+
+a = 5 + 11
+
+puts a #=> 16
+puts self.a #=> inside method a
+{% endhighlight %}
+
+Above we defined method 'a' and variable 'a'.  Ruby follows the rule of looking for a variable name first. If there is no variable name defined then it will look for a method name.
+
+So when I do 'puts a'. In this case whether a is a variable or a method is not clear. So Ruby will look for  a variable named 'a' and surely it will find one with the value of 16. That's why we see 16 as the output.
+
+If we want the method to be invoked and not the variable then we explicitly needs to let ruby know that. If we do self.a then it is clear to ruby that we are invoking the method 'a'. And we that's what happens.
+
+h3.   self.something is an invocation of method 'something'.
+
+Open your irb and try this.
+
+{% highlight ruby %}
+>> self.something = 'ruby rocks'
+NoMethodError: undefined method `something=' for main:Object
+	from (irb):13
+>> something = 'ruby rocks'
+=> "ruby rocks"
+{% endhighlight %}
+
+When ruby see self dot something then instantly it understands that a method named after the dot is being invoked. That is what happened in the above case. Since there is no method defined 'something' we get an error. If self is something then ruby understands that a variable is being created.
+
+h3. Coming back to the problem definition
+
+In the below case why the column 'name2' is NOT being populated.
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  def before_save
+    self.name1 = fname + ' ' + lname
+    name2 = fname + ' ' + lname
+  end
+end
+{% endhighlight %}
+
+That is because ruby is creating a local variable name2.  When I wrote the coded I intended the method name2 to be invoked with the value from the right hand side. What ruby did was to create a local variable named 'name2'. Hence the column 'name2' remains nil. The fix is to put 'self.name2' instead of 'name2'.
+
+You might ask 'lname' is being properly resolved. In stead of 'lname' you can have 'self.lname' and it will work fine.  When we have  'lname' that is a metod invocation. You might wonder why the method named 'lname' is being invoked even though it doesn't have self but the method 'name2' is not being invoked without self.
+
+The answer has to do with on which side of equal statement you are. If you are on the right hand side of the equal statement then ruby understands that lname can't be a variable assignment. So ruby looks for a variable called 'lname'. It doesn't find one. The it looks for a method named 'lname' and finds one.
+
+'name2' is on the left hand side of the equal statement. Ruby looks at it and thinks 'oh it is a variable declaration'.
+
+This article is longer that I had expected but this could be tricky. This article was inspired by "this thread":http://www.ruby-forum.com/topic/154723

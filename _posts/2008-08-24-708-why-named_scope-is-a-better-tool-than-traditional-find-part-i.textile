@@ -1,0 +1,85 @@
+---
+layout: post
+title: Why named_scope is a better tool than traditional find ( Part I)
+---
+This is part I of the two part series.
+
+In this first part we are going to write a plugin which will make searching for  a term easy in any model. Here is how the plugin should work.
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  roll_searchable_for do 
+    searchable_for  :first_name
+    searchable_for  :last_name
+    searchable_for  :email, 
+                    :condition => "users.email LIKE :search_term AND users.email NOT IN ('admin@example.com') "
+    searchable_for  :notes
+  end
+end
+{% endhighlight %}
+
+In the above case we have a model User. We want to enable search for attributes :first_name,:last_name,:email and :notes. For the email we want to have a special condition and hence condition has been passed as an option.
+
+Here is the complete code for plugin.
+
+{% highlight ruby %}
+# init.rb
+require 'roll_searchable'
+
+# lib/roll_searchable.rb
+module RollSearchable
+  Searchable = Struct.new :attribute,:condition
+     
+  def roll_searchable_for(&blk)
+    instance_eval(&blk)
+  end
+  
+  def searchable_for(attribute,options = {})
+    @searchables ||=[]
+    @searchables << Searchable.new(attribute,options[:condition])
+  end
+
+  def search(search_term)
+    conditions = @searchables.collect do |searchable|
+      if searchable.condition
+        "(#{searchable.condition})"
+      else
+        "(#{self.table_name}.#{searchable.attribute} LIKE :search_term)"
+      end
+    end
+    
+    conditions = conditions.join(' OR ')
+    conditions = [conditions,{:search_term => "%#{search_term}%"}]
+    find(:all, :conditions => conditions)
+  end
+  
+end
+
+ActiveRecord::Base.send(:extend,RollSearchable)
+{% endhighlight %}
+
+Now we can do things like
+
+{% highlight ruby %}
+>> User.search('rose')
+It will return an array of Users. 
+{% endhighlight %}
+
+Our code works and it is all good. However there is a problem. Let's say that our search_term returns 5000 records. There is no point in getting all the 5000 records since we want to implement pagination. However if we try to use plugin will_paginate we would still get all the 5000 records.
+
+{% highlight ruby %}
+>> User.search('rose').paginate(:page => 1)
+{% endhighlight %}
+
+We would still get all the 5000 records because in our plugin we have this code
+
+{% highlight ruby %}
+  find(:all, :conditions => conditions)
+{% endhighlight %}
+
+Getting a count of all the records matching the search term is not efficient in this case. In order to get the count this plugin wil bring retrieve all the 5000 records and would do a size operation on the array. This is inefficient.
+
+
+Because of this dual issue of not supporting pagination and not able to get count of records through sql, this plugin cannot be used in its current form.
+
+In Part II of this article we would see how to implement same functionality using named_scope. By using named_scope the two problems of pagination and count of search results will also get fixed.

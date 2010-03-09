@@ -1,0 +1,23 @@
+---
+layout: post
+title: Dir.glob vs Dir.chdir + more
+---
+I am writing a plugin and I needed list of all models. Here is my first attempt.
+
+{% highlight ruby %}
+>> Dir.glob("#{RAILS_ROOT}/app/models/**/*.rb")
+=> ["/Users/nkumar/dev/working/roll-admin-model/app/models/article.rb", "/Users/nkumar/dev/working/roll-admin-model/app/models/comment.rb", "/Users/nkumar/dev/working/roll-admin-model/app/models/user.rb"]
+{% endhighlight %}
+
+The result is the name of all the models with absolute path. This is not what I wanted but it is good to know incase I need it sometime in future.
+
+Here is the revised version.
+
+{% highlight ruby %}
+> model_dir = File.join(RAILS_ROOT,'app','models')
+=> "/Users/nkumar/dev/working/roll-admin-model/app/models"
+>> Dir.chdir(model_dir) { models = Dir["**/*.rb"] }
+=> ["article.rb", "comment.rb", "user.rb"]
+{% endhighlight %}
+
+Yeap. That did it.

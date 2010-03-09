@@ -1,0 +1,12 @@
+---
+layout: post
+title: Do not name any method called 'process'
+---
+I named a controller method as 'process' and was getting following error:
+
+{% highlight sh %}
+ Status: 500 Internal Server Error
+ wrong number of arguments (2 for 0)
+{% endhighlight %}
+
+After some head scratching I "found that":http://groups.google.ca/group/rubyonrails-talk/browse_thread/thread/f44ff644d2c29977 you can't name a method as 'process'.

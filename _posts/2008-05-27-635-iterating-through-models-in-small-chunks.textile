@@ -1,0 +1,83 @@
+---
+layout: post
+title: Iterating through models in small chunks
+---
+If you have more than 100,00 users in your database and if you do something like this
+
+{% highlight ruby %}
+ruby script/console
+User.find(:all).each { |user| puts user.name }
+{% endhighlight %}
+
+then there might be memory issue. That is because User.find(:all) loads all records into the memory.
+
+To overcome that one has to step through records in chunks. This is what I had in my initializer.
+
+
+{% highlight ruby %}
+module ActiveRecord
+  class Base
+    # Step through and instantiate each member of the class and 
+    # execute on it,
+    # but instantiate no more than per_page instances at any 
+    # given time.
+    # Safe for destructive actions or actions that modify 
+    # the fields
+    # your :order or :conditions clauses operate on.
+    # 
+    # Usage:
+    # User.each_by_page(15) do |user| 
+    #  ......
+    # end
+
+    def self.each_by_page per_page, options = {}, &block
+      # By-id for model-modifying blocks
+      # Build SQL to get ids of all matching records using the options 
+      # provided by the user
+      sql = construct_finder_sql(options.dup.merge(
+              { :select => "`#{table_name}`.#{primary_key} AS id" })
+            )
+
+      # Get the results as an array of tiny hashes { "id" => "1" } 
+      # and flatten them out to just the ids
+      all_ids = connection.select_all(sql).map { |h| h['id'] }
+      at_a_time = 0..(per_page-1)
+ 
+      # chop apart the all_ids array a segment at a time
+      begin
+        ids = all_ids.slice!(at_a_time)
+        ids_cases = []
+        ids.each_with_index { |id, i| ids_cases << "WHEN #{id} THEN #{i}" }
+        ids_cases = ids_cases.join(' ')
+ 
+        # Do the deed on this page of results
+        find(:all, options.merge(
+          :conditions => [ "#{primary_key} IN (?)", ids ],
+          :order => "CASE id #{ids_cases} END"
+        )).each &block
+        
+      end until all_ids.empty?
+    end
+  end
+end
+
+{% endhighlight %}
+
+The above code works but today while browsing through the source code of beast I came across a better solution
+
+
+{% highlight ruby %}
+class << ActiveRecord::Base
+  def paginated_each(options = {}, &block)
+    page = 1
+    records = [nil]
+    until records.empty? do 
+      records = paginate(options.update(:page => page, :count => {:select => '*'}))
+      records.each &block
+      page += 1
+    end
+  end
+end
+{% endhighlight %}
+
+This one leverages will_paginate and works like charm.

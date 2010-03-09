@@ -1,0 +1,9 @@
+---
+layout: post
+title: Touching collections to invoke lazy-loading
+---
+<a target="_blank" href="http://jroller.com/page/raible?entry=touching_collections_to_invoke_lazy">Matt</a> blogged about a discussion on the spring forum about how to achieve the lazy-loading effect without using <a target="_blank" href="http://www.springframework.org/docs/api/org/springframework/orm/hibernate/support/OpenSessionInViewFilter.html">OpenSessionInViewFilter</a> or <a target="_blank" href="http://www.springframework.org/docs/api/org/springframework/orm/hibernate/support/OpenSessionInViewInterceptor.html">OpenSessionInViewInterceptor</a>. More about using these techniques could be found <a target="_blank" href="http://www.jroller.com/comments/kbaum/Weblog/orm_lazy_initialization_with_dao">here</a>.
+
+As per the <a target="_blank" href="http://forum.springframework.org/viewtopic.php?t=6435">discussion</a> it seems rather than opening a session at a filter level, one could use AOP and fetch the lazy objects when the lazy objects are actually needed by the client. I would love to have a feature like this. By using this mechanism the dependency on the web tier is removed.
+
+Currently my project uses OpenSessionInViewFilter pattern. It means the service provided by the filter is not available while writing Junit test cases. To overcome that issue I use the solution proposed <a target="_blank" href="http://www.jroller.com/comments/kbaum/Weblog/orm_lazy_initialization_with_dao">here</a>. With this new approach the lazy loading will not be an issue for junits and the applications will behave correctly. 

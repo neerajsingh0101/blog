@@ -1,0 +1,11 @@
+---
+layout: post
+title: Java/J2EE    getting too complicated
+---
+Java/J2EE is getting to complex to work with. That was the <a href="http://searchwebservices.techtarget.com/originalContent/0,289142,sid26_gci1198211,00.html">verdict</a> given by <a href="http://rmh.blogs.com/">Richard Monson-Haefel</a>.
+
+<blockquote>In five years, Java EE will be the CORBA of the 21st Century. People will look at it and say, 'It had its time but nobody uses it any more because it was too complicated</blockquote>
+
+You can find an interesting debate on this topic <a href="http://www.theserverside.com/news/thread.tss?thread_id=41283">here</a> at <a href="http://www.theserverside.com/">The Server Side</a>.
+
+I have another proof that it's getting complicated. <a href="http://raibledesigns.com/">Matt Raible</a> recently asked if there is way to get <a href="http://raibledesigns.com/page/rd?entry=sitemesh_works_with_jsf">JSF to work with sitemesh</a>. Functionalities provided by <a href="http://www.opensymphony.com/sitemesh/">sitemesh</a> are useful and that should be as easy as a-b-c with any good framework. The fact that a person like Matt has to ask indicates that there is something wrong in Java/J2EE world. 

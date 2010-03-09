@@ -1,0 +1,88 @@
+---
+layout: post
+title: God for restarting mongerl,apache,mysql, ferret_server
+---
+"God":http://god.rubyforge.org/ is really helpful for keeping an eye on the processes. Let's say that you want to restart your mongrel server if it starts taking more than 80MB memory. You also want to restart mongrel server when the cpu consumption is more than 30%. 
+
+And when the server is bounced, you definitely want to ensure that mongrel instances come up nicely. 
+
+In the current version of mongrel if the pid files are lying around then start command for mongerl will not work. There is a patch out there but I prefer to hand over all control to God. In this way all my confugurations are at one single place. In fact through capistrano when I invoke the restart command, I am actually asking for god to restart my mongerl servers. Except God no one is directly allowed to restart any of the mongrel instances. 
+
+I just need to ensure that God comes alive when the box is rebooted and apache, mysql, mongrel, druby etc come alive automatically in the right sequence. God allows you to customize the buffer time between each activities.
+
+Here is what the configuration file looks like for one of the apps.
+
+{% highlight ruby %}
+#
+#sudo god [start|stop|monitor|unmonitor] eii_staging
+#sudo god log eii_staging
+#
+%w{3031}.each do |port|
+  God.watch do |w|
+    app_name = 'eii_staging'
+    w.name = "#{app_name}"
+    app_root = APPS_ROOT + "#{app_name}/current"
+    w.uid = PROCESS_UID
+    w.gid = PROCESS_GID
+    w.interval = 30.seconds # default      
+    w.start = "mongrel_rails start -e staging -c #{app_root} -p #{port} -P #{app_root}/log/mongrel.#{port}.pid  -d"
+    w.stop = "mongrel_rails stop -P #{app_root}/log/mongrel.#{port}.pid"
+    w.start_grace = 3.seconds
+    w.stop_grace = 3.seconds
+    w.pid_file = File.join(app_root, "log/mongrel.#{port}.pid")
+    
+    w.behavior(:clean_pid_file)
+
+    w.start_if do |start|
+      start.condition(:process_running) do |c|
+        c.interval = 5.seconds
+        c.running = false
+      end
+    end
+
+    w.restart_if do |restart|
+      restart.condition(:memory_usage) do |c|
+        c.above = 95.megabytes
+        c.times = [3, 5] # 3 out of 5 intervals
+      end
+    
+      restart.condition(:cpu_usage) do |c|
+        c.above = 30.percent
+        c.times = 5
+      end
+    end
+    
+    # lifecycle
+    w.lifecycle do |on|
+      on.condition(:flapping) do |c|
+        c.to_state = [:start, :restart]
+        c.times = 5
+        c.within = 5.minute
+        c.transition = :unmonitored
+        c.retry_in = 10.minutes
+        c.retry_times = 5
+        c.retry_within = 2.hours
+      end
+    end
+  end
+end
+
+{% endhighlight %}
+
+
+In main configuration file (apps.god) this is what I have.
+
+{% highlight sh %}
+APPS_ROOT = "/home/neeraj/apps/"
+PROCESS_UID = 'mongerl'
+PROCESS_GID = 'mongrel'
+God.load '/home/neeraj/apps/eii_staging/current/config/app.god'
+{% endhighlight %}
+
+I have following entry in crontab.
+
+{% highlight sh %}
+@reboot god -c /home/neeraj/tools/apps.god
+{% endhighlight %}
+
+That's it. Now I don't need to worry about mongrel not starting because of pid files.

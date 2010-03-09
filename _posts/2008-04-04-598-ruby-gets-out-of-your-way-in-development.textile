@@ -1,0 +1,92 @@
+---
+layout: post
+title: Ruby gets out of your way in development
+---
+RoR is catching up in the market. More and more jobs are available. When people ask me why  RoR is better for web development compared to Java, I say RoR helps "increase productivity":http://pivots.pivotallabs.com/users/chris/blog/articles/422-why-rails-will-reign-supreme-revisited . That's it.
+
+If you are new to RoR world then here is a good example of why Ruby is such a powerful language. There are many examples but I came across "this one":http://www.ruby-forum.com/topic/148494#new while browsing the "Ruby mailing list":http://www.ruby-forum.com/forum/4 . Do not worry about if this if the strategy itself is good or not. That is discussed in the end too. If we must implement as the user wants then how Ruby will help us over other languages is the focus.
+
+Simply stated the user wants this.
+
+{% highlight ruby %}
+# create a hash with following three keys
+  1..10 => 'low',
+  21..30 => 'medium',
+  41..50 => 'high'
+
+and then retrieve the value from hash something like this
+h[22] = 'medium'
+{% endhighlight %}
+
+Let's see the first attempt.
+
+{% highlight ruby %}
+ h = {
+  1..10 => 'low',
+  21..30 => 'medium',
+  41..50 => 'high'
+}
+
+h[22] 
+# result is nil. This is because 21..30 is a range object and this range object is not the same as 22( an integer).
+{% endhighlight %}
+
+Let's try to solve another way. This time we will create a single record in the hash for each value in the range.
+
+{% highlight ruby %}
+a = [1..10 => 'low',  range2 = 21..30 => 'medium',   range3 = 41..50 => 'high']
+h = {}
+a.each { |r| r.each {|key,value| key.each {|v| h.merge!({v,value})}}}
+h[22] # medium
+{% endhighlight %}
+
+This works but we have put in one record for each range. If the range is from 1 to 10,000 then we will have 10,000 entries in the hash. Not good.
+
+Let's try another way.
+
+{% highlight ruby %}
+class RangeHash
+	def initialize(hash)
+		@hash = hash
+	end
+	
+	def [](input)
+		@hash.each do |key,value|
+			return value if key.include? input
+		end
+		nil
+	end
+end
+
+ h = {
+  1..10 => 'low',
+  21..30 => 'medium',
+  41..50 => 'high'
+}
+
+rh = RangeHash.new(h)
+rh[22] # medium
+{% endhighlight %}
+
+Above strategy works. In the above case a hash is created and in that hash only three records are there. Upon inspection the range is checked to see if the input value falls within the range or not. This approach is much faster and better compared to approach 2.
+
+It's not that this approach can't be implemented in Java. The key thing is that this approach is more natural in Ruby and less common in Java.  It might seem like a minor issue but it's a big deal. There is nothing  that RoR does that can't be done in Java. After all so many web applications are running on Java/J2EE. The question is which one will produce code that is easier to maintain, easier to read, easier to test, easier to adapt and easier for developers to try new things.
+
+If you read the thread then you would also see a clever use of eval method.
+
+Let's say that you have a large number of such ranges and they are all there in a file in this format.
+
+{% highlight ruby %}
+1..10 => 'low',  21..30 => 'medium',  41..50 => 'high'
+{% endhighlight %}
+
+The goal is to read the file and convert it into a hash. Read the whole file into a big string. And then run eval on it.
+
+{% highlight ruby %}
+  str = "1..10 => 'low',  21..30 => 'medium',  41..50 => 'high'"
+  h=eval("{"+str+"}")
+  puts h.inspect # {41..50=>"high", 1..10=>"low", 21..30=>"medium"}
+  puts h.class.to_s # Hash
+{% endhighlight %}
+
+As I said. Ruby gets out of your way. Performing eval could be dangerous but at least you have this tool in your arsenal.

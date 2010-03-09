@@ -1,0 +1,122 @@
+---
+layout: post
+title: Code works in development but not in production - I
+---
+You might have encountered such cases. Your code works fine on your machine but not when it is deployed to staging or production. There could be various reasons for this discrepancy in behavior. Today I am going to discuss one. A friend of mine asked me to debug his issue and the result is this blog.
+
+I have tried to trim down the problem to the simplest level so that we could discuss the real issue without getting bogged down with the business requirement. Here is the code. 
+
+{% highlight ruby %}
+# ~/app/models/vehicle.rb
+class Vehicle 
+  def self.color
+    @@color
+  end
+  def self.color=(input)
+    @@color = input
+  end
+end
+
+# ~/app/models/car.rb
+class Car < Vehicle
+end
+Car.color = 'blue'
+
+# ~/apps/models/truck.rb
+class Truck < Vehicle
+end
+Truck.color = 'black'
+
+# home_controller.rb
+class HomeController < ApplicationController
+  def index
+  end
+  def show_car_color
+    render :text => "color of car is #{Car.color}"
+  end
+  def show_truck_color
+    render :text => "color of truck is #{Truck.color}"
+  end
+end
+
+# ~/app/views/home/index.html.erb
+<%= link_to 'show car color', :action => 'show_car_color' %> <br />
+<%= link_to 'show truck color', :action => 'show_truck_color' %>
+{% endhighlight %}
+
+Execute the above code in development environment. Every single time you click on 'show car color', you will get blue. And every single time you click on 'show truck color', you will get black. Everything looks good. You check in your code and the code is migrated to production.
+
+In the production environment, whether you click on car or truck you will see color 'black'.
+
+*Why?*
+
+To get the answer to the question we need to see what is going on here. In the model <tt>car.rb</tt>, color is being set by calling <tt>Car.color = 'blue'</tt> . The variable color is declared as a class variable and it is important to understand how class variables work in ruby.
+
+class variables in ruby are shared with sub classes. It means one subclass can change the value of the class variable and the other subclass will see the changed value. This not good but it is what it is and this causes quit a bit of problem. Check the following test case.
+
+{% highlight ruby %}
+class Parent
+  def self.toy
+    @@toy
+  end
+  def self.toy=(input)
+    @@toy=input
+  end
+end
+
+class Son < Parent
+end
+
+class Daughter < Parent
+end
+
+> Son.toy='truck'
+=> "truck"
+> Daughter.toy='doll'
+=> "doll"
+> Son.toy
+=> "doll"
+{% endhighlight %}
+
+
+Notice that in the above case changing the value of toy for Daughter changes the value of toy for Son.
+
+In production environment classes are not reloaded. Once <tt>car.rb</tt> is loaded then the value of class variable is 'blue'. However when <tt>truck.rb</tt> is loaded then the value of class variable is changed from 'blue' to 'black'. And that's why the color of car is seen as 'black' in production.
+
+In development this is not a problem because Rails does auto loading of constants every single time. And Rails loads only the missing constants. So every single time <tt>Car.color</tt> is accessed in development then Rails loads <tt>car.rb</tt> fresh and since Rails loads it every single time for car.rb and truck.rb , both of them work fine. In production once car.rb and truck.rb are loaded then there is no re-loading and that causes the problem.
+
+*What is the fix?*
+
+ActiveSupport provides <tt>class_inheritable_accesso</tt> and that fixes some of the issues with the way ruby handles class varialbes.  Checkout the following test case.
+
+{% highlight ruby %}
+class Parent
+  class_inheritable_accessor :toy
+end
+
+class Son < Parent
+end
+
+class Daughter < Parent
+end
+
+>> Son.toy = 'truck'
+=> "truck"
+>> Daughter.toy='doll'
+=> "doll"
+>> Son.toy
+=> "truck"
+
+{% endhighlight %}
+
+In this case changing the toy for daughter does not affect the toy value for son.
+
+So to fix the original problem the vehicle needs to be declared like this.
+
+{% highlight ruby %}
+class Vehicle 
+  class_inheritable_accessor :color
+end
+{% endhighlight %}
+
+I hope this article provides a somewhat real example of a case where something works in development but fails in production. <br />

@@ -1,0 +1,195 @@
+---
+layout: post
+title: Understanding bind and bindAsEventListener in Javascript
+---
+This is the part I of the article about bind and bindAsEventListener. In this article we are going to see why we need bind and how it solves the problem. In <a href="http://neeraj.name/2007/08/21/understanding-bind-and-bindaseventlistener-in-javascript-part-ii/">part II of the article </a>we will see what's the difference between bind and bindAsEventListener.
+
+<em>As of this writing Prototype 1.5.0 is the latest stable release and that's what I am using.</em>
+
+Before we jump deep into how bind works first let's see why we need to use 'bind' in the first place. Given below is a case where we will run into a legitimate problem. Then we will try to solve the problem by using 'bind' and hopefully in the process we will understand what 'bind' is all about. 
+
+All the code discussed in the blog is provided at the end as a download. So if you want to play along or try out any new scenario then you can download the source code.
+
+Let's look at this code.
+{% highlight sh %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE> Learning Javascript </TITLE></HEAD>
+
+<BODY>
+<script type = 'text/javascript'>
+
+	function quiz(question,answer){
+		this.the_answer = answer;
+		this.the_question = question;
+		this.ask = function() {
+			alert(this.the_question);
+			alert(this.the_answer);
+		}
+	}
+
+	function test_quiz(){
+		var school_quiz = new quiz("How many states are there in USA?",50);
+		school_quiz.ask();
+	}
+	window.onload = test_quiz;
+</script>
+Just testing quiz. No event handling in this case.
+</BODY>
+</HTML>
+
+{% endhighlight %}
+
+When we run the above code, we get two pop ups: one with the question and the other one with the answer. 
+
+Now let's look at the second code. In this case we will attach an event to a button. When the button is clicked then the two popups should come up. Note that in this case the  'function quiz' is left as it is.
+
+{% highlight sh %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE> Learning Javascript </TITLE></HEAD><BODY>
+<script type = 'text/javascript'>
+	function quiz(question,answer){
+		this.the_answer = answer;
+		this.the_question = question;
+		this.ask = function() {
+			alert(this.the_question);
+			alert(this.the_answer);
+		}
+	}
+	function addhandler(){
+		var school_quiz = new quiz("How many states are there in USA?",50);
+		the_button = document.getElementById('thebutton');
+		the_button.onclick = school_quiz.ask;
+	}
+
+	window.onload = addhandler;
+</script>
+<button id='thebutton'> Click me!</button>
+</BODY>
+</HTML>
+
+{% endhighlight %}
+
+When the above code is executed then we get two popups. However the content of both the popups is 'undefined'. We didn't touch the function quiz then how come we are not getting the right result this time.
+
+This illustrates the problem. Once again the problem is that the same function works on one case but not in the other. Hopefully the problem is clear to everyone now.
+
+Now let's look into the code to find out why the code is working in the first case but not in the second case.
+
+Inside the function 'quiz' we are using 'this'. As we know 'this' at any point of time refers the context under which the code is being executed. In the first case we created a new quiz object called 'school_quiz'. So when the code was running in the first case 'this' referred to 'school_quiz' object.
+
+
+Understanding 'this' could be tricky sometimes. Here I am going to provide another example which will help understand what this is about. We are leaving this school_quiz example for a while. Let's see this code.
+
+{% highlight js %}
+var boy = { gender:"boy", city:"Seattle"};
+
+var girl = { gender:"girl", city:"Miami",
+             ask: function(){
+                return "I am a " + this.gender + ' and I live in ' + this.city;
+	     }
+};
+
+
+alert(girl.ask()); /* Result: I am a girl and I live in Miami */
+
+alert(girl.ask.call(boy));  /* Result: I am a boy and I live in Seattle */
+{% endhighlight %}
+
+In the above code this.gender shows  the gender. As the above example illustrates this means the context in which the object is evaluated. If you have not encountered a 'call' method then call is a method that is invoked on another method and you can pass an object which should be used as the 'context' using which 'this' should be evaluated inside the function. Now let's get back to the original school_quiz example.
+
+However in the second case we are using event handler. In this case this refers to the DOM element that generated the event. And we know that the DOM object doesn't have any variable called 'question' or 'answer' and hence we got undefined message.
+
+In order to fully understand the above statement let's do a small test to find out what 'this' means. 
+
+First rule is that If 'this' is not referring to anything specific then by default it refers to 'window' object. Let's test this rule.
+
+{% highlight sh %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE> Learning Javascript </TITLE>
+</HEAD>
+<BODY>
+<script type = 'text/javascript'>
+	function click_handler(){
+		alert(this) //alerts the window object
+	}
+</script>
+<button id='thebutton' onclick='click_handler()'> Click me!</button>
+</BODY>
+</HTML>
+{% endhighlight %}
+
+Result is 'Object Window'. Now try this.
+
+{% highlight sh %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE> Learning Javascript </TITLE></HEAD>
+<BODY>
+<script type = 'text/javascript'>
+	function click_handler(){
+		alert(this); //alerts the button DOM node
+	}
+	function addhandler(){
+		document.getElementById('thebutton').onclick = click_handler;
+	}
+
+	window.onload = addhandler;
+</script>
+<button id='thebutton'> Click me!</button>
+</BODY>
+</HTML>
+{% endhighlight %}
+
+Result is 'Object HTMLButtonElement'.
+
+It is clear that when event handler is used then inside the function 'this' refers to the object that generated the event. So now we know why we are getting 'undefined' message. We are getting the 'undefined' messages because when the function quiz is executed then inside the function this refers to HTMLButtonElement. Obviously this DOM element doesn't  have attributes called 'question' and 'answer' and we end up getting 'undefined' messages.
+
+In order to solve the problem we need to tell the event handler that when it is calling the function 'quiz' it should pass the context of the 'school_quiz' object that was created. The problem is how to tell the event handler to call  the function quiz and to tell the function quiz that it should evaluate itself in the context of the object 'school_quiz' and not to use the context of the DOM object that generated the event.
+
+This is where bind comes to rescue. To the best of my knowledge bind is not  a reserved word or is not a Javascript method. bind is purely a method name given in <a href="http://www.prototypejs.org/">Prototype framework</a>. It means you must use prototype framework if you want to solve the above problem using bind function. There are other alternative methods available but here I am only going to discuss  how this problem is solved using prototype framework. 
+
+Here is the code that solves the problem.
+
+{% highlight sh %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE> Learning Javascript </TITLE>
+<script src="./prototype.js"></script>
+</HEAD>
+<BODY>
+<script type = 'text/javascript'>
+	function quiz(question,answer){
+		this.the_answer = answer;
+		this.the_question = question;
+		this.ask = function() {
+			alert(this.the_question);
+			alert(this.the_answer);
+		}
+	}
+
+	function addhandler(){
+		var school_quiz = new quiz("How many states are there in USA?",50);
+		the_button = document.getElementById('thebutton');
+		the_button.onclick = school_quiz.ask.bind(school_quiz);
+	}
+	window.onload = addhandler;
+</script>
+<button id='thebutton'> Click me!</button>
+</BODY>
+</HTML>
+{% endhighlight %}
+
+Now if we click the button we get two popups: one with the question and one with the answer. The only changed line is <code>the_button.onclick = school_quiz.ask.bind(school_quiz);</code> . Also note that I included prototype.js javascript library at the top.
+
+In <a href="http://neeraj.name/2007/08/21/understanding-bind-and-bindaseventlistener-in-javascript-part-ii/">part II of the article</a> we will see how bind and bindAsEventListener differ.
+
+<strong>Resources:</strong>
+<ul>
+	<li> <a href="http://www.digital-web.com/articles/scope_in_javascript/">Scope in Javascript</a>: This blog is 100% inspired by this article. </li>
+	<li><a href="http://encytemedia.com/blog/articles/2007/7/18/javascript-scope-and-binding">Understanding scope and binding in Javascript</a></li>
+<li>"Source code":http://eventsrange.com/assets/2007/12/14/javascript_bind.zip
+</li>
+
+</ul>

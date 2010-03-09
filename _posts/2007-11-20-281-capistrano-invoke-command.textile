@@ -1,0 +1,15 @@
+---
+layout: post
+title: Capistrano invoke command
+---
+I find capistrano invoke command a bit confusing. This post is for my reference so that I can turn to it when I need it.
+
+I have a rake command "rake db:sync" which copies the production data to the staging database. This helps me troubleshoot the production problem on the staging environment without disturbing the production database. After migrating a new code  base to test , I often need to get the data from the production to the staging environment.
+
+With the help of capistrano the code to execute will be
+
+{% highlight sh %}
+cap staging COMMAND="cd /home/neeraj/apps/eii_test/current && /usr/local/bin/rake db:sync" invoke
+{% endhighlight %}
+
+Yes it's clumsy on many fronts.I need to provide the absolute path to my app, absolute path to rake and then there is invoke command in the end.

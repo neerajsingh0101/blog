@@ -1,0 +1,29 @@
+---
+layout: post
+title: How to find all the associations on a model
+---
+I have a Person model and this model has a bunch of associations. It has some has_many and some belongs_to association. I need to find the list of all has_many and belongs_to associations.  Try this.
+
+{% highlight ruby %}
+>>Person.reflections.each {|k,v| pp v.macro.to_s + ' ' + v.name.to_s };nil
+"has_many tags"
+"has_many my_projects_including_default_project"
+"belongs_to photo"
+"has_many email_messages"
+"has_many project_memberships"
+"has_many form_responses"
+"has_many activities"
+"has_one preferences"
+"has_many custom_field_responses"
+"has_many organizations"
+"has_many activity_executions"
+"has_many project_events"
+"has_many my_projects"
+"has_many roles"
+"has_many organizational_memberships"
+"has_many projects"
+{% endhighlight %}
+
+Note that I have ;nil in the end in script/console. If I don't add nil statement then after the output the whole Person.reflections hash will be printed and you would be wondering where did my output go. 
+
+ActiveRecord stores all the association information in ActiveRecord::Reflection::AssociationReflection class. One can interrogate this class to find out more information about the association.

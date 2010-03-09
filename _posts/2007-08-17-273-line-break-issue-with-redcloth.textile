@@ -1,0 +1,117 @@
+---
+layout: post
+title: Line break issue with RedCloth
+---
+If you are using RedCloth then you might encounter this line break issue. Yes that's right. You may or may not encounter this issue. First check the version of RedCloth you are using. If you are using RedCloth-3.0.4 ( the most stable version as I am writing this blog) then you will encounter this issue.
+
+{% highlight sh %}
+I love Ruby.
+I love Rails.
+
+
+I love RubyOnRails.
+I am a developer.
+{% endhighlight %}
+
+Note that there are two line breaks ( I hit enter twice) after the "I love Rails" sentence. I got following result with this piece of code <code>RedCloth.new(input_text).to_html</code>
+
+{% highlight sh %}
+<p>I love Ruby.
+I love Rails.</p>
+
+<p>I love RubyOnRails.
+I am a developer.</p>    
+{% endhighlight %}
+
+If you want hard line break then you could change the code to <code>RedCloth.new(input_text,[:hard_breaks]).to_html</code> . The new result will be 
+
+{% highlight sh %}
+<p>
+I love Ruby.<br />
+I love Rails.<br />
+I love RubyOnRails.<br />
+I am a developer.
+</p>
+{% endhighlight %}
+
+This is not what I wanted. What I wanted was this.
+
+{% highlight sh %}
+<p>
+I love Ruby.<br />
+I love Rails.
+</p>
+
+<p>
+I love RubyOnRails.<br />
+I am a developer.
+</p>
+{% endhighlight %}
+
+In order to get what I want, I need to get rid of RedCloth-3.0.4 and I need to use RedCloth-3.0.3.
+
+On my machine RedCloth is installed as a gem. It means that when I deploy my application with the hosting provider then I don't know what version of RedCloth the hosting provider is running. To remove this uncertainity the best strategy will be to package the code for RedCloth in the application itself.
+
+This is what I did.
+
+{% highlight sh %}
+gem uninstall RedCloth --version "3.0.4" 
+gem install RedCloth --version "3.0.3" 
+
+#get to the root of your application
+cd vendor
+gem unpack RedCloth
+
+{% endhighlight %}
+
+Now under vendor directory you will have a new directory called RedCloth-3.0.3 . Now we need to tell the application to get RedCloth from this new location. I added following line in config/environment.rb
+
+{% highlight sh %}
+require "#{File.expand_path(RAILS_ROOT)}/vendor/RedCloth-3.0.3/lib/redcloth.rb"
+{% endhighlight %}
+
+Now if the input is 
+
+{% highlight sh %}
+I love Ruby.
+I love Rails.
+
+
+I love RubyOnRails.
+I am a developer.
+{% endhighlight %}
+
+then you can get following output with this code <code>RedCloth.new(input_text).to_html</code>
+
+{% highlight sh %}
+<p>
+I love Ruby.<br />
+I love Rails.
+</p>
+
+<p>
+I love RubyOnRails.<br />
+I am a developer.
+</p>
+{% endhighlight %}
+
+The above solution will work but whenever you start your server you will get message like this.
+
+{% highlight sh %}
+   warning: already initialized constant VERSION
+~/RedCloth-3.0.3/lib/redcloth.rb:170: warning: already initialized constant DEFAULT_RULES
+~/RedCloth-3.0.3/lib/redcloth.rb:311: warning: already initialized constant TEXTILE_TAGS
+~/RedCloth-3.0.3/lib/redcloth.rb:324: warning: already initialized constant A_HLGN
+~/RedCloth-3.0.3/lib/redcloth.rb:325: warning: already initialized constant A_VLGN
+{% endhighlight %}
+
+These are all warnings and they can be ignored but let's fix it. Wrap the code we put in environment.rb in the following manner.
+
+{% highlight ruby %}
+  silence_warnings do
+    require "#{File.expand_path(RAILS_ROOT)}/vendor/RedCloth-3.0.3/lib/redcloth.rb"
+  end
+{% endhighlight %}
+
+
+Happy RedClothing.

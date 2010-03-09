@@ -1,0 +1,74 @@
+---
+layout: post
+title: Lessons from writing my own blogging engine roll_my_blog
+---
+Sometime last week I switched my blog engine from Mephisto to "roll_my_blog":http://github.com/neerajdotname/roll_my_blog/tree/master , a lightweight blogging engine that I wrote. roll_my_blog is open source and it is hosted at github.
+
+Some of the things I learned while writing this blogging engine are:
+
+h2. Page caching is powerful 
+
+A blog is mostly read only application. So it is important that as much page is cached as possible. We all know that if a page is fully cached and is stored in public directory then apache will serve that file and will not forward the request to the rails application server.
+
+This blog caches all the page. For example this page you are reading is served by apache and not by mod_rails. In fact in this blog everything is cached and the only thing that is served by rails is when you do a search. Even RSS feeds are cached.
+
+I am using will_paginate plugin to paginate through the pages. will_paginate by default creates urls like http://neeraj.name/blog/articles?page=3 . These kinds of urls can't be cached by apache. In order for the page caching to work the url should be like 
+http://neeraj.name/blog/articles/page/3 . And this is how it was done.
+
+{% highlight ruby %}
+map.article_pages '/blog/articles/page/:page', :controller => 'articles', :action => 'index'  
+map.resources :articles,:path_prefix => '/blog'                
+{% endhighlight %}
+
+How exactly the caching and sweeper was implemented is super easy. Just look at the code and you will understand.
+
+
+h2. How to make cached pages dynamic
+
+Since a cached page is served to everyone no matter what, how do I see edit link if I own the blog. This is a tricky part. What we want is to cache the whole page still show different pages for different users. For example if I am logged in then I see an edit link next to an article.
+
+How is that done?
+
+If you look at the source code of the html page you would see something like this.
+
+{% highlight sh %}
+<script type="text/javascript">
+//<![CDATA[
+  
+    new Ajax.Request("/admin/article_edit/740-using-helpers-in-controllers", { method:'get'});  
+    
+//]]>
+
+</script>  
+<div id="admin_article_edit"></div>
+{% endhighlight %}
+
+What it means is that every single time this page is loaded an ajax request is sent to the application. On the server side I test if the person is logged_in or not. If the person is logged_in then I display edit link.
+
+Here is the code that generates the javascript.
+
+{% highlight sh %}
+<% javascript_tag do -%>  
+new Ajax.Request("<%= url_for :controller => 'admin', :action => 'article_edit', :id => @article %>", { method:'get'});  
+<% end -%>  
+<div id="admin_article_edit"></div>
+
+# admin_controller.rb
+def article_edit
+  @article = Article.find(params[:id])
+  render
+end
+
+# article_edit.rjs
+if logged_in?
+  page.replace_html 'admin_article_edit', :partial => 'shared/admin_article_edit'
+else
+  page.replace_html 'admin_article_edit', ''
+end
+
+
+# shared/_admin_article_edit.html.erb
+<%= link_to 'Edit', edit_article_path(@article) %>
+{% endhighlight %}
+
+As you can see there is little bit of work involved in making a cached page dynamic. It also means that for each show request an ajax request is handled by the application server. Still caching is a useful tool.

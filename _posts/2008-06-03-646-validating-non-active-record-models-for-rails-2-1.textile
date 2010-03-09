@@ -1,0 +1,71 @@
+---
+layout: post
+title: Validating non active record models for rails 2.1
+---
+*Update (June 30, 2009)*: The proposed solution has been converted into a gem. "Read more about the gem here":http://www.neeraj.name/blog/articles/851-validating-non-active-record-model-using-active_record_no_table .
+
+*Update*: <i>The proposed solution does not work with Rails 2.2 . Please "click here":http://www.neeraj.name/blog/articles/810-validating-non-activerecord-models-in-rails-2-2 to see the solution for Rails 2.2 .</i>
+
+I recently "posted":http://www.neeraj.name/blog/articles/639-validating-non-active-record-models about how to use non active record models in rails 2.0 . However the strategy needs a little tweak because of ActiveRecord changes in Rails 2.1 .
+
+Follow the previous article and replace this 
+
+{% highlight ruby %}
+module Validateable
+
+  [:save, :save!, :update_attribute].each{|attr| define_method(attr){}}
+  
+  def method_missing(symbol, *params)
+    if(symbol.to_s =~ /(.*)_before_type_cast$/)
+      send($1)
+    end
+  end
+
+  def self.append_features(base)
+    super
+    base.send(:include, ActiveRecord::Validations)
+    base.extend ClassMethods
+  end
+
+  module ClassMethods
+    def human_attribute_name(attr)
+        attr.humanize
+    end
+  end
+
+end
+{% endhighlight %}
+
+by
+
+{% highlight ruby %}
+module Validateable
+
+  [:save, :save!, :update_attribute].each{|attr| define_method(attr){}}
+  
+  def method_missing(symbol, *params)
+    if(symbol.to_s =~ /(.*)_before_type_cast$/)
+      send($1)
+    end
+  end
+
+  def self.append_features(base)
+    super
+    base.send(:include, ActiveRecord::Validations)
+    base.extend ClassMethods
+
+    base.send :include, ActiveSupport::Callbacks
+    base.define_callbacks *ActiveRecord::Validations::VALIDATIONS
+
+  end
+
+  module ClassMethods
+    def human_attribute_name(attr)
+        attr.humanize
+    end
+  end
+
+end
+{% endhighlight %}
+
+That's it. With this change follow "this article":http://www.neeraj.name/blog/articles/639 and things will work fine with Rails 2.1.

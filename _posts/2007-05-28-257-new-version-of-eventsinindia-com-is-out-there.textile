@@ -1,0 +1,87 @@
+---
+layout: post
+title: New version of EventsInIndia.com is out there
+---
+Today I put in production newer version of EventsInIndia.com. Followings are some of the changes included in this version.
+
+<ul>
+
+<li>
+ You must be logged in to post an event. Anonymous posting of events is disabled.
+</li>
+
+<li>
+ You must be logged in to post a comment.
+</li>
+
+<li>
+ <a href="http://eventsinindia.com/ievents/list?type=up&cid=18">Events list</a> has a calendar now. Now it is easy to find out what all events are happening on any particular date. It is helpful to our EventsInIndia team members since it can be used to find out if an event is already posted or not.
+</li>
+
+<li>
+ Events list now contains much bigger pictures. Pictures of events list will be of size 150x150.
+</li>
+
+<li>
+ The main section of home page has been divided in two sections. The list of upcoming events also have 100x100 pictures.
+</li>
+
+
+<li>
+ The bottom section of home page has been rearranged. The 'Recent comments' column has been moved to leftmost. The right most column is of newly registered users.
+</li>
+
+
+
+<li>
+ Adding an event used to take four pages. Now it's being done in two pages only.
+</li>
+
+<li>
+ To format event description I use <a href="http://whytheluckystiff.net/ruby/redcloth/">Redcloth</a>. It is always a challenge to how to present the formatting tips to the users. Previously I used to have formatting tips that was full of text. Since then I found about <a href="http://slateinfo.blogs.wvu.edu/plugins/textile_editor_helper">TEH</a> editor. Now one can format event description using visual clues provided by the editor.
+</li>
+
+<li>
+ Search result used to work okay but there was no way to hide events that have already occurred. Now <a href="http://eventsinindia.com/search/search?term=fashion&csid=0">search result </a> provides a check box to hide 'past events'.
+</li>
+
+<li>
+Search result by default is ordered by relevance. But it can be sorted by 'events start date' by using the new feature added in this release.
+</li>
+
+<li>
+ While registering for an event, an 'agree to terms and conditions' checkbox appears that must be checked in order to register to the site.
+</li>
+
+
+<li>
+ Previously search result used to based on http POST request. It means you can't email to anyone your search result since the top website URL never used to change. Now that has been rectified. For example if you search for 'fashion' you can email the search result as a link http://eventsinindia.com/search/search?term=fashion&csid=0
+</li>
+
+
+<li>The images listed in people tab is much bigger than it used to be.
+</li>
+
+<li>
+Help used to be at the top next to 'contact us'. It has been moved to the footer.
+</li>
+
+<li>
+At the footer next to 'help' there is 'invite friends' link. This link is to let your friends know about the site. 
+</li>
+
+
+<li>
+In the previous version I was using <a href="http://agilewebdevelopment.com/plugins/fleximage">Flex Image plugin</a> to upload images. Although it worked I wasn't very happy with it. In this version I am using <a href="http://clarkware.com/cgi/blosxom/2007/02/24">attachment_fu</a> by <a href="http://techno-weenie.net/">Rick Olson</a>. It looks more solid. Let's see how it behaves.
+</li>
+
+
+<li>
+ I am really really happy about this one. In the previous release I had 9267 lines of code. This version has 4889 lines of Ruby and Rails code.  It means I was able to reduce the total lines of code to almost half and still manage to add some cool new functionalities. This will also help me create new functionalities faster since I will be carrying lesser amount of code.
+</li>
+
+
+
+</ul>
+
+ 

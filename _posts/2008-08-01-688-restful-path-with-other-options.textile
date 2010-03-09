@@ -1,0 +1,19 @@
+---
+layout: post
+title: restful path with other options
+---
+Let's say that I have a restful resource called cities. I want to create a link to a city using restful style. I also want to add additional param[:type]='upcomig' and I want to pass html option 'target' => '_blank'.
+
+Try to spot the right one here. I do not know why it took me a while to get the right syntax.
+
+{% highlight ruby %}
+link_to 'Bangalore', city_path(@city),:type => 'up' , {:target => '_blank'} 
+
+link_to 'Bangalore',  { city_path(@city,:type => 'up') } , {:target => '_blank'} 
+
+link_to 'Bangalore', city_path(@city,:type => 'up') , {:target => '_blank'} 
+
+link_to 'Bangalore', city_path(@city), {:type => 'up'} , {:target => '_blank'} 
+{% endhighlight %}
+
+The right answer is third one.

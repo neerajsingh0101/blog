@@ -1,0 +1,40 @@
+---
+layout: post
+title: Model name as a variable
+---
+The following operation is simple enough.
+
+{% highlight ruby %}
+User.find(:first).name
+{% endhighlight %}
+
+However it gets tricky if the model name is not known before hand. Let's take the case that we are getting the model name as a  variable. The variable has value "user".
+
+{% highlight ruby %}
+>> t1  = "user"
+=> "user"
+>> include ActionView::Helpers::TagHelper
+=> Object
+>> t2 = t1.camelize
+=> "User"
+>> t3 = t2.constantize
+=> User
+>> t3.find(:first).name
+=> "Anonymous"
+{% endhighlight %}
+
+As per the documentation: Constantize tries to find a declared constant with the name specified in the string. It raises a NameError when the name is not in CamelCase or is not initialized.
+
+[Update}
+Found another way of getting the same result using <a href="http://www.ruby-doc.org/core/classes/Module.html#M001712">const_get</a> method.
+
+{% highlight ruby %}
+>> t1 = "user"
+=> "user"
+>> t2 = t1.camelize
+=> "User"
+>> t3 = Object.const_get(t2)
+=> User
+>> t3.find(:first)
+=> #<User:0x45e39b4 
+{% endhighlight %}

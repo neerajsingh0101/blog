@@ -1,0 +1,24 @@
+---
+layout: post
+title: Capistrano provides .caprc ; something similar to .irbrc and .railsrc
+---
+I use roll_my_blog, a blogging engine that I developed, to power this blog. It means I use the exact same code that is available for public to view as open source, to run my blog.
+
+One of the things I wanted to hide was the user name which I use to log into my slice to deploy the application. The deploy.rb file had following code.
+
+{% highlight sh %}
+set :user, 'my_real_user_name'
+{% endhighlight %}
+
+I wanted to hide my real user name that I use to log into the box. But at the same time I wanted to run the exact copy that is released to public as open source.
+
+.caprc file came to rescue. It's simple. I created a ~/.caprc file on my mac. This is what the content of the file looks like.
+
+{% highlight sh %}
+> cat ~/.caprc
+set :user, 'my_real_user_name'
+{% endhighlight %}
+
+Now my real user name that I use to login to the box is hidden from general public.
+
+You can find out more information about .caprc file "here":http://justinmaccarthy.org/?p=103 .

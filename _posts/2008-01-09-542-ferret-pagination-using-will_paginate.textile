@@ -1,0 +1,41 @@
+---
+layout: post
+title: ferret pagination using will_paginate
+---
+In Rails2.0 paginator has been removed and we should use "will_paginate":http://errtheblog.com/posts/56-im-paginating-again . This broke my search result when I migrated to Rails 2.0. The fix is simple.
+
+Create an new file called ferret_will_paginater.rb under config/initializers.
+
+{% highlight ruby %}
+module ActsAsFerret
+  module ClassMethods
+    def paginate_search(query, options = {})
+      options, page, per_page = wp_parse_options(options)
+      offset = (page.to_i - 1) * per_page
+      options.merge!(:offset => offset, :limit => per_page)
+      result = result = find_by_contents(query, options)
+      returning WillPaginate::Collection.new(page, per_page, result.total_hits) do |pager|
+        pager.replace result
+      end
+    end
+  end
+end
+{% endhighlight %}
+
+In the controller the code is
+
+{% highlight ruby %}
+@events = Event.paginate_search ferret_query, :page => params[:page], 
+          :per_page => 20      
+{% endhighlight %}
+
+In the view
+
+{% highlight ruby %}
+Total number of records: <%= @events.total_entries %>
+<% @events.each do |event| %>
+   <%= event.name %>
+<% end %>
+{% endhighlight %}
+
+Majority of the code is picked from "here":http://opensoul.org/2007/8/17/acts_as_ferret-will_paginate . Slight changes have been made.

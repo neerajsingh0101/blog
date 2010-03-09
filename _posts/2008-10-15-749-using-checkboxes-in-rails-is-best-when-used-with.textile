@@ -1,0 +1,61 @@
+---
+layout: post
+title: Using checkboxes in Rails is best when used with []
+---
+Let's say that you have a model called Task. The status of the task is boolean. Creating a list of tasks with a checkbox next to it should be an easy task.
+
+However this task could get really complicated if you are not using the full power of rails.
+
+Look at "this wiki":http://wiki.rubyonrails.org/rails/pages/HowToUseCheckBoxes to see how painful it could be. However at the bottom of the article there is additional trick. Just use the [] next to the name and the problem will be a lot easier.
+
+Here is how the code will look like.
+
+{% highlight ruby %}
+#migration
+class CreateTodos < ActiveRecord::Migration
+  def self.up
+    create_table :todos do |t|
+      t.string :name
+      t.boolean :status, :default => false
+    end
+  end
+
+  def self.down
+    drop_table :todos
+  end
+end
+
+
+# todo_controller.rb
+class TodoController < ApplicationController
+  def index
+    render
+  end
+  def handle
+    params[:todo].each do |k,v|
+      todo = Todo.find(k)
+      todo.update_attributes(:status => v[:status])
+    end
+    redirect_to :action => 'index'
+  end
+end
+
+# index.html.erb
+<% form_tag '/todo/handle' do %>
+  
+ <h1>Not Done</h1>
+ <% Todo.find(:all, :conditions => ["status=?",false]).each do |todo|      
+    @todo = todo
+ %>
+ <p><%= check_box('todo[]',:status) %> <%= todo.name %></p>
+ <% end %>
+
+ <h1>Done</h1>
+ <% Todo.find(:all, :conditions => ["status=?",true]).each do |todo| 
+    @todo = todo
+ %>
+ <p><%= check_box('todo[]',:status) %> <%= todo.name %></p>
+ <% end %>
+ <%= submit_tag %>
+<% end %>
+{% endhighlight %}

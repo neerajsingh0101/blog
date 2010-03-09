@@ -1,0 +1,14 @@
+---
+layout: post
+title: Autoloading changes for a Class in lib directory
+---
+Rails auto loads all the changes in development mode. However Rails leaves out any changes made to the code in lib directory or in plugins directory. This could be mildly annoying in cases where you are making changes to a file that resides in lib directory. After every single change you need to kill the server and restart it.
+
+I took a peek inside the Rails code to just know enough to overcome this problem. In my lib directory I have a class called 'Notification' which is used by the application. Here is the code I put in my environment.rb to ensure that the changes made to 'Notification' class is auto loaded in development mode.
+
+{% highlight ruby %}
+# auto load changes in development mode
+Dependencies.explicitly_unloadable_constants << 'Notification'
+{% endhighlight %}
+
+The suggested solution does not work for modules. And in the lib directories mostly modules reside. If I find a solution for auto loading changes to modules residing in lib directory I will post that here.

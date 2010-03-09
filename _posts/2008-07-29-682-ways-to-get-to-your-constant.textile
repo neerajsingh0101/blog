@@ -1,0 +1,19 @@
+---
+layout: post
+title: Ways to get to your constant
+---
+Given below are three ways you can get to a constant.
+
+{% highlight ruby %}
+class Person
+  TYPE = 'developer'
+end
+
+puts Person::TYPE
+
+puts Person.const_get('TYPE')
+
+puts Person.class_eval('TYPE')
+{% endhighlight %}
+
+If you know of any other way then let's share it.

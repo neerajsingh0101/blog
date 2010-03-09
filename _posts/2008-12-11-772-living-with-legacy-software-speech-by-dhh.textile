@@ -1,0 +1,19 @@
+---
+layout: post
+title: Living with Legacy Software  Speech by DHH
+---
+This is an "old video":http://railsconfeurope.blip.tv/file/1555560/ but I highly recommend watching it. This presentation was done by DHH at RailsConf Europe 2008.
+
+It changed the way I perceive legacy code. 
+
+The  important lessons for me were 
+
+- the moment a code is committed that code is a legacy code.
+
+- if I perceive my code a legacy written a month ago then it is a good thing because the code has not changed. What has changed is my perspective about how to code for the given problem. The fact that I perceive my own code as legacy means I have learned something over time and learning is good.
+
+
+
+
+
+ <br />

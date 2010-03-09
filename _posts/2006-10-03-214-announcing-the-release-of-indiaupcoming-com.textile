@@ -1,0 +1,15 @@
+---
+layout: post
+title: Announcing the release of IndiaUpcoming.com
+---
+<p>I would love to say that I keep a close tab on the emerging web based services in India. But the fact of the matter is that with so many web based services coming up in India a<a href="http://indiaupcoming.com/"><img alt="Logo" hspace="1" src="http://neeraj.name/wp-content/uploads/2006/10/logo.gif" align="right" vspace="1" border="0" /></a>nd so fast it&rsquo;s really hard to keep pace. Further there&nbsp;is not a&nbsp;single&nbsp;resource where one could visit to fin d all that&rsquo;s&nbsp; happening with the Indian web landscape. Yes occasionally we will hear about some cool sites on Rediff and other places but majority of sites go unnoticed.</p>
+<p>There is another aspect to this problem from the publisher side. If you are starting a dating site or a cool online shopping portal it&rsquo;s really hard to reach out to the people. Any form of advertisement is expensive. Blogging community could come to your rescue but they would love you only if your product is a <a href="http://www.fastcompany.com/online/67/purplecow.html">purple cow</a>. And we all know getting a purple cow is easier said than done.</p>
+<p>The need to have an aggregated&nbsp;site occurred on one Friday morning when my friend, Riken, sent me a link to <a href="http://www.yourmaninindia.com/">YourManInIndia.com</a> site. This got me thinking. There has to be a better way to exchange emerging and other unknown sites. Within hours I had the sketches done and IndiaUpcoming.com was on the roll.</p>
+<p><a href="http://sitehostdesign.com/">Serge</a> helped designed the site that is both simple and beautiful. I did the development and thanks to <a href="http://www.rubyonrails.org/">Ruby on Rails</a>&nbsp;the development was quicker than I had ever done.&nbsp;</p>
+<p>IndiaUpcoming.com&nbsp;site simply lists all the leading/emerging Indian web sites.&nbsp; Since going live many sites have been submitted for review. Inorder to keep the site neat and clean I will have to reject majority of them. People are looking for quick advertisement&nbsp; I guess. In coming days I&rsquo;ll be posting a policy document which make it more clear to people why certain sites will be rejected.</p>
+<p>I like the logos links. Just click on the link and you will see all the logos in one shot. </p>
+<p><img alt="Logos" hspace="1" src="http://neeraj.name/wp-content/uploads/2006/10/snapper.png" align="middle" vspace="1" border="0" /> </p>
+<p>&nbsp;Since going live&nbsp;I have notice a few small bugs here and there. I would be working on those small fixes in the next week. I am evaluating if I should dive into regional language web sites or not.&nbsp;I&rsquo;ll&nbsp;be making&nbsp;a decision in coming weeks.</p>
+
+<p>If you have any feedback for me do pass it on. </p>
+<p>Only time will tell how this site will progress but one thing is clear. Having a site is no biggie these days. What matters is the content and the idea behind it. This is good. This sets the level playing field all across the globe. Now anyone with vision and a computer can set to conquer the world.</p> 

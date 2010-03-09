@@ -1,0 +1,41 @@
+---
+layout: post
+title: How to provide focus to first input field or textarea on page
+---
+If you to register or to login it is nice to have the cursor already placed at the desired position. In this way the user can just start typing without clicking on the first form field first. This is called providing focus to the desired element.
+
+Through javascript it is possible to provide auto focus to the first element of the form so that the user doesn't have to do the extra click. So far I had seen implementations like this.
+
+{% highlight js %}
+<body onload="javascript:document.forms[0].username.focus();">
+{% endhighlight %}
+
+The problem with this approach is that each page that has a form needs a custom onload function. The name of the form is also hardcoded in the onload function. This is brittle and will breakdown pretty soon.
+
+Here is an approach which will make sure that the first element of the form is auto focussed. This code is borrowed from <a href="http://www.bigbold.com/snippets/posts/show/2192">here</a>.
+
+{% highlight js %}
+Event.observe(window, 'load', function() {
+  var e = $A(document.getElementsByTagName('*')).find(function(e) {
+    return (e.tagName.toUpperCase() == 'INPUT' && (e.type == 'text' || e.type == 'password'))
+        || e.tagName.toUpperCase() == 'TEXTAREA' || e.tagName.toUpperCase() == 'SELECT';
+  });
+  if (e) e.focus();
+});
+{% endhighlight %}
+
+
+The code works fine excpet that in site <a href="http://EventsInIndia.com">EventsInIndia.com</a> the very first form is the top search form. When a user is on the registration page then I want the first field of the registration form to be in auto focus and not the quick search form. Here is the modified code to achieve my objective.
+
+{% highlight js %}
+Event.observe(window, 'load', function() {
+ var topSearchElement = document.getElementById('searchtermTopForm');    
+  var e = $A(document.getElementsByTagName('*')).find(function(e) {
+    return (((e.tagName.toUpperCase() == 'INPUT' && (e.type == 'text' || e.type == 'password'))
+        || e.tagName.toUpperCase() == 'TEXTAREA' || e.tagName.toUpperCase() == 'SELECT') && (e != topSearchElement)) ;
+  });
+  if (e) e.focus();
+});
+{% endhighlight %}
+
+This solution will work for all the pages and nothing is hardcoded here.

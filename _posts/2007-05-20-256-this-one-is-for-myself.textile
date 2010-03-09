@@ -1,0 +1,13 @@
+---
+layout: post
+title: This one is for myself
+---
+I keep using ruby to read files and to write manipulated data. I know it could be simpler than this but it works for me.
+
+{% highlight ruby %}
+ to_be_written = [] 
+ open("out.txt").each do  |line|
+   to_be_written << line
+ end
+ open('output.txt','w') { |f| f << to_be_written.join("\n")}
+{% endhighlight %}

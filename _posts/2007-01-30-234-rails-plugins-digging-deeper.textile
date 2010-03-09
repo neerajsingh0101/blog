@@ -1,0 +1,122 @@
+---
+layout: post
+title: Rails plugins - digging deeper
+---
+We all know that rails plugins is a wonderful thing. Plugins make it easy to add new features without significant changes in the original code base. True to their name they plug the code in the app and add rich features.
+
+However if you open up a standard plugin you will be confused with statements like below.
+
+{% highlight ruby %}
+  def self.included(target)
+    target.extend(ClassMethods)
+  end
+{% endhighlight %}
+
+The above code snippet is taken from "exception notification plugin":http://dev.rubyonrails.org/svn/rails/plugins/exception_notification/
+
+In this blog I inted to discuss how plugin works and what the above code snippet means.
+
+<h3> mixing in class methods</h3>
+Mixins are greate. Creat a common module and that module can be included in any number of classes.  Let's see how it works.
+
+{% highlight ruby %}
+ module M
+   def self.cmethod
+      puts 'this ouput is from a class method'
+   end
+   def imethod
+     puts 'this output is from an intance method'
+   end
+ end
+  
+ class C
+   include M
+ end
+{% endhighlight %}
+
+<h4>Result</h4>
+
+{% highlight ruby %}
+irb(main):019:0> @cat = C.new
+=> #<c :0x2ef0248>
+irb(main):020:0> @cat.imethod
+this output is from an intance method
+=> nil
+irb(main):021:0> @cat.cmethod
+<b>NoMethodError: undefined method `cmethod'</b> for #</c><c :0x2ef0248>
+        from (irb):21
+irb(main):022:0>
+{% endhighlight %}
+
+@cat.imethod worked fine but @cat.cmethod didn't. Why? Why is it that the class method of the module was not included in the class.
+
+The answer lies in the way ruby language allows a class or a module to include another module. The right way of writing a module so that the class methods work is:
+
+{% highlight ruby %}
+ module M
+   def self.included(base_class)
+      base_class.extend(ClassMethods)
+   end
+
+   module ClassMethods
+      def cmethod
+         puts 'this ouput is from a class method'
+      end
+   end 
+
+   def imethod
+     puts 'this output is from an intance method'
+   end
+ end
+{% endhighlight %}
+
+In the Ruby world anytime a module is included then the method <code>included</code> of the module is called and the name of the class that is including this module is passed as a parameter. In this case the class 'C' will be passed as a parameter to the method included. This is once in a lifetime opportunity to do something with the base_class. We take this opportunity to attach the class methods of the module to this base_class. In order to achieve  that we turn to method <code>extend</code>.  
+
+The <code>extend</code> method belongs to Object class and invoking this method will mix in the methods mentioned in  the module ClassMethods. Note that the method cmethod is no more self.cmethod. Method cmethod is now part of module ClassMethods but after the mixin they will work as the class method of class 'C'.
+
+h3. send method
+
+Following code snippet is picked up from init.rb of <a href="http://wiki.rubyonrails.com/rails/pages/Acts+As+Taggable+Plugin">acts_as_taggable</a> plugin.
+
+{% highlight ruby %}
+require 'acts_as_taggable'
+ActiveRecord::Base.send(:include, ActiveRecord::Acts::Taggable)
+{% endhighlight %}
+
+Whenever the server starts it looks at the init.rb of all the plugins. In this case it will encounter require statement in the first line. How does rails know that the acts_as_taggable is in lib directory. Just before rails comes to init.rb , it adds all the .rb files from lib directory and adds them to the <code>LOAD_PATH</code> and hence when <code>require 'acts_as_taggable' </code> statement comes along ruby looks for appropriate file under lib directory. Use the following command to see the full listing of LOAD_PATH.
+
+{% highlight ruby %}
+>> $LOAD_PATH.each {|x| puts x}
+{% endhighlight %}
+
+<code>include</code> is a private method of Object and hence send is used to invoke the command. Simply stated the first statement is same as
+
+{% highlight ruby %}
+module ActiveRecord
+   class Base
+      include ActiveRecord::Acts::Taggable
+   end
+end
+{% endhighlight %}
+
+
+h3. Force an installation
+
+If you already have a plugin and for some reason you don't want to execute the update command and instead want to re install then execute
+
+{% highlight ruby %}ruby script/pluging install -f exception_notification{% endhighlight %}
+
+h3.  which version of the  plugin you are running
+
+Use option -o to get the plugin with additon subversion info. This could be used to determine what version of plugin you are running.
+
+{% highlight ruby %}ruby script/pluging install -o exception_notification{% endhighlight %}
+
+h3.  automatic update the plugin using svn externals
+
+Use this option and whenever you update your code from subversion, subversion will check if there  is an updated version of plugin and will install the latest plugin. It brings dependency on the plugin servers.
+
+{% highlight ruby %}
+ruby script/pluging install -x exception_notification
+svn propget svn:externals vendor/plugins # it wil list the plugins that are controlled by subversio
+{% endhighlight %}

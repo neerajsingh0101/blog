@@ -1,0 +1,23 @@
+---
+layout: post
+title: Problem with session.load in Hibernate
+---
+I have been using the following method to retrieve the record for the given primary key.
+
+{% highlight java %}
+User user = (User) session.load(User.class,userID);
+{% endhighlight %}
+In stead of load, one could use also use session.get();
+
+While working on the project, I found that some team members were using a different method to load the record.
+
+{% highlight java %}
+User user = new User();
+getHibernateTemplate().load(user,userID);
+return user;
+{% endhighlight %}
+
+
+The problem with the above code is that it creates a new record of the record. If the record for the given primary key is already there in the primary cache then the method will break and Hibernate will throw an exception saying a record already exists.
+
+I think the safest way to code is to just let Hibernate create a *new* instance if required.

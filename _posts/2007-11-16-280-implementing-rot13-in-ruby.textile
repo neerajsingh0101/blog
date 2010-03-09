@@ -1,0 +1,27 @@
+---
+layout: post
+title: Implementing rot13 in Ruby
+---
+In one of the Java projects  rot13 encryption needs to be implemented. People are scrambling for the jar file that has the rot13 logic.
+
+Well in Ruby it's easy. Here is how it can be done.
+
+{% highlight ruby %}
+class String
+  def rot13
+     self.tr("A-Ma-mN-Zn-z","N-Zn-zA-Ma-m")
+  end
+end
+
+#Now let's use it
+s = "I love Ruby"
+encrypted_s = s.rot13
+{% endhighlight %}
+
+I was surprised by the tr method in Ruby String. I had never used it before. As per the doc
+
+
+<blockquote>
+Returns a copy of str with the characters in from_str replaced by the corresponding characters in to_str.
+"hello".tr('aeiou', '*')    #=> "h*ll*"
+</blockquote>

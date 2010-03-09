@@ -1,0 +1,44 @@
+---
+layout: post
+title: Rails does not turn column names into instance variables
+---
+Let's say that we have a state model. State has name and permanent_name.
+
+Since I can do stuff like 
+
+{% highlight ruby %}
+@state = State.first
+@state.name = 'foo'
+@state.save
+{% endhighlight %}
+
+I thought @state would have instance variable called '@name'. But I was surprised by the result.
+
+{% highlight ruby %}
+>> @state = State.first
+>> @state.instance_variables
+=> ["@attributes", "@attributes_cache"]
+{% endhighlight %}
+
+So @state has only two instance variables.  Let's look inside @attributes
+
+{% highlight ruby %}
+>> @state.attributes
+=> {"name"=>"New Delhi", "id"=>14, "permanent_name"=>"new-delhi"}
+{% endhighlight %}
+
+It means that if you want the value of 'name' while doing meta programming one  cannot use instance_variable_get('@name') because @state has only two instance variables and @name is not an instance variable on @state. However rails provides two utility methods read_attribute and write_attribute to handle such cases.
+
+read_attribute and write_attribute are the methods provided by rails so that we don't need to go through @attributes. However remember that instead of read_attribute if you want to use record.instance_variable_get then you will have to get @attributes and from that you will have to get value for the key 'name' like this
+
+{% highlight ruby %}
+# using instance_variable_get
+record.instance_variable_get("@attributes")['name']
+
+# using read_attribute
+record.read_attribute("#{attribute}")
+{% endhighlight %}
+
+Also note that with read_attribute we do not need to put @ sign before the attribute name which is required for instance_variable_get.
+
+Fun stuff. Right!

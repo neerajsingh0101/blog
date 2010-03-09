@@ -1,0 +1,28 @@
+---
+layout: post
+title: putting callbacks in your class is easy with ActiveSupport
+---
+Rails models have a number of callbacks. Some of the most common callbacks in practice are before_save, after_save and before_destroy etc.
+
+Let's assume that we have a class and we want to add some callbacks. We go about implementing the callbacks ourselves but why bother. ActiveSupport makes it so easy.
+
+In the following code we wan to have a callback whenever the method make_payment is called.
+
+{% highlight ruby %}
+require 'rubygems'
+require 'activesupport'
+
+class Event
+  include ActiveSupport::Callbacks
+  define_callbacks :make_payment
+end
+
+
+class MyEvent < Event
+  def make_payment
+    puts 'make_payment is called'
+  end
+end
+
+MyEvent.new.make_payment
+{% endhighlight %}

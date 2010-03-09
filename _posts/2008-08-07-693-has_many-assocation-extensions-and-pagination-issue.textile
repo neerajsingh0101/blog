@@ -1,0 +1,94 @@
+---
+layout: post
+title: has_many assocation extensions and pagination issue
+---
+I have a simple requirement. A project can have many tasks associated with it and each task is either in 'pending' or in 'completed' state. This is how the schema looks like.
+
+{% highlight ruby %}
+  create_table "projects", :force => true do |t|
+    t.string   "name"
+  end
+
+  create_table "tasks", :force => true do |t|
+    t.string  "name"
+    t.integer "project_id", :limit => 11
+    t.string  "status",                   :default => "pending"
+  end
+{% endhighlight %}
+
+The task is to get the list of completed projects. Here is the first attempt.
+
+{% highlight ruby %}
+# project model
+class Project < ActiveRecord::Base
+  has_many :tasks
+end
+
+# tasks controller
+def index
+  @tasks = Project.first.tasks.find(:all, :conditions => "status='completed'")
+end
+{% endhighlight %}
+
+The above code will work. However if somewhere else we need the completed tasks list again then we will pass the condition again. It is better if we could move that business logic of finding the completed task in model. Here is the revised version.
+
+{% highlight ruby %}
+# project model
+has_many :tasks do 
+  def completed
+    find(:all, :conditions => "status='completed'")
+  end
+end
+
+# tasks controller
+def index
+  @tasks = Project.first.tasks.completed
+end
+{% endhighlight %}
+
+This is much better. The controller code looks neat.
+
+If the list of completed tasks is really large then we need to apply pagination. Let's install plugin "will_paginate":http://github.com/mislav/will_paginate/tree/master . Here is the code with pagination.
+
+{% highlight ruby %}
+# project model
+has_many :tasks do 
+  def completed
+    find(:all, :conditions => "status='completed'")
+  end
+end
+
+# tasks controller
+def index
+  @tasks = Project.first.tasks.completed.paginate(:page => params[:page])
+end
+{% endhighlight %}
+
+The problem is that the above code does not do the pagination work. And that is because in the completed method we have the call find(:all). So all the completed tasks are getting loaded even before pagination has an oppotunity to act on it. Also you can't do count of completed tasks easily. The call @project.tasks.completee.count does not work. @project.tasks.completed.size will work but it will a very expensive operation since all the completed records will be loaded into memory. 
+
+Here is a better solution
+
+{% highlight ruby %}
+# project model
+class Project < ActiveRecord::Base
+  has_many :tasks
+  has_many :tasks_completed, :conditions => "status='completed'", :class_name => 'Task'
+end
+
+# tasks controller
+  def index
+    @tasks = Project.first.tasks_completed.paginate(:page => params[:page])
+  end
+{% endhighlight %}
+
+In this case the pagination really works. Only the first few records will be loaded. Let's see how count will work.
+
+{% highlight ruby %}
+>> Project.first.tasks_completed.count
+  SELECT count(*) AS count_all FROM `tasks` WHERE (`tasks`.project_id = 1 AND (status='completed')) 
+=> 7
+{% endhighlight %}
+
+As you can see the sql generated for count is a sql for count unlike the previous case.
+
+So if you have a need for pagination or count then the extension for has_many might not work. If you know of a workaround then do let me know.

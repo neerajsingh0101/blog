@@ -1,0 +1,5 @@
+---
+layout: post
+title: require vs require_dependency
+---
+Browing through the code of <a href="http://instiki.org/show/HomePage"> instiki</a>, I came across <a href="http://wiki.rubyonrails.org/rails/pages/RequireDependency">require_dependecy</a>. I had no idea what it was. May be you know now. 

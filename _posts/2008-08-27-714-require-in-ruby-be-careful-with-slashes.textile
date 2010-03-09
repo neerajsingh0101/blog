@@ -1,0 +1,19 @@
+---
+layout: post
+title: require in ruby  be careful with slashes
+---
+Let's look at code.
+
+{% highlight ruby %}
+require File.expand_path(File.dirname('__FILE__') + '/foo.rb')
+{% endhighlight %}
+
+Above require statement looks okay and it will work on your computer. But this is not the best way to handle files. On a system that doesn't understand forward slash, above code might create problem. Above code might not work in windows.
+
+A better solution would be.
+
+{% highlight ruby %}
+require File.join(File.expand_path(File.dirname('__FILE__')) , 'foo.rb')
+{% endhighlight %}
+
+In this case ruby will take care of OS level complexities.

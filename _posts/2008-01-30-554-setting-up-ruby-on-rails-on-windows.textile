@@ -1,0 +1,89 @@
+---
+layout: post
+title: Setting up Ruby on Rails on windows
+---
+I keep getting requests regarding how to get started with Ruby on Rails. Here is step by step description. 
+
+Install ruby by downloading the exe file from "https://rubyforge.org/frs/?group_id=167":https://rubyforge.org/frs/?group_id=167
+Execute the following command and you should get the version of ruby. This is ensure that ruby installation is good.
+
+{% highlight ruby %}
+ruby -v
+{% endhighlight %}
+
+Next install rails by running following command
+
+{% highlight ruby %}
+gem install -v=1.2.6 -y
+
+# once the installation is done the execute the following command
+# you should see the rails version as 1.2.6
+rails -v
+{% endhighlight %}
+
+Next we need to install mysql. Go to "http://dev.mysql.com/downloads/mysql/5.0.html#win32":http://dev.mysql.com/downloads/mysql/5.0.html#win32 and download the without installer file. unzip this file at c:\
+
+Mysql is installed. In order to start the mysql server open the command prompt and run the following command
+
+{% highlight sh %}
+C:\mysql-5-xxxxx\bin\mysqld
+{% endhighlight %}
+
+This will start mysql server. 
+
+Now we need a mysql client. I use mysqlyog. Go to "http://webyog.com/en/downloads.php":http://webyog.com/en/downloads.php and download file "SQLyog MySQL GUI - Community Edition 6.15 (Stable)" from "Community Edition". Start mysqlyog. Click on 'new'. 
+
+{% highlight sh %}
+Host Address: 127.0.0.1
+user name: root
+password: leave it empty
+port:3306
+{% endhighlight %}
+
+Now you can create a new database and the tables using this client.
+
+
+Next we need an IDE. I use Radrails. Go to "http://www.neeraj.name/system/radrails-0.7.2-win32.zip":http://www.neeraj.name/system/radrails-0.7.2-win32.zip and download the zip file.
+Unzip the file and you will see radrails.exe .
+
+
+Next create a rails application. 
+
+{% highlight sh %}
+Go to d drive. 
+Create a directory called dev. 
+cd dev
+rails demo
+{% endhighlight %}
+
+A demo project has been created.
+
+Now let's import this project in radrails IDE. Start radrails. 
+
+{% highlight sh %}
+click on File at the top. 
+click new
+click on rails to expand it
+click on 'rails project'
+click next
+put the project name as 'demo'
+uncheck "default location" checkbox
+uncheck "generate rails application skeleton" checkbox
+check "create the webrick server"  checkbox
+leave the other two checkboxes as unchecked.
+click on browse 
+go to demo folder and select that folder
+click on finish
+
+click on 'server' tab at the bottom right hand side.
+click on 'demoServer' and then click on the start button at the right side panel in this box to start the server. 
+status will change to 'starting'
+status will become 'started'
+
+Now open browser and go to http://localhost:3000 . 
+You should see the Ruby on Rails homepage. It means RoR application is working fine.
+{% endhighlight %}
+
+Now you can directly start with chapter six of "Agile development with Rails (second edition)":http://www.pragprog.com/titles/rails2
+
+Welcome to RoR world! Hope you will enjoy the journey of learning a new programming language.

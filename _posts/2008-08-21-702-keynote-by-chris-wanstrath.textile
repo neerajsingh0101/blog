@@ -1,0 +1,5 @@
+---
+layout: post
+title: Keynote by Chris Wanstrath
+---
+This "keynote by Chris Wanstrath":http://gist.github.com/6443 of github is a must read.  

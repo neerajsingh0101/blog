@@ -1,0 +1,5 @@
+---
+layout: post
+title: Article for ReadWriteWeb.com
+---
+Sometime back I co-authored an article on <a href="http://www.readwriteweb.com/archives/india_top_web_apps.php">top web apps in India</a> with  Richard MacManus of <a href="http://www.readwriteweb.com/">ReadWriteWeb</a>. 

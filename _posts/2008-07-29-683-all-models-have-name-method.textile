@@ -1,0 +1,15 @@
+---
+layout: post
+title: All models have .name method
+---
+While browsing through the source code of Beast I came to know of this. All ActiveRecord models have a class method called 'name'.
+
+{% highlight ruby %}
+>> User.name
+=> "User"
+
+>> Reminder.name
+=> "Reminder"
+{% endhighlight %}
+
+Neat. Right!

@@ -1,0 +1,91 @@
+---
+layout: post
+title: Why named_scope is a better tool than traditional find ( Part II)
+---
+This is part II of the two part series.
+
+In the "part I of this article":http://www.neeraj.name/708/why-named_scope-is-a-better-tool-than-traditional-ways-part-i we wrote a plugin but later found that the plugin did not support pagination and count of results efficiently. In this article we are going to rewrite that plugin using named_scope.
+
+First let's see how named_scope works. Using named_scope is easy. Following examples are lifter from "here":http://ryandaigle.com/articles/2008/3/24/what-s-new-in-edge-rails-has-finder-functionality
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  named_scope :active, :conditions => {:active => true}
+  named_scope :inactive, :conditions => {:active => false}
+  named_scope :recent, lambda { { :conditions => ['created_at > ?', 1.week.ago] } }
+end
+
+# Standard usage
+User.active    # same as User.find(:all, :conditions => {:active => true})
+User.inactive # same as User.find(:all, :conditions => {:active => false})
+User.recent   # same as User.find(:all, :conditions => ['created_at > ?', 1.week.ago])
+{% endhighlight %}
+
+Here is the revised plugin which uses named_scope.
+
+{% highlight ruby %}
+module RollSearchable
+  Searchable = Struct.new :attribute,:condition
+     
+  def roll_searchable_for(&blk)
+    instance_eval(&blk)
+  end
+  
+  def searchable_for(attribute,options = {})
+    @searchables ||=[]
+    @searchables << Searchable.new(attribute,options[:condition])
+
+    # currently I am building the named_scope after every attribute. It should be refactored to improve performance.
+    build_named_scope_search
+  end
+  
+  def build_named_scope_search
+    self.named_scope :search, lambda { |search_term|
+      conditions = @searchables.collect do |searchable|
+        if searchable.condition
+          "(#{searchable.condition})"
+        else
+          "(#{self.table_name}.#{searchable.attribute} LIKE :search_term)"
+        end
+      end
+            
+      conditions = conditions.join(' OR ')
+      conditions = [conditions,{:search_term => "%#{search_term}%"}]
+      
+      {:conditions => conditions }
+    }
+  end
+  
+end
+
+ActiveRecord::Base.send(:extend,RollSearchable)
+{% endhighlight %}
+
+Now User model is search enabled.
+
+{% highlight ruby %}
+>> User.search('rose')
+returns one record
+{% endhighlight %}
+
+Let's see what happens when we try to get count of search results.
+
+{% highlight ruby %}
+>> User.search('rose').count
+The generated sql is
+SELECT count(*) AS count_all FROM `users` WHERE ((users.first_name LIKE '%rose%') OR (users.last_name LIKE '%rose%') OR (users.email LIKE '%rose%' AND users.id > 1) OR (users.notes LIKE '%rose%'))
+{% endhighlight %}
+
+This is much better compared to the Part I case where all the records were retrieved and the size of array was returned as the count.
+
+Let's see how it works with pagination using will_paginate plugin
+
+{% highlight ruby %}
+User.search('rose').paginate(:page => 1)
+The generate sql is
+SELECT * FROM `users` WHERE ((users.first_name LIKE '%rose%') OR (users.last_name LIKE '%rose%') OR (users.email LIKE '%rose%' AND users.id > 1) OR (users.notes LIKE '%rose%')) LIMIT 0, 30
+{% endhighlight %}
+
+This is much better. In this case only the first 30 records were retrieved.
+
+In conclusion I would say that generating query using named_scope is a good way to make your code do more with less.

@@ -1,0 +1,9 @@
+---
+layout: post
+title: One-to-many uni-directional relationship and null issue
+---
+Just found out that in a one-to-many uni-directional relationship the foreign key on the many side must be a nullable column. Let's look at an example I discussed in <a target="_blank" href="http://neeraj.name/2005/07/03/one-to-many-bi-directional-relationship-using-xdoclet-and-hibernate/">previous blog</a>.
+
+The blog refers to the case of having one-to-many bi-directional relationship. If I need to change it to uni-directional and if I want that in the office table the column office_id_fk remains a not-null column then that's not possible. If one must have the office_id_fk column as not-null then make the association bi-directional.
+
+The authors of the Hibernate in Action defends this behavior by stating that by the mere definition of a a uni-directional association the referenced objects should be allowed to be persisted without concern about the parent object. I guess that makes sense. 

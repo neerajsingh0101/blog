@@ -1,0 +1,7 @@
+---
+layout: post
+title: Attaching multiple files in a nice user interface manner
+---
+Attaching multiple files in a nice user interface manner could be pain. However "this is an excellent post":http://www.practicalecommerce.com/blogs/post/432-Multiple-Attachments-in-Rails about how to minimize that pain with simple javascript solution.
+
+I took the code base provided in that blog and tweaked a few things here. Added a README and posted the app on github. "Download the app":http://github.com/neerajdotname/roll_my_attach/tree/master and follow the README. You will find a much better user experience. 

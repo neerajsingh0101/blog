@@ -1,0 +1,35 @@
+---
+layout: post
+title: Watch autoload magic live
+---
+We all know that in development mode Rails auto loads most of the changes. However it would be nice if in the log you can see message like 'Class Person is being loaded'. 'Class Person is being unloaded'.
+
+Well you can have that. Put this line of code at the bottom of your environment.rb file and you will be able to watch the magic.
+
+{% highlight ruby %}
+# log all auto loading stuff in the log file
+Dependencies.log_activity = true
+{% endhighlight %}
+
+The above code will produce following type of output.
+
+{% highlight ruby %}
+Dependencies: called new_constants_in("Helpers", :Object)
+Dependencies: New constants: PreferencesHelper
+Dependencies: loading /Users/nkumar/scratch/xxxx/app/helpers/preferences_helper.rb defined PreferencesHelper
+Dependencies: called require_or_load("/Users/nkumar/scratch/xxxxx/app/helpers/project_memberships_helper.rb", nil)
+Dependencies: loading /Users/nkumar/scratch/xxxxx/app/helpers/project_memberships_helper
+Dependencies: called load_file("/Users/nkumar/scratch/xxxxx/app/helpers/project_memberships_helper.rb", 
+   ["Helpers::ProjectMembershipsHelper", "ProjectMembershipsHelper"])
+
+
+Dependencies: removing constant MilestonesHelper
+Dependencies: removing constant OrganizationalMembershipsHelper
+Dependencies: removing constant OrganizationsHelper
+Dependencies: removing constant PeopleHelper
+Dependencies: removing constant PreferencesHelper
+
+{% endhighlight %}
+
+
+Nice. Seeing is believing.

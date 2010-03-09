@@ -1,0 +1,23 @@
+---
+layout: post
+title: update_attribute doesn't trigger validation but update_attributes does
+---
+I wasn't aware of the fact that update_attribute doesn't trigger validation. As per the api doc
+
+<blockquote>
+update_attribute(name, value):Updates a single attribute and saves the record. This is especially useful for boolean flags on existing records. Note: This method is overwritten by the Validation module that‘ll make sure that updates made with this method doesn‘t get subjected to validation checks.
+</blockquote>
+
+At the same time update_attributes is subjected to validation.
+
+
+
+<blockquote>
+update_attributes(attributes):Updates all the attributes from the passed-in Hash and saves the record. If the object is invalid, the saving will fail and false will be returned.
+</blockquote>
+
+
+I can understand the need to bypass validation in some cases. What I would have liked to have is the ability to pass a boolean flag indicating if validation should be triggered or not.
+
+
+ 

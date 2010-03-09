@@ -1,0 +1,21 @@
+---
+layout: post
+title: Catching load error
+---
+While going through the admitter code i noticed this. The trick is to place the load in a method and then call that method to find out if the load was successful or not.
+
+{% highlight ruby %}
+# this needs to be placed in a method or else rescue doesn't work
+def load_image_science
+  require 'image_science'
+  $image_science_installed = true
+rescue LoadError # in case they don't have it installed
+  $image_science_installed = false
+end
+load_image_science
+
+# Later in the code use 
+if $image_science_installed
+#...
+end
+{% endhighlight %}

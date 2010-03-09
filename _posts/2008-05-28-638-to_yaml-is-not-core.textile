@@ -1,0 +1,23 @@
+---
+layout: post
+title: to_yaml is not core
+---
+I asked a friend of mine to have a look at Ruby. He is a java developer and he looked at the Ruby API and his first reaction was that the format in which API is presented is really scary.
+
+Recently I found another scary aspect of Ruby API. The API lies a little bit. If you go to http://www.ruby-doc.org/core/ and look for to_yaml method in Object class you will find that method. However try this in irb.
+
+
+{% highlight ruby %}
+> irb
+irb(main):001:0> a =  %w[ 1 2 3 ]
+=> ["1", "2", "3"]
+irb(main):002:0> a.to_yaml
+NoMethodError: undefined method `to_yaml' for ["1", "2", "3"]:Array
+  from (irb):2
+{% endhighlight %}
+
+Array is an object and when I ask for to_yaml on array I get an undefined method error. Why is that?
+
+That is because the API is lying a little bit. The method to_yaml is not part of ruby core. The method to_yaml is introduced to object through stdlib 'yaml'. So one needs to be require 'yaml' and then the code will work fine.
+
+The document generator noticed that the method to_yaml is being added to class through mixin ( I suppose) and added to the documentation. I guess the document generator should not look into stdlib for generating the documentation for core.

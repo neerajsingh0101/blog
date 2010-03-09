@@ -1,0 +1,23 @@
+---
+layout: post
+title: REST is here in Rails
+---
+A  week agon <a href="http://www.ryandaigle.com/">Ryan</a> posted an excellent article about the upcoming support for <a href="http://www.ryandaigle.com/articles/2006/08/01/whats-new-in-edge-rails-simply-restful-support-and-how-to-use-it">REST in rails</a>. If this is the first time  you are hearing about REST then please do some googling and you will find a ton of articles explaining how this simple principle is kissing the ass of Web-Services. Look at this example to see the power of REST.
+
+Assuming I have a standard <tt>users_controller</tt> I would add the following to my routes:
+
+{% highlight ruby %} map.resources :users {% endhighlight %}
+
+Yeah, that's it. And with that declaration, here are the requests that are mapped for me (all to the <tt>users</tt> controller):
+
+{% highlight sh %}
+GET: /users => [:action => 'index']
+GET: /users.xml => [:action => 'index', :format => 'xml']
+GET: /users/1 => [:action => 'show', :id => 1]
+GET: /users/1;edit => [:action => 'edit', :id => 1]
+GET: /users/1.xml => [:action => 'show', :id => 1, :format => 'xml']
+
+POST: /users => [:action => 'create']
+PUT: /users/1 => [:action => 'update', :id => 1]
+DELETE: /users/1 => [:action => 'destroy', :id => 1]
+{% endhighlight %}

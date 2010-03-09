@@ -1,0 +1,38 @@
+---
+layout: post
+title: rescuing from LoadError
+---
+let's say that you are writing a date parser and you want to parse the input date field using chronic gem if that gem is installed. If that gem is not installed then you want to use Time. parse. You would try something like this.
+
+{% highlight ruby %}
+begin
+  require 'chronic'
+rescue
+  @chronic_missing = true
+end
+
+puts 'chronic is missing" if @chronic_missing
+{% endhighlight %}
+
+However if you execute the above code, you will get exception *no such file to load — chronic*
+
+The puzzling part is by rescue is not rescuing from all the exceptions.
+
+Well with  help from Ryan and Chad, I got the solution.
+
+if no clause is provided after rescue then by default rescue rescues from StandardError. And in this case ruby is throwing LoadError which doesn't extend StandardError. click "here":http://rubylearning.com/satishtalim/ruby_exceptions.html for a complete chart of ruby exceptions.
+
+The fix is to explicitly catch LoadError.
+
+{% highlight ruby %}
+begin
+  require 'chronic'
+rescue LoadError
+  @chronic_missing = true
+end
+
+puts 'chronic is missing' if @chronic_missing
+{% endhighlight %}
+
+
+Mystery solved.

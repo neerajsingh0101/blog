@@ -1,0 +1,39 @@
+---
+layout: post
+title: Understanding bindAsEventListener in prototype framework
+---
+"Previously":http://neeraj.name/blog/articles/762-understanding-bind-in-prototype-framework we looked at how bind method provided by Prototype is useful. Prototype also provides a method called bindAsEventListener.
+
+However first let's see why we need bindAsEventListener method.
+
+{% highlight js %}
+var Developer = {
+  skill: 'ruby ',
+  
+  show_skill: function(e,start_index,end_index) {
+    alert(this.skill + e + '  ' + start_index + ' ' + end_index);
+  }
+};
+
+document.observe('click',Developer.show_skill.bind(Developer,1,10));
+{% endhighlight %}
+
+In the above code in the method show_skill we are capturing the click event as "e" and we are displaying that "e" in the alert. Besides e, we are also accepting two arguments. since we are using this.skill we must use bind method. Everything looks good. However if you run the code, you will notice that the event object is appearing at the very end. The order doesn't seem right.
+
+Prototype ensures that the event object (e) will always be the first element if you use bingAsEventListener. Let's look at the revised code.
+
+{% highlight js %}
+var Developer = {
+  skill: 'ruby ',
+  
+  show_skill: function(e,start_index,end_index) {
+    alert(this.skill + e + '  ' + start_index + ' ' + end_index);
+  }
+};
+
+document.observe('click',Developer.show_skill.bindAsEventListener(Developer,1,10));
+{% endhighlight %}
+
+Now the order seems right.
+
+ <br />

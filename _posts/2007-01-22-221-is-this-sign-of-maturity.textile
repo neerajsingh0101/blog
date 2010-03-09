@@ -1,0 +1,19 @@
+---
+layout: post
+title: Is this sign of maturity
+---
+<h3>Before:</h3>
+
+{% highlight ruby %}
+    if session[:draft_id]
+      @draft = Draft.find(session[:draft_id])
+    else  
+      @draft = Draft.new
+    end
+{% endhighlight %}
+
+<h3>Now:</h3>
+
+{% highlight ruby %}@draft = Draft.find_by_id(session[:draft_id]) || Draft.new{% endhighlight %}
+
+Now that five lines have been collapsed into one, I feel good.

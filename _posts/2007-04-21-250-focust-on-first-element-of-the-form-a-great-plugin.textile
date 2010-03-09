@@ -1,0 +1,9 @@
+---
+layout: post
+title: Focust on first element of the form - a great plugin
+---
+It's a good UI design practice to put cursor on the first element of the form so that the user can directly start typing without first clicking on the box. I implemented this feature in <a href="http://www.eventsinindia.com">EventsInIndia</a> using a rather clumsy method ( #2 in the reference post).  Here is a great <a href="http://www.depixelate.com/2007/4/9/auto-focusing-rails-helpers">plugin</a> that makes setting the focus as easy as saying 
+
+{% highlight ruby %}<%= text_field :user, :name, :focus => true %>{% endhighlight %}
+
+The plugin works like a charm. Highly recommended.

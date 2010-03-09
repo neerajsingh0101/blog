@@ -1,0 +1,43 @@
+---
+layout: post
+title: Prompting for user input in capistrano
+---
+I am a big fan of "capistrano multistage":http://weblog.jamisbuck.org/2007/7/23/capistrano-multistage . In all my applications I have deploy.rb and then I have a directory ~/config/deploy.
+
+In this directory , I usually have two files: production.rb and staging.rb .
+
+Now when I need to deploy my code in staging I execute following command.
+
+{% highlight ruby %}
+cap staging deploy
+
+# to deploy the code to production
+cap production deploy
+{% endhighlight %}
+
+This is all good. 
+
+However y'day mistakenly I executed <code>cap production deploy</code> and this messed up things just a little bit. 
+
+Since I have ssh keys setup, capistrano never prompted me for any user input. I would like capistrano to prompt me for a confirmation before any task is executed in production environment.
+
+This is what I ended up doing. In my deploy.rb I added following lines of code at the bottom.
+
+{% highlight ruby %}
+before "deploy:update_code", "user_confirmation_for_production_deployment"
+task :user_confirmation_for_production_deployment, roles => :app do
+  if "#{stage}" == 'production'
+    message = "You are deploying to PRODUCTION. continue(y/n):"
+    answer = Capistrano::CLI.ui.ask(message)   
+    abort "deployment to production was stopped" unless answer == 'y'
+  end
+end
+{% endhighlight %}
+
+The code is pretty self-explanatory. You might be wondering what CLI stands for. CLI is for "Command Line Utility".
+
+Also the ask method is not something coming from capistrano. It comes from a gem called "highline":http://highline.rubyforge.org/ .
+
+That's it. Now I feel that I have protected myself against myself.
+
+This code is tested with capistrano 2.5.3 . <br />

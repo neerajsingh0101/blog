@@ -1,0 +1,30 @@
+---
+layout: post
+title: Calling a javascript function buried in iframe from the main window
+---
+On a recent project I had a need to call a javascript function on an iframe from the main window. After googling for solution for a while I got the answer and it is working fine. I am posting the solution on my blog so that I have it handy next time I need it.
+
+{% highlight js %}
+<h1>Widget Demo</h1>
+
+<p>
+  <%= link_to_function  'Reload', 
+                        "window.frames['widget_iframe'].refresh_widget();" %>
+</p>
+
+<p>
+  <iframe 
+    id="respond_to_widget" 
+    scrolling="no" 
+    frameborder="0" 
+    border="0"
+    name='widget_iframe'
+    src="http://<%=request.host_with_port%>/widgets/show" 
+    style='height: 800px;'        
+  >
+    
+</p>    
+
+{% endhighlight %}
+
+In the above case the main window is attempting to invoke javascript function <code>refresh_widget</code> on iframe. <br />

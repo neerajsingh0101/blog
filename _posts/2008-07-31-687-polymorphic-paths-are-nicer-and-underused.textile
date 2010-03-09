@@ -1,0 +1,83 @@
+---
+layout: post
+title: polymorphic paths are nicer and underused
+---
+Since Rails is fully behind RESTful resources, I guess most of use try to create restful resources. Creating a restful resource is easy.
+
+{% highlight ruby %}
+ruby script/generate scaffold Event name:string descrition:string start_date:datetime
+{% endhighlight %}
+
+Once the resource is restful we can do things like
+
+{% highlight ruby %}
+  map.resources :events
+
+  @event = Event.first
+  redirect_to event_path(@event)
+{% endhighlight %}
+
+This is great but there is a way to further simplify this. 
+
+{% highlight ruby %}
+  # before
+  redirect_to event_path(@event)
+
+ # after
+  redirect_to @event
+{% endhighlight %}
+
+That's much easy. We can also do
+
+{% highlight ruby %}
+  # before
+ link_to @event.name, event_path(@event)
+
+ # after
+ link_to @event.name, @event
+{% endhighlight %}
+
+However the question is how does Rails decipher that @event in some cases is equivalent to event_path(@event).
+
+Here is the code in Rails that does this magic.
+
+{% highlight ruby %}
+  # actionpack/lib/action_controller/base.rb
+      def url_for(options = nil) #:doc:
+        case options || {}
+          when String
+            options
+          when Hash
+            @url.rewrite(rewrite_options(options))
+          else
+            polymorphic_url(options)
+        end
+      end
+{% endhighlight %}
+
+Notice that if the input option is not a String or a Hash , control goes to polymorphic_url . That's the one that is doing all the magic.
+
+polymorphic_url is capable of a lot of wonderful things.  Below I am going to past code that is taken from "this blog":http://railspikes.com/2008/4/23/5-useful-underused-methods
+
+{% highlight ruby %}
+# Before:
+<% if @record.is_a?(User) %>
+<%= user_path(@record) %>
+<% elsif @record.is_a?(Friend)
+<%= friend_path(@record) %>
+ ... etc.
+
+# After:
+<%= polymorphic_path(@record) %>
+
+
+# Paths can be namespaced:
+#=> admin/users/5/edit
+edit_polymorphic_path([:admin, @record])
+
+  # builds a form with an action to 'new_admin_stores_path'
+#=> <form action="admin/stores/new" ... />
+form_for([:admin, Store.new])
+{% endhighlight %}
+
+polymorphic_url is a wonderful thing. Now when I write code I try to remember to write redirect_to @event instead of redirect_to event_path(@event).

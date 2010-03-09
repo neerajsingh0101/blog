@@ -1,0 +1,59 @@
+---
+layout: post
+title: Using helpers in controllers
+---
+We all know that we should code keeping MVC in mind. It is not a good idea to mix C(controller) and V(view). However time to time we are forced to push to the limit.
+
+One such case could be when you want to use link_to method in controller. link_to is defined in *actionpack/lib/action_view/helpers/url_helper.rb* . 
+
+One easy way is to include that class file in controller like this.
+
+{% highlight ruby %}
+# environment.rb
+include ActionView::Helpers::UrlHelper 
+{% endhighlight %}
+
+Life is good but soon you need pluralize method in your controller and slowly the include files might look like this.
+
+{% highlight ruby %}
+# environment.rb
+include ActionView::Helpers::UrlHelper 
+include ActionView::Helpers::SanitizeHelper 
+include ActionView::Helpers::TextHelper 
+include ActionView::Helpers::DebugHelper
+include ActionView::Helpers::TagHelper
+{% endhighlight %}
+
+This is not good.
+
+I came across this post from "Hungry Machine" and he has posted an "excellent solution":http://blog.hungrymachine.com/2008/8/7/using-helpers-in-a-controller-with_helpers .
+
+{% highlight ruby %}
+ActionController::Base.class_eval do
+  def with_helpers(&block)
+    template = ActionView::Base.new([],{},self)
+    template.extend self.class.master_helper_module
+    add_variables_to_assigns
+    template.assigns = @assigns
+    template.send(:assign_variables_from_controller)
+    forget_variables_added_to_assigns
+    template.instance_eval(&block)
+  end
+end
+{% endhighlight %}
+
+Usage 
+
+{% highlight ruby %}
+class MyController < ApplicationController
+  def my_action
+    @person = Person.find(params[:id])
+    render :text => with_helpers { link_to(@person.full_name,
+    person_path(@person)) }
+  end
+end
+{% endhighlight %}
+
+This is an excellent solution. Now we don't need to include anything in enviroment.rb .
+
+If you want to know what master_helper_module is and how the above code is doing what it is doing then you should read "this":http://www.neeraj.name/blog/articles/718-how-helper_method-brings-methods-to-view-level and "this":http://www.neeraj.name/blog/articles/719-how-controller-and-view-share-instance-variables .

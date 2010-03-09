@@ -1,0 +1,17 @@
+---
+layout: post
+title: How to validate date
+---
+RoR is awesome tool but I have failed to find a better way to validate a date.
+
+{% highlight ruby %}
+def
+  begin
+    Date.new(yyyy.to_i,mm.to_i,dd.to_i)
+  rescue ArgumentError => e
+  end  
+end
+{% endhighlight %}
+
+
+Until I find a better way, I am sticking with this one.

@@ -1,0 +1,15 @@
+---
+layout: post
+title: Freezing a particular version of rails
+---
+Softies on Rails blogged about "how to freez rails":http://softiesonrails.com/2008/1/3/freezing-your-rails-application . This is a great article except one thing. The article didn't mention how to freeze a particular version of Rails. 
+
+I needed to freeze Rails 1.2.5 to an old application. I googled and following is the answer.
+
+{% highlight ruby %}
+rake rails:freeze:edge TAG=rel_1-2-5
+
+rake rails:freeze:edge TAG=rel_1-2-6
+
+rake rails:freeze:edge TAG=rel_2-0-0_RC2
+{% endhighlight %}

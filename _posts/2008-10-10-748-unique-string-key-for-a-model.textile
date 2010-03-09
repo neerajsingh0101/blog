@@ -1,0 +1,15 @@
+---
+layout: post
+title: Unique string key for a model
+---
+If you are looking for a unique string key for a model instance then rails provides two useful methods.
+
+{% highlight ruby %}
+>> user = User.first
+>> user.dom_id
+=> "users-2"
+>> user.cache_key
+=> "users/2-20081003191459"
+{% endhighlight %}
+
+user.cache_key is useful when you want the key to be different if your model changes. user.cache_key appends the updated_at column information in the output.

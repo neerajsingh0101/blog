@@ -1,0 +1,75 @@
+---
+layout: post
+title: Migrating existing images to attachment_fu
+---
+<a href="http://clarkware.com/cgi/blosxom/2007/02/24">attachment_fu</a> is  a great plugin for uploading images. Before attachment_fu I was using <a href="http://beautifulpixel.com/flex_image/index.html">FlexImage</a>.
+
+Although I found using attachment_fu easy, the task of migrating  the existing images to attachment_fu was difficult. I guess after a lot of search I found a tip in the mailing list. Sorry  I don't have the link to give credit. Here is the rake task that did it for me.
+
+{% highlight ruby %}
+# save this file as process_event_images.rake
+# run it as rake process_event_images
+
+desc "Process images"
+task :process_event_images => :environment do
+  
+  require 'tempfile'
+  require 'RMagick'
+  include Magick
+  puts 'starting image processing ...'
+  
+  @@image_mime_types ||= {".gif" => "image/gif",".ief" => "image/ief",".jpe" => "image/jpeg",".jpeg" => "image/jpeg",".jpg" => "image/jpeg",".pbm" => "image/x-portable-bitmap",
+                          ".pgm" => "image/x-portable-graymap",".png" => "image/png",".pnm" => "image/x-portable-anymap",".ppm" => "image/x-portable-pixmap",
+                          ".ras" => "image/cmu-raster",".rgb" => "image/x-rgb",".tif" => "image/tiff",".tiff" => "image/tiff",".xbm" => "image/x-xbitmap",
+                          ".xpm" => "image/x-xpixmap",".xwd" => "image/x-xwindowdump",}.freeze
+  
+  
+  @events = Event.find(:all)
+  
+  @events.each do |event|
+    puts event.id
+    
+    local_file_path =   "#{RAILS_ROOT}/public/system/flex_event_images/#{event.image}.jpg"
+    content_type ||= @@image_mime_types[File.extname(local_file_path)]
+    raise "Unrecognized MIME type for #{local_file_path}" unless    content_type
+    @eventi = Eventi.new
+    @eventi.uploaded_data = LocalUploadedFile.new(local_file_path,content_type)
+    @eventi.user_id = 2
+    @eventi.event_id = event.id
+    @eventi.save
+  end
+  
+  puts 'processing is done ...'
+end
+
+class LocalUploadedFile
+  
+  # The filename, *not* including the path, of the "uploaded" file
+  attr_reader :original_filename
+  
+  # The content type of the "uploaded" file
+  attr_reader :content_type
+  
+  def initialize(path, content_type = 'text/plain')
+    
+    raise "#{path} file does not exist" unless File.exist?(path)
+    @content_type = content_type
+    
+    @original_filename = path.sub(/^.*#{File::SEPARATOR}([^#{File::SEPARATOR}]+)$/) { $1 }
+    
+    @tempfile = Tempfile.new(@original_filename)
+    FileUtils.copy_file(path, @tempfile.path)
+  end
+  
+  def path #:nodoc:
+    @tempfile.path
+  end
+  
+  alias local_path path
+  
+  def method_missing(method_name, *args, &block) #:nodoc:
+    @tempfile.send(method_name, *args, &block)
+  end
+end
+
+{% endhighlight %}

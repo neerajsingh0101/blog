@@ -1,0 +1,31 @@
+---
+layout: post
+title: Putting a marker before every new request
+---
+Rails does an excellent job of printing log messages. However as the application grows, sometimes it becomes difficult to pinpoint exactly where the log for a new request started.
+
+I would like to have a special line to be printed before a controller starts processing a new request. In this way before each request in the log message I will get to see that special marker.
+
+This is the simple hack I implemented.
+
+
+{% highlight ruby %}
+if RAILS_ENV == 'development'
+
+    # this puts a marker before the start of every new controller request
+    module ActionController
+      class Base
+        def log_processing
+          if logger && logger.info?
+            logger.info "\n\n" + '*' * 100        
+            logger.info "Processing #{controller_class_name}\##{action_name} (for #{request_origin}) [#{request.method.to_s.upcase}]"
+            logger.info "  Session ID: #{@_session.session_id}" if @_session and @_session.respond_to?(:session_id)
+            logger.info "  Parameters: #{respond_to?(:filter_parameters) ? filter_parameters(params).inspect : params.inspect}"
+          end
+        end
+      end
+    end
+end
+{% endhighlight %}
+
+This has proved to be a big help so far.

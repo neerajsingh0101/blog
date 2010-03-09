@@ -1,0 +1,25 @@
+---
+layout: post
+title: Creating select sql using construct_finder_sql
+---
+In the "last blog":http://neeraj.name/blog/articles/773-getting-scalar-elements-from-rails-and-issue-with-script-console I needed the sql statement to get the desired result. And it works.
+
+However typing the whole sql in this case by hand is not very rubyish. Here is a hack that you can call upon time to time to help get the sql from rails.
+
+{% highlight ruby %}
+# desired sql
+select fname,count(*) as count from users group by fname
+
+
+
+# rails code to get the sql
+>> options = {:select => 'fname, count(*) as count', :group => 'fname'}
+=> {:group=>"fname", :select=>"fname, count(*) as count"}
+
+>> sql = User.send(:construct_finder_sql, options)
+=> "SELECT fname, count(*) as count FROM `users`  GROUP BY fname"
+{% endhighlight %}
+
+construct_finder_sql is a private method in ActiveRecord::Base which returns a finder sql for a given options. In this case I used this hack to get the sql that I want rather than hand coding the sql.
+
+This hack might come handy in more cases when you are aware of it. <br />

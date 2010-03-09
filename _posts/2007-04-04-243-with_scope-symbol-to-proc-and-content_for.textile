@@ -1,0 +1,51 @@
+---
+layout: post
+title: with_scope, symbol to proc and content_for
+---
+In case you didn't know Railscasts.com publishes free short RoR tutorials. I learned quite a few small tricks here. Highly recommended.
+
+<strong>with_scope</strong>
+
+<a href="http://media.railscasts.com/videos/005_using_with_scope.mov">Learn with_scope</a> in this short and sweet screencast. By using with_scope the find method becomes much more flexible and anyone can cal this method with their own options.
+
+{% highlight ruby %}
+def self.find_incomplete
+    with_scope :find => options do
+       find_all_by_complete(false, ;order => 'created at desc')
+    end
+end
+{% endhighlight %}
+
+
+<strong>Symbol to proc</strong>
+
+Watch this one to learn <a href="http://media.railscasts.com/videos/006_symbol_to_proc.mov">symbol to proc</a> goodies.
+Symbol to proc is something that Rails add to Ruby. Look at this code
+
+{% highlight ruby %}@projects.collect {|p| p.name} {% endhighlight %}
+
+The result from the above code is exactly same as
+
+{% highlight ruby %}@projects.collect(&:name){% endhighlight %}
+
+Symbol to proc can be applied to anything that accepts a block. This is highly useful
+
+{% highlight ruby %}@projects.each(&:save!){% endhighlight %}
+
+
+<strong>content_for</strong>
+
+I thought I knew everything about layouts but <a href="http://www.railscasts.com/episodes/8">this screencast</a> provides a nice way of changing the content for your project using content_for. In <a href="http://www.eventsinindia.com">EventsInIndia</a> project some of the pages have auto discovery RSS code. Before I saw this screencast I have the if logic inside the head of the layout. Now that I know how to override the head values from the internal pages the code is much more modular.
+
+{% highlight sh %}
+<head>
+...........
+<%= yield :header_tags %>
+</head>
+{% endhighlight %}
+
+{% highlight ruby %}
+<% content_for :header_tags do %>
+     <%= auto_discovery_link_tag(:rss, {:controller => 'feeds' , :action => 'events' }) %>
+<% end %>
+{% endhighlight %}

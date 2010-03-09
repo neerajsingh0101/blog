@@ -1,0 +1,70 @@
+---
+layout: post
+title: Hibernate session.close does _not_ call session.flush
+---
+Someone who doesn't know anything about Hibernate but has been a programmer for a while would understand what flush means in general. The person would rightly assume that flush is something called at specific time (probably caused by a trigger) to flush the data to the desired destination. For example while rendering the pages, JSP pages periodically flush the content out. It is also assume that if for someone reason the bucket is filled with data and a close command is called before the trigger could flush the data then before closing the pipe the data left out in the bucket will be flushed. Not so in hibernate.
+
+In hibernate world we have Hibernate session. One gets a session from the session factory and after the processing is done a call to session.close()  is done to release the connection. As one might have guessed session has a flush method which synchronizes the data in memory with the data in database. The flush method is not called immediately when an object is attached to the session. For example.
+
+{% highlight java %}
+Session session = getSessionFromSomewhere();
+Person person = new Person();
+person.setName('John Smith');
+session.save(person);
+person.setName('James Hamilton');
+session.flush();
+session.close();
+{% endhighlight %}
+
+In the above code,  the synchronization with database will occur only when session.flush is called. It means only one call to the database. No call to database is made when session.save method is called.
+
+I don't know about you, but I expected that if I omit session.flush and just call session.close then session.close should be smart enough to call session.flush before closing the session. This seems more intuitive. In general computing world flushing ability is given to the developers to make use of it in rare cases when one has to take control of flushing the data.
+
+In hibernate when session.close is called no call is made to session.flush. No this is not a bug in Hibernate. It's just that I didn't find it very intuitive. Of course if you read hibernate documentation it says that when you are inserting a record then you _must_ use hibernate transaction which I didn't obey. So what's the consequence of not having  a transaction and not flushing and just calling session.close. The short answer is surprise.
+
+I created two classes: Office.java and Employee.java . Office has a uni directional one-to-many relationship with Employee class. Office has set the cascade option to save-update. Let's look at the code now.
+
+{% highlight java %}
+Office office = new Office();
+office.setLocation("100 main street");
+Employee employee = new Employee();
+employee.setName("John Smith");
+
+Set employees = new HashSet();
+employees.add(employee);
+office.setEmployees(employees);
+
+session.saveOrUpdate(office);
+session.flush();
+session.close();
+{% endhighlight %}
+
+The code above results in following query.
+
+{% highlight sh %}
+Hibernate: insert into office (location) values (?)
+Hibernate: insert into employee (name) values (?)
+Hibernate: update employee set office_id=? where id=?
+{% endhighlight %}
+
+Everything looks good. Because of the cascade option a record is inserted in office then a record is inserted in employee and then employee table is updated with the foreign key of office. Now let's try the same query but this time we will comment out the session.flush() code. Here is the query that resulted from running the code with commented session.flush().
+
+{% highlight sh %}
+Hibernate: insert into office (location) values (?)
+Hibernate: insert into employee (name) values (?)
+{% endhighlight %}
+
+Result is _not_ good. The foreign key was not inserted in the employee table in spite of the cascade option. This could be fixed in two ways.
+
+<ul>
+  <li>Use session.flush before session.close</li>
+  <li>Use hibernate transaction api to control the transaction</li>
+</ul>
+
+I fully agree that using transaction api is a clean and a good way to handle this kind of issue. What I find strange is the two records are inserted even though I didn't use transaction api or session.close. I would expect either do not handle anything that changes the state of the database if things are not properly structured or handle everything graciously. In this case no error message or warning was given by Hibernate. Hibernate happily inserted two records which will break the system since the relationship was not maintained.  I do not imagine anyone writing the code this way still I expected session.close to make a call to session.flush internally.
+
+So when session.flush is automatically called. As per Hibernate in Action book:
+<blockquote>Hibernate flushes occur only at the following times:
+–  When a Transaction is committed
+–  Sometimes before a query is executed
+–  When the application calls Session.flush() explicitly</blockquote>

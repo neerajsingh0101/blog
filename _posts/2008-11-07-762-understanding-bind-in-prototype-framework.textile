@@ -1,0 +1,69 @@
+---
+layout: post
+title: Understanding bind in prototype framework
+---
+"Previously":http://neeraj.name/blog/articles/758-prototype-javascript-library-why-classes-start-with-class-create I discussed why prototype framework nudges us to use Class.Create style of creating classes.
+
+Prototype also has a powerful concept called bind. However first let's see what kind of problem we might run into if we do not know bind.
+
+{% highlight js %}
+var Developer = Class.create();
+
+Developer.prototype = {
+   initialize: function(abilities) {
+     this.skills = ['ruby','java'];
+
+     this.skills.each(function(skill) { # marker 1
+       this.show_skill(skill) # marker 2
+     });
+   },
+
+   show_skill: function(skill) {
+     alert("from Developer class "+ skill);
+   }
+ }
+
+function show_skill(skill) {
+   alert("from main window " + skill);
+}
+
+new Developer();
+{% endhighlight %}
+
+If you execute the above javascript code, you will get the message that starts with 'from main window". If you look at the code, the intent was to call the show_skill method which would have shown the message started with "from Developer class".
+
+We are getting the "from main window" message because  "this" in marker 1 refers to the developer instance object but "this" in marker 2 refers to nothing ( which means this is global window object).
+
+In order to fix this problem, somehow we need to pass "this" from marker 1 to the marker 2. One way is to pass "this" as a parameter in addition to skill, but that would make code too clumsy and passing "this" is not a good idea. 
+
+Prototype aims to solve the problem by providing a method called bind. By using bind you are changing the reference of "this" inside the function. Look at revised code.
+
+{% highlight js %}
+var Developer = Class.create();
+
+Developer.prototype = {
+   initialize: function(abilities) {
+     this.skills = ['ruby','javascript'];
+
+     this.skills.each(function(skill) {
+       this.show_skill(skill)
+     }.bind(this)); # changes done
+   },
+
+   show_skill: function(skill) {
+     alert("from Developer class "+ skill);
+   }
+ }
+
+function show_skill(skill) {
+   alert("from main window " + skill);
+}
+
+
+new Developer();
+{% endhighlight %}
+
+In this case bind method was used to pass "this" and now when we execute the javascript we get the message "from Developer class".
+
+
+ <br />

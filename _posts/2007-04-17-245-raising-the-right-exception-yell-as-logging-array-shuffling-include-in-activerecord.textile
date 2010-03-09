@@ -1,0 +1,12 @@
+---
+layout: post
+title: Raising the right exception, yell as logging, array shuffling,  include in ActiveRecord
+---
+Handling exception is always a tricky issue. Here is <a href="http://weblog.jamisbuck.org/2007/3/7/raising-the-right-exception">Jamis's</a> take.
+
+Sometimes you want to just look at some specific log message and you want to remove those message after debugging is done. Rob has a<a href="http://blog.tupleshop.com/2007/4/1/stupid-simple-logging"> solution</a> for such problems.
+ 
+
+Random <a href="http://glu.ttono.us/articles/2007/03/20/snippet-shuffle-an-array">shuffling</a> of an array. Read the comments and api for <a href="http://www.rubycentral.com/ref/ref_m_kernel.html#rand">rand </a>and <a href="http://www.rubycentral.com/ref/ref_c_array.html#sort">sort </a>if you need to know how it works. 
+
+:include is an option for :has_many case which is allows to eagerly load data. <a href="http://ruby.about.com/b/a/000070.htm">This article</a> illustrates in detail how :include can be useful in some cases. 

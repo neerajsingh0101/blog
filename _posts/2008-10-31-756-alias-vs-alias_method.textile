@@ -1,0 +1,40 @@
+---
+layout: post
+title: alias vs alias_method
+---
+I looked at "this":http://www.pivotallabs.com/users/rajan/blog/articles/570-standup-10-31-08 blog and noticed that there is a method called *alias*. Well I know *alias_method* but have never used *alias* .
+
+The ruby documentation does not mention anything about *alias*. Finally I found "this blog":http://pragmati.st/2008/1/22/alias-versus-alias_method which helped put things in perspective.
+
+Well alias is not a method. It is a reserved keyword. Otherwise it is pratically same as alias_method. I am pasting the information from aforementioned blog.
+
+{% highlight ruby %}
+class Test
+  def test
+    puts "hello" 
+  end
+  alias test_copy test
+  alias_method :test_copy2, :test
+end
+
+Test.new.test        # > "hello" 
+Test.new.test_copy   # > "hello" 
+Test.new.test_copy2  # > "hello" 
+{% endhighlight %}
+
+<blockquote>
+It turns out that they are the same, except that:
+
+* alias is a reserved keyword in Ruby
+
+* alias takes the method identifiers as parameters, without the need to use symbols or strings (for example in “def method_name”, method_name is an identifier and not a string or a symbol) This behavior can be pretty confusing when you’re starting out.
+
+* alias_method is a method of the class Module
+* alias_method takes its parameters separated by comma, just like any other method.
+
+The consequences are simple:
+
+    * alias_method can be redefined, and alias can’t.
+    * alias can be used incorrectly (outside the context of method definitions)
+
+</blockquote>

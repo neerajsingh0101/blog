@@ -1,0 +1,51 @@
+---
+layout: post
+title: Using current_user in model and other places
+---
+Usually when a user is logged in, we stored user_id at session level. 
+
+{% highlight ruby %}
+
+#after authentication
+session[:user_id] = @user.id
+
+# application.rb
+def current_user
+  @current_user ||= User.find(session[:user_id]) rescue nil
+end
+helper :current_user
+{% endhighlight %}
+
+The above code makes current_user available to all the controllers ,views and helpers. However if for some reason , and invariably a need arises sooner than later, you need to access current_user inside a model then you are left out.
+
+One solution is to pass current_user to all the models whenever you need. However it is a bad hack.
+
+A better solution is proposed in "ClearClove blog":http://clearcove.ca/blog/2008/08/recipe-make-request-environment-available-to-models-in-rails/#more-273 .
+
+{% highlight ruby %}
+# application.rb
+before_filter :set_current_user_in_thread
+
+def set_current_user_in_thread
+  Thread.current[:user_id] = session[:user_id]
+end
+
+# User.rb
+def self.current
+  self.find(Thread.current[:user_id])
+end
+{% endhighlight %}
+
+Now anywhere in your application you can use User.current and it will work. You don't have to keep passing current_user around.
+
+Rails internally uses the same technique to store timezone. Checkout this line of code from rails.
+
+{% highlight ruby %}
+# activesupport/lib/active_support/core_ext/time/zones.rb
+
+def zone
+  Thread.current[:time_zone] || zone_default
+end
+{% endhighlight %}
+
+Rails 2.2 enables  multi threading. If you are going to use that option then this strategy might not work. Read "this":http://m.onkey.org/2008/10/23/thread-safety-for-your-rails article by Pratik to find out more about the thread related changes that are taking place in Rails 2.2 .

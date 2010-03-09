@@ -1,0 +1,69 @@
+---
+layout: post
+title: Another attempt to understand plugin validates_existence
+---
+In the <a href="http://neeraj.name/2007/07/31/learning-ruby-rails-july-edition/">previous blog</a> I mentioned that <a href="http://blog.hasmanythrough.com/2007/7/14/validate-your-existence">validates_existence</a> will make sure that the  associated object is valid. That's not correct as pointed out by <a href="http://blog.hasmanythrough.com/">Josh</a> in <a href="http://neeraj.name/2007/07/31/learning-ruby-rails-july-edition/#comment-34496">this comment</a>.
+
+Let's look at it again.
+
+{% highlight ruby %}
+class City<ActiveRecord::Base
+   belongs_to :state
+   validates_presence_of :state
+   validates_associated :state
+end
+{% endhighlight %}
+
+Now let's take a case of inserting a new city. In this case I am creating a NEW state and attaching the state to the city. Notice that the @state is a new state and is not an existing record.
+
+{% highlight ruby %}
+>> @state = State.new
+=> #<State:0x4664064 @new_record=true, @attributes={"name"=>""}>
+>> @state.name = "Maryland2"
+=> "Maryland2"
+>> @city = City.new
+=> #<City:0x4610f54 @new_record=true, @attributes={"created_on"=>nil, "name"=>"", "fe
+>nil, "updated_on"=>nil, "feedburner_active"=>false, "state_id"=>0, "feedburner_url"=
+>> @city.name = 'Rockville2'
+=> "Rockville2"
+>> @city.state = @state
+=> #<State:0x4664064 @new_record=true, @attributes={"name"=>"Maryland2"}>
+>> @city.save
+=> true
+{% endhighlight %}
+
+I was completely surprised to find that the above operation besides inserting a new city record also inserted a new state record.
+
+However my intention here was to make sure that any city I insert must have a valid state record already existing. This is where validates_existence comes in handy. Revised code is.
+
+{% highlight ruby %}
+class City < ActiveRecord::Base  
+  belongs_to  :state 
+  validates_existence_of :state
+  validates_associated :state
+end 
+{% endhighlight %}
+
+Now I will try to insert a city record which is associated with a NEW state record. Let's see what happens.
+
+{% highlight ruby %}
+>> @state = State.new
+=> #<State:0x45c3290 @new_record=true, @attributes={"name"=>""}>
+>> @state.name = "Maryland3"
+=> "Maryland3"
+>> @city = City.new
+=> #<City:0x45b84f8 @new_record=true, @attributes={"created_on"=>nil, "nam
+>nil, "updated_on"=>nil, "feedburner_active"=>false, "state_id"=>0, "feedb
+>> @city.name = "Rockville3"
+=> "Rockville3"
+>> @city.state = @state
+=> #<State:0x45c3290 @new_record=true, @attributes={"name"=>"Maryland3"}>
+>> @city.save
+=> false
+>> @city.errors
+=> #<ActiveRecord::Errors:0x45afd1c @errors={"state"=>["does not exist"]},
+{% endhighlight %}
+
+I could not insert the city record. That makes sense. 
+
+Some would point that same could be achieved through database and that's true. However it is much better to have two layers of defense. Secondly it is much better to know at the code level if the data is not right rather than database telling the code that something failed.

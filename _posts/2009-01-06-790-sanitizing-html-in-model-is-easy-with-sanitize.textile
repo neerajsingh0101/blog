@@ -1,0 +1,47 @@
+---
+layout: post
+title: Sanitizing html in model is easy with Sanitize
+---
+Let's say that I have an <tt>Event</tt> model where I have three columns related to the description of the event: <tt>desc_raw</tt>, <tt>desc_html</tt> and <tt>desc_plain</tt>. 
+
+<tt>desc_raw</tt> is what user will actually input in the text area. 
+
+<tt>desc_html</tt> will be the result after running the input through RedCloth. 
+
+<tt>desc_plain</tt> is the plain version of the description after removing all the html tags from <tt>desc_html</tt>. <tt>desc_plain</tt> is used by sphinx to index the event and is used for text searching.
+
+This is what the code looked like.
+
+{% highlight ruby %}
+# event.rb
+before_save :set_desc_html,:set_desc_plain
+
+def set_desc_plain
+ self.desc_plain = strip_tags(self.desc_html)
+end
+{% endhighlight %}
+
+<tt>strip_tags</tt> strips all the html tags and this method comes from <tt>ActiveSupport</tt>. Problem is that inside the model <tt>ActiveSupport</tt> methods are not available. So in order to use <tt>strip_tags</tt> method in the model I had to add following line to environment.rb .
+
+{% highlight ruby %}
+# environment.rb
+#to strip html tags in event model
+include ActionView::Helpers::SanitizeHelper 
+{% endhighlight %}
+
+The proposed solution worked fine with Rails 2.1 and then Rails 2.2 was released. In Rails 2.2 the code surrounding strip_tags was refactored and just including the SanitizeHelper module did not work.
+
+This is where a solution like "sanitize gem":http://www.rubyinside.com/how-to-sanitize-html-and-css-in-ruby-1429.html shines. Now all I needed to do was
+
+{% highlight ruby %}
+# environment.rb
+config.gem "sanitize" ,:source => 'http://gems.github.com'
+
+# event.rb
+def set_html_plain
+ self.desc_plain = Sanitize.clean(self.desc_html)
+end
+{% endhighlight %}
+
+It seems performance wise Sanitize is much faster than strip_tags method.
+  <br />

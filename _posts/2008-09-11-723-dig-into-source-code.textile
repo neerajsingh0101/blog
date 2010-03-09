@@ -1,0 +1,25 @@
+---
+layout: post
+title: Dig into source code
+---
+Dave Thomas recently posted "a blog":http://pragdave.blogs.pragprog.com/pragdave/2008/09/fun-with-procs.html about proc and I got stumped at the very first line. 
+
+{% highlight ruby %}
+plus = lambda {|a,b| a + b}  
+puts plus[1,2]
+{% endhighlight %}
+
+I would have written the code as 
+
+{% highlight ruby %}
+plus = lambda {|a,b| a + b}  
+puts plus.call(1,2)
+{% endhighlight %}
+
+I needed to find out why the code plus[1,2] worked. I have a git clone of rubinius project. So I quickly opened up the source code for proc.rb and this is what I found.
+
+{% highlight ruby %}
+  alias_method :[], :call
+{% endhighlight %}
+
+I love ruby because it is so easy to go deep down and find the answers to such questions. All it took was less than 2 minutes to get the answer. So don't restrict yourself to just APIs. If you need to then go deep down. You will learn  a lot more.

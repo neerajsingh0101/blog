@@ -1,0 +1,71 @@
+---
+layout: post
+title: joins and includes in find
+---
+Let's right jump into the code.
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  has_many :articles
+
+  def self.search1
+    joins = 'LEFT OUTER JOIN articles ON articles.user_id = users.id '
+    find(:all, :conditions => "articles.title LIKE '%dol%'", :joins => joins)
+  end
+
+end
+{% endhighlight %}
+
+A user has many articles and and we have defined a search method search1 which does a search for article titles using like method. Since we are going to use articles table along with users table we need to use join. Here is what the generated sql will look like.
+
+{% highlight sh %}
+SELECT `users`.* FROM `users` LEFT OUTER JOIN articles ON articles.user_id = users.id WHERE (articles.title LIKE '%dol%') 
+{% endhighlight %}
+
+Now if we want to display the title of the article then that  an extra database call will be made. We can reduce the extra call to the database by asking rails to eagerly load the articles information. All we need to do it to add include option. The modified search1 method looks like this.
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  has_many :articles
+
+def self.search1 
+  joins = 'LEFT OUTER JOIN articles ON articles.user_id = users.id '
+  @users = find(:all, 
+                :conditions => "articles.title LIKE '%dol%'",   
+                :joins => joins, 
+                :include => 'articles')
+end
+
+end
+{% endhighlight %}
+
+The above method generates following sql statement.
+
+{% highlight sh %}
+SELECT `users`.`id` AS t0_r0, `users`.`first_name` AS t0_r1, `users`.`last_name` AS t0_r2, `users`.`email` AS t0_r3, `users`.`notes` AS t0_r4, `users`.`created_at` AS t0_r5, `users`.`updated_at` AS t0_r6, `articles_users`.`id` AS t1_r0, `articles_users`.`title` AS t1_r1, `articles_users`.`body` AS t1_r2, `articles_users`.`user_id` AS t1_r3, `articles_users`.`created_at` AS t1_r4, `articles_users`.`updated_at` AS t1_r5 FROM `users` LEFT OUTER JOIN `articles` articles_users ON articles_users.user_id = users.id LEFT OUTER JOIN articles ON articles.user_id = users.id WHERE (articles.title LIKE '%dol%') 
+{% endhighlight %}
+
+Because of the above sql, if we do @users.first.articles.first then another sql statement will NOT be generated. 
+
+This is all well and good. 
+
+However pay close attention to the above sql. There are two statements of 'LEFT OUTER JOIN'. It turns out that if we are doing includes that in simple cases we don't need to do the join parameters. So the above method can be reduced to 
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  has_many :articles
+
+def self.search1
+   find(:all, 
+        :conditions => "articles.title LIKE '%dol%'",
+        :include => 'articles') 
+end
+
+end
+{% endhighlight %}
+
+The above method generates following sql.
+
+{% highlight sh %}
+SELECT `users`.`id` AS t0_r0, `users`.`first_name` AS t0_r1, `users`.`last_name` AS t0_r2, `users`.`email` AS t0_r3, `users`.`notes` AS t0_r4, `users`.`created_at` AS t0_r5, `users`.`updated_at` AS t0_r6, `articles`.`id` AS t1_r0, `articles`.`title` AS t1_r1, `articles`.`body` AS t1_r2, `articles`.`user_id` AS t1_r3, `articles`.`created_at` AS t1_r4, `articles`.`updated_at` AS t1_r5 FROM `users` LEFT OUTER JOIN `articles` ON articles.user_id = users.id WHERE (articles.title LIKE '%dol%') 
+{% endhighlight %}

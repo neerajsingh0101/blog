@@ -1,0 +1,24 @@
+---
+layout: post
+title: Ruby gsub edge case
+---
+{% highlight ruby %}
+# works
+>> text.gsub(/(WORLD)/i,'<nice> \1 </nice>')
+=> "hello <nice> world </nice>, this is a test"
+
+# works
+>> text.gsub(/(WORLD)/i,'<nice> \\1 </nice>')
+=> "hello <nice> world </nice>, this is a test"
+
+# works
+>> text.gsub(/(WORLD)/i,"<nice> \\1 </nice>")
+=> "hello <nice> world </nice>, this is a test"
+
+# DOES NOT WORK
+>> text.gsub(/(WORLD)/i,"<nice> \1 </nice>")
+=> "hello <nice> \001 </nice>, this is a test"
+{% endhighlight %}
+
+Any idea why the last one does not work?
+ <br />

@@ -1,0 +1,11 @@
+---
+layout: post
+title: Fragment caching and Rails 2.1
+---
+I use fragment caching in existing Rails 2.0.2 application and it works fine. The fragments are saved by default at RAILS_ROOT/tmp/cache.
+
+I upgraded the application to Rails 2.1 and the cache was not working. After some poking around I found that in Rails 2.1 a lot more caching options have been added. However if no option is specified then the default behavior is to keep data in memory. In order to save code fragment at tmp/cache all I had to do was 
+
+{% highlight ruby %}
+ActionController::Base.cache_store = :file_store, "#{RAILS_ROOT}/tmp/cache"
+{% endhighlight %}

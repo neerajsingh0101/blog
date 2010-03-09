@@ -1,0 +1,32 @@
+---
+layout: post
+title: Is defined? a method in ruby
+---
+defined? is a useful method in many ways.
+
+{% highlight ruby %}
+> irb
+>> x = 100
+=> 100
+>> defined? x
+=> "local-variable"
+>> defined? y
+=> nil
+>> NAME = 'foo'
+=> "foo"
+>> defined? NAME
+=> "constant"
+>> class Person
+>>   end
+=> nil
+>> defined? Person
+=> "constant"
+{% endhighlight %}
+
+defined? can be used to find out if a variable is defined or not? In the above example y is not a defined variable and we got the return value as nil. Notice that for Person class defined? returned it  a constant.
+
+If you go to the "ruby documentation":http://www.ruby-doc.org/core/ you won't find any method named 'defined?'. Then what's going on here?
+
+Well defined? is not a method. It is a keyword. "Click here":http://redhanded.hobix.com/inspect/methodCheckDefined.html for a detailed explanation of why is that. 
+
+If you are really interested in seeing the implementation of defined? in ruby c code then "click here":http://svn.ruby-lang.org/cgi-bin/viewvc.cgi/branches/ruby_1_8_7/eval.c?revision=18327&view=markup and search for is_defined .

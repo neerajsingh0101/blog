@@ -1,0 +1,33 @@
+---
+layout: post
+title: Difference between puts "#{y}" and puts y
+---
+Let's jump right into it.
+
+{% highlight ruby %}
+y = "Another hi from the top"
+
+class Wes
+end
+
+Wes.class_eval <<-END
+ def hello
+    puts "#{y}"
+    puts y # I get wrong number of arguments error
+ end
+END
+{% endhighlight %}
+
+If I execute Wes.new.hello then I get error at the line "puts y". Notice that the line puts"#{y}" works fine.
+
+So the question is why the first line works but the second one fails. I couldn't get the answer to the question and I posted this "question":http://www.ruby-forum.com/topic/140488#624197 in the forum. Guess what!  Mighty matz himself replied.
+
+Basically the answer lies in the context. The input to Wes.class_eval is a string. But the expansion for the first puts is already done and the string looks something like this.
+
+def hello \n puts "Another hi from the top" \n puts y \n end
+
+Notice that variable y is still there while the first put has the substituted value. 
+
+Now when Wes.class_eval tries to evaluate y , it treats y as a method. Since that method is not defined an error message is shown.
+
+It's a bit complex and might take a while to get it. It took me a long time to get my mind around it.

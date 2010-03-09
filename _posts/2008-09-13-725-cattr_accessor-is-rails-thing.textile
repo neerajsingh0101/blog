@@ -1,0 +1,19 @@
+---
+layout: post
+title: cattr_accessor is rails thing
+---
+Since most of the ruby guys are introduced to ruby through rails, sometimes what belongs to ruby and what belongs to rails line gets blurried. Take for example cattr_accessor.
+
+We all know about attr_accessor which is part of ruby. Ruby does not provide anything called cattr_accessor. This is introduced in ActiveSupport gem which rails uses. Here is how you can use cattr_accessor
+
+{% highlight ruby %}
+require 'rubygems'
+require 'activesupport'
+
+class Person
+   cattr_accessor :type
+end
+
+Person.type = 'developer'
+puts Person.type
+{% endhighlight %}

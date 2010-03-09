@@ -1,0 +1,44 @@
+---
+layout: post
+title: Symbol to proc goodie
+---
+We are all familiar with this type of code.
+
+{% highlight ruby %}
+people.collect { |p| p.name }
+{% endhighlight %}
+
+Same result can be achieved this way too.
+
+{% highlight ruby %}
+people.collect(&:name)
+{% endhighlight %}
+
+Let's see what's going on here.
+
+The basic rule is that if an method parameter has first character '&' then ruby treats that parameter as a proc. In this case Ruby thinks that '&:name' is a proc. In reality that is not a proc.
+
+Ruby also says that if the input item is not a proc then it will invoke a method called to_proc on the item to convert the input item into a proc. This is a normal behavior and Ruby does something like this all the time. If you have an object @user and you try to execute 'puts @user' then Ruby is basically saying that @user is not a string so it invokes the method called to_s on the object and prints the result.
+
+The fact that to_proc is called on the incoming parameter opens up a few possibilities. Rails guys implemented to_proc method for Symbol in the following manner.
+
+{% highlight ruby %}
+class Symbol
+  def to_proc
+    Proc.new { |*args| args.shift.__send__(self, *args) }
+  end
+end
+{% endhighlight %}
+
+ __send__ is another way to invoke a method on the object. Instead of @user.name you can do something like @user.send(:name) or @user.__send__(:name).
+
+In this case args is the object the context of which is being passed. args is an array and shift method gets the first element. If you do args.shift.class.to_s you will find the class name of the object that is being  yielded. Inside the to_proc method self is the symbol itself. So basically self is (:name) and args.shift is an instance of the User or People object in our case.
+
+So simply stated the whole thing translates into  @people.name which is what we did at the top of this example.
+
+Overall Symbol to proc trick is much less verbose and easily lets us chain things.
+
+{% highlight ruby %}
+people.collect(&:is_manager?).collect(&:name)  
+people.collect(|p| p.is_manager?).collect(|p| p.name)  
+{% endhighlight %}

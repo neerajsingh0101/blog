@@ -1,0 +1,29 @@
+---
+layout: post
+title: Delete link for nested resource
+---
+Let's say that you have a resource called venue.
+
+{% highlight ruby %}
+map.resources :venues
+
+# link to delete a venue
+<%= link_to 'Delete', @venue,:confirm => "Are you sure?",:method => :delete %> 
+{% endhighlight %}
+
+The above code will work fine. However if I change the routing to make venue a nested resource of city then the above code will fail.
+
+{% highlight ruby %}
+  map.resources :cities do |cities| 
+    cities.resources :venues
+  end
+{% endhighlight %}
+
+I found it a bit surprising that the existing link for delete did not work. I get that the link to edit needs city_id . Anyway here is the code that works.
+
+{% highlight ruby %}
+   <%= link_to 'Edit', edit_city_venue_path(@venue.city,@venue) %>         	
+   <%= link_to 'Delete', city_venue_path(@venue.city,@venue),:confirm => "Are you sure?",:method => :delete %> 
+{% endhighlight %}
+
+I guess restfulness asks for consistency.

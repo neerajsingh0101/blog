@@ -1,0 +1,35 @@
+---
+layout: post
+title: How hash works with block in ruby
+---
+There are many different implementations of Fibonacci series in Ruby. One implementation is this.
+
+{% highlight ruby %}
+fibs = Hash.new do |hash,key|
+  if key < 2
+    hash[key] = 1
+  else
+    hash[key] = hash[key - 1] + hash[key - 2]
+  end
+end
+
+(1..10).each {|i| puts fibs[i] }
+
+# output
+1
+2
+3
+5
+8
+13
+21
+34
+55
+89
+{% endhighlight %}
+
+Ruby is full of surprises and this is one of them. Look at the api for Hash. It will mention that Hash can accept a block. But the api leaves out something very important without which understanding the above code is difficult.
+
+At the time of Hash creation if a block is passed then this is what happens. Ruby will make a call to the block every single time ruby encounters a case where the hash doesn't have a value for the input key. If the hash has a value for the input key then the block is not invoked. When the block is indeed invoked then ruby passes two parameters. The first param is the hash itself and the second param is the key for which no value was found.
+
+Now it should make it easy to understand how and why the above code is working.

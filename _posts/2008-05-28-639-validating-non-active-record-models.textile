@@ -1,0 +1,109 @@
+---
+layout: post
+title: Validating non active record models
+---
+*Update(2-Sep-2009):* The solution has been turned into a gem. Check out "this article":http://www.neeraj.name/blog/articles/851-validating-non-active-record-model-using-active_record_no_table .
+
+*Update:* This article needs some change to work with Rails 2.1. Please refer to "this":http://www.neeraj.name/646/validating-non-active-record-models-for-rails-2-1 article to see the changes that are needed to make this strategy work in Rails 2.1 .
+
+
+The validation features in ActiveRecord rocks.  I have a contact form. However there is no table called contacts since once the form is submitted an email is sent out. 
+
+The contact form has name, email and message fields which needs to be validated. To ensure consistency with rest of the application I would like to use same look-n-feel for presenting the error messages. Here is what I did.
+
+In first edition of Rails recipie, Chad suggested to use a module called Validateable. I have enhance that module. The new code looks like this. Put this code in your lib directory with the name validateable.rb .
+
+{% highlight ruby %}
+module Validateable
+
+  [:save, :save!, :update_attribute].each{|attr| define_method(attr){}}
+  
+  def method_missing(symbol, *params)
+    if(symbol.to_s =~ /(.*)_before_type_cast$/)
+      send($1)
+    end
+  end
+
+  def self.append_features(base)
+    super
+    base.send(:include, ActiveRecord::Validations)
+    base.extend ClassMethods
+  end
+
+  module ClassMethods
+    def human_attribute_name(attr)
+        attr.humanize
+    end
+  end
+
+end
+{% endhighlight %}
+
+
+Let's create a user model with two attributes: name and email.
+
+{% highlight ruby %}
+class User 
+  
+  include Validateable
+  
+  attr_accessor :name,:email
+  
+  def initialize(options = {})
+    @name = options[:name] if options[:name]
+    @email = options[:email] if options[:email]
+  end
+  
+  validates_presence_of :name
+  validates_presence_of :email
+
+end
+{% endhighlight %}
+
+Let's write the controller UsersController.rb
+
+
+{% highlight ruby %}
+class UsersController < ApplicationController
+
+  def new
+    @user = User.new
+  end
+
+  def create
+    @user = User.new(params[:user])
+    flash[:notice] = 'User is valid' if @user.valid?
+    render :action => 'new'
+  end
+
+end
+{% endhighlight %}
+
+Lastly we need the view users/new.html.erb .
+
+{% highlight ruby %}
+<p style="color: green"><%= flash[:notice] %></p>
+
+<h1>Contact me</h1>
+
+<%= error_messages_for :user %>
+
+ <% form_for :user, @user, :url => { :action => "create" } do |f| %>
+
+  <p>
+    <b>Name</b><br />
+    <%= f.text_field :name %>
+  </p>
+
+  <p>
+    <b>Email</b><br />
+    <%= f.text_field :email %>
+  </p>
+
+  <p>
+    <%= f.submit "Submit" %>
+  </p>
+<% end %>
+{% endhighlight %}
+
+That's it. Now when you hit submit without filling out anything, you'll get error messages in the same consistent format.

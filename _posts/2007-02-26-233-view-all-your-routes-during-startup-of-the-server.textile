@@ -1,0 +1,21 @@
+---
+layout: post
+title: View all your routes during startup of the server
+---
+Somehow I missed this tip and I badly need today to investigate why some of the REST routes were not working.
+
+Add the following lines of code to see all your routes during start up.
+
+{% highlight ruby %}
+ActionController::Routing::Routes.routes.each do |r|
+  puts r
+end
+{% endhighlight %}
+
+Similarly use the following code to see all named routes.
+
+{% highlight ruby %}
+ActionController::Routing::Routes.named_routes.routes.each do |name, route|
+  puts "%20s: %s" % [name, route]
+end
+{% endhighlight %}

@@ -1,0 +1,23 @@
+---
+layout: post
+title: Convenient Finder Parameter in Rails
+---
+Going through <a href="http://www.ryandaigle.com/">Ryan's blog</a> I am finding a lot of good stuff hidden in Rails. <a href="http://dev.rubyonrails.org/changeset/4425">This one</a> is really sweet.
+
+Before:
+
+{% highlight ruby %}
+Article.find(:all, :conditions =>
+[ "author_id = ? and status = ?", @author.id, 'published' ], :limit => 10)
+{% endhighlight %}
+
+Now:
+
+{% highlight ruby %}
+Article.find(:all, :conditions =>
+{ :author_id => @author.id, :status => 'published' }, :limit => 10)
+{% endhighlight %}
+
+Don't worry about sql injection. The params are sanitized before being used.
+
+Isn't Rails sweet?

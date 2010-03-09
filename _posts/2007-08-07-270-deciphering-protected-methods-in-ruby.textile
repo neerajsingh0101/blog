@@ -1,0 +1,67 @@
+---
+layout: post
+title: Deciphering protected methods in Ruby
+---
+Ruby provides three types of access level: public, private and protected. I found 'protected' access level a bit confusing and hard  to understand. If you google looking for detailed information on 'ruby protected',  you return empty handed.
+
+This is what <a href="http://rubyhacker.com/">'Ruby way second edition'</a> has to say about protected access level.
+
+<blockquote>
+  The protected level means that a method is callable only from within its class, but unlike a private method, it can be called with a receiver other than self.
+</blockquote>
+
+The above definition didn't help me either. Later in the book author provides an interesting example that provides the foundation for the understanding of this complex issue.
+
+{% highlight ruby %}
+class Person
+  attr_reader :name,:age
+  protected :age
+
+  def initialize(name,age)
+    @name,@age = name,age
+  end
+  def <=>(other)
+    age <=> other.age
+  end
+
+end
+
+p1 = Person.new("Fred",21)
+p2 = Person.new("John",23)
+
+puts p2 <=> p1 #=> 1
+puts p1.age #=> throws exception NoMethodError: protected method `age' called. Why?
+
+{% endhighlight %}
+
+
+
+If you pay close attention then you will find that case 2 works and while running that code this statement was executed: other.age . So now the question is why would other.age would work but p1.age will not work. Both of them look similar to me.
+
+The answer is provided by <a href="http://www.rubypal.com/">David Black</a>. He says:
+
+
+<blockquote>At the time you call a protected method on x, self must be an instance
+of the same class (or a subclass) as x.</blockquote>
+
+Inside the <=> method, the left hand side age is implicitly self.age so this one is covered. The right hand side age is other.age . When other.age is execute then 'self' is the instance object 'other. And as per the rule self must be either an instance of the same  class or a subclass of Person. Since other is an instance of Person right hand side one is covered too.
+
+Now let's look at p1.age. When p1.age is excecuted 'self' is default Object instance. Yes that's right. self is 'Object'  instance when p1.age is executed. As per the rule self must be an instance of the class or an instance of subclass of Person. Since default instance Object is not a subclass of Person this operation fails.
+
+For a while I thought inside the age method self is same an instance of Person class and things should work just fine. But I guess David was trying to say before we call the method the self should be the rule he mentioned above. So there is no need to go inside the method age. Before we call the method age anywhere just do <code>self.class.to_s</code> and you will see what self is. I added one line to put self.class.to_s inside <=> method.
+
+{% highlight ruby %}
+    def <=>(other)
+	puts self.class.to_s #newly added line
+        age <=> other.age
+    end
+{% endhighlight %}
+
+The result was Person. So that's good. Now let's start irb and see what we get. 
+
+{% highlight ruby %}
+irb(main):001:0> self.class.to_s
+=> "Object"
+{% endhighlight %}
+
+In this case we get the default Object as self.  Now  I understand why p1.age failed while the comparison method inside the class Person worked. Thanks David. Thanks Hal.

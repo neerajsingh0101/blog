@@ -1,0 +1,15 @@
+---
+layout: post
+title: How dynamic finders work in Ruby and in Rails
+---
+Rails allows one to write code like  
+
+{% highlight ruby %}User.find_by_email("neeraj@gmail.com");{% endhighlight %}
+
+Another version is  
+
+{% highlight ruby %}User.find_all_by_state("MD").{% endhighlight %}
+
+How is it accomplished?</p>
+
+Ruby is a dynamic language and hence it&rsquo;s capable of doing some funky stuff which Java can&nbsp; only dream about. Josh Susser has blogged in detail how <a href="http://blog.hasmanythrough.com/articles/2006/08/13/how-dynamic-finders-work">this magic</a> is done.

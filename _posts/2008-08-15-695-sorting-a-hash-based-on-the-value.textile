@@ -1,0 +1,12 @@
+---
+layout: post
+title: sorting a hash based on the value
+---
+It could not be simpler than this.
+
+{% highlight ruby %}
+>> h = {1 => 1, 9 => 9, 4 => 4}
+=> {1=>1, 9=>9, 4=>4}
+>> h.sort_by {|k,v| v }
+=> [[1, 1], [4, 4], [9, 9]]
+{% endhighlight %}

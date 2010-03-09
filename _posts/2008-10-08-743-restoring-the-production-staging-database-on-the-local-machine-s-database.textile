@@ -1,0 +1,40 @@
+---
+layout: post
+title: Restoring the production/staging database on the local machine's database
+---
+Time to time I need the production data on my local machine (mac). For example I might need the production data of this blog on my mac. 
+
+After following the cumbersome way of downloading the data, I decided to write a capistrano task which will 
+
+* take a backup of the production/staging database
+* download the backed up file
+* store the backed up file on my local machine.
+
+This is how I execute the cap task
+
+{% highlight sh %}
+cap production db:restore_local
+{% endhighlight %}
+
+The capistrano task is really simple.
+
+{% highlight ruby %}
+namespace :db do
+desc 'will create a backup on the server and then will download and will insert the data in local database'
+  task :restore_local do
+    timestamp = Time.now.strftime("%Y-%m-%d-%H-%M-%S")
+    send(run_method, "cd #{current_path} && rake db:backup timestamp=#{timestamp} RAILS_ENV=#{stage} ")
+    get "#{deploy_to}/shared/db_backups/#{timestamp}.sql.gz","tmp/#{timestamp}.sql.gz"  
+    system("rake db:restore file='#{timestamp}.sql.gz'")             
+  end
+end
+{% endhighlight %}
+
+The cap task invokes two other rake tasks:
+
+{% highlight ruby %}
+rake db:backup timestamp=xyz
+rake db:restore file=xyx.sql.gz
+{% endhighlight %}
+
+If you want to take a look at the rake tasks then hop over to "roll_my_blog":http://github.com/neerajdotname/roll_my_blog/tree/master and you can see the code for cap and rake tasks.

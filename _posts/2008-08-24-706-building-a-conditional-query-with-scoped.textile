@@ -1,0 +1,37 @@
+---
+layout: post
+title: Building a conditional query with scoped
+---
+Let's assume that the requirement is that we can have one of the following conditions.
+
+* Get all records where id > 10
+* Get all records where id < 100
+* Get all records where id > 10 AND id < 100
+
+it means we need to produce following conditions programatically
+
+
+{% highlight ruby %}
+:conditions => [" id > ?", 10]
+
+:conditions => [" id < ?", 100]
+
+:conditions => [" id > ? and id < ?", 10, 100]
+{% endhighlight %}
+
+This approach is messy and error prone. In Rails 2.1 named_scope was introduced. Using named_scope we can build conditions incrementally.
+
+Besides named_scope  Rails 2.1 also introduced scoped which is nothing else but anonymous named_scope. This is how we can use scoped to our advantage in this case.
+
+{% highlight ruby %}
+# get all records with id > 10
+User.scoped(:conditions => 'id > 10')
+
+# get all records with id < 100
+User.scoped(:conditions => 'id < 100')
+
+# get all records with id > 10 AND id < 100
+User.scoped(:conditions => 'id > 10').scoped(:conditions => 'id > 100')
+{% endhighlight %}
+
+As you can see building complex conditions can be made easier with the usage of scoped facility introduced in Rails 2.1 .

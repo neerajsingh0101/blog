@@ -1,0 +1,263 @@
+---
+layout: post
+title: Understanding life cycle of Rails when the server starts up
+---
+Let's say that any time the server starts you want to print out the migration version information from the <code>schema_info</code> table. Let's put in the code at the very beginning of the environment.rb after the boot statement.
+
+{% highlight ruby %}
+require File.join(File.dirname(__FILE__), 'boot')
+puts ActiveRecord::Base.connection.execute('select * from schema_info').fetch_hash['version']
+
+Rails::Initializer.run do |config|
+......
+{% endhighlight %}
+
+When we start the server, we get following error message.
+
+{% highlight ruby %}
+ in "load_missing_constant": uninitialized constant ActiveRecord (NameError)
+{% endhighlight %}
+
+It means the application doesn't know what <code>ActiveRecord</code> is. Let's try to find out what happens when the server is started. At what point the database connection is made.
+
+<h3> Request begins with apache</h3>
+Assuming that apache server is at the front, apache looks for .htaccess file in the directory. All Rails applications have .htaccess file. The job of this .htaccess file ( found in public directory) is to call dispatcher. dispatcher handles all the ruby/rails related code processing.
+
+
+{% highlight ruby %}
+require File.dirname(__FILE__) + "/../config/environment" unless defined?(RAILS_ROOT)
+{% endhighlight %}
+
+Now let's hop over to environment.rb and see what happens there.
+
+First two lines  of environment.rb is 
+
+{% highlight ruby %}
+RAILS_GEM_VERSION = '1.2.5' unless defined? RAILS_GEM_VERSION
+require File.join(File.dirname(__FILE__), 'boot')
+{% endhighlight %}
+
+<h3>boot.rb</h3>
+
+boot.rb accomplishes following tasks:
+<ul>
+<li>Setting up <code>RAILS_ROOT</code></li>
+
+<li>Loading the version of rails mentioned as <code>RAILS_GEM_VERSION</code> . If you have not mentioned RAILS_GEM_VERSION in environment.rb then the default rails version is loaded.</li>
+
+<li>
+Adding Rails library and your application code to the <code>LOAD_PATH</code> by invoking
+<code>Rails::Initializer.run(:set_load_path)</code>
+</li>
+
+LOAD_PATH is the list of directories where ruby will look while searching (for class,module etc). Method <code>set_load_path</code> adds rails code and application code to LOAD_PATH.  Note that those files are not yet loaded into memory. 
+</ul>
+
+Up until this point nothing is loaded. We have the LOAD_PATH and thats it.
+
+
+<h3>Rails::Initializer.run </h3>
+Next in environment.rb we have following piece of code.
+
+{% highlight ruby %}
+Rails::Initializer.run do |config|
+    # do something with the configuration object
+end
+{% endhighlight %}
+
+As per the documentation:The Configuration class holds all the parameters for the Initializer and ships with defaults that suites most Rails applications. 
+
+Note that the last line of boot.rb invokes the same method but in that case argument (:set_load_path) is passed. In this case no argument is being passed which means the default method (:process) is invoked. Let's look at the code.
+
+{% highlight ruby %}
+    def self.run(command = :process, configuration = Configuration.new)
+      yield configuration if block_given?
+      initializer = new configuration
+      initializer.send(command)
+      initializer
+    end
+{% endhighlight %}
+
+From the code it's clear that the the configuration object is yielded. After  the yield is over then
+the method process
+ is invoked. It means in the environment.rb when we have the configuration object we are just modifying the configuration object. The real action will take place later in the process method.
+
+Let's look at the process method. As per the documentation following things are done in the process method.
+
+<ul>
+
+<li>
+<strong>set_load_path</strong>: This method was already invoked at the end of boot.rb file. I am not sure why it is invoked again.
+</li>
+
+<li><strong>set_connection_adapters</strong>: By default Rails loads all connection adapters. However one can configure it to load only the database adapter in use to reduce the start up time. For example 
+I have following code in my environment.rb since I only want to load adapters for mysql.
+
+{% highlight ruby %}
+config.connection_adapters = ['mysql']
+{% endhighlight %}
+
+</li>
+
+<li>
+<strong>require_frameworks</strong>:  Rails by default loads  all frameworks (ActiveRecord, ActiveSupport, ActionPack, ActionMailer, and ActionWebService). I am not using ActionWebService and hence I can say 
+
+{% highlight ruby %}
+  config.frameworks = [ :active_record,:action_controller,:action_view,:action_mailer ]  
+{% endhighlight %}
+
+</li>
+
+
+
+<li>
+<strong>load_environment</strong>: Depending on the environment either the environments/development.rb, environments/test.rb or environments/production.rb file is read. Note that the config values set in environment.rb is overriden by values from these files read under the environments directory.
+The main piece of code here is
+
+{% highlight ruby %}
+eval(IO.read(configuration.environment_path), binding, configuration.environment_path)
+{% endhighlight %}
+
+configuration.environment_path is the absolute path to the file. In my case the value is /home/neeraj/demo_app/config/environments/development.rb
+</li>
+
+
+
+<li>
+<strong>initialize_database</strong>: This is where database configuration is set and after setting the database configuration, an attempt is made to connect to the database. 
+
+{% highlight ruby %}
+ActiveRecord::Base.configurations = configuration.database_configuration
+ActiveRecord::Base.establish_connection
+{% endhighlight %}
+
+Now it's clear that  before this operation takes  place any attempt to do any database operation will fail
+ because the <code>ActiveRecord::Base.configurations </code> is not even populated with the values from  database.yml.
+</li>
+
+
+<li><strong>initialize_logger</strong>: This operation creates a new instance of the logger.</li>
+
+
+<li>
+<strong>initialize_framework_logging</strong>: This operation sets the logger instance previously created in the frameworks previously loaded.  Because of this operation we don't need to create logger instance inside a controller and we just start typing logger.info(''...").
+
+{% highlight ruby %}
+      for framework in ([ :active_record, :action_controller, :action_mailer ] & configuration.frameworks)
+        framework.to_s.camelize.constantize.const_get("Base").logger ||= RAILS_DEFAULT_LOGGER
+      end
+{% endhighlight %}
+</li>
+
+
+<li><strong>initialize_framework_views</strong>: sets the template root for action_controller and action_mailer.
+</li>
+
+
+<li>
+<strong>initialize_dependency_mechanism</strong>: I find this name to be a bit misleading. Remember in production classes are cached and the changes are not auto loaded while in development classes are auto loaded. Before we go further we need to understand the difference between 'require' and 'load' statements.
+
+When ruby encounters 'require' statement it loads that file if the file has not been previously loaded. When ruby encounters 'load' statement then that file is immediately loaded into memory irrespective of whether it was previously loaded or not.
+
+In development environment you want files to be auto loaded every time. So Rails should use 'load' . In production classes need to be cached and should not be loaded every single time, so rails should use 'require'. How does Rails manage that. Here is the answer.
+
+{% highlight ruby %}
+      Dependencies.mechanism = configuration.cache_classes ? :require : :load
+{% endhighlight %}
+
+If you open up environments/development. rb you will see <code>config.cache_classes = false</code>. In environments/production.rb you will see <code>config.cache_classes = true</code> . Based on false or true value Rails uses 'require' or 'load'.
+</li>
+
+
+
+<li><strong>initialize_breakpoints</strong>: sets the breakpoint.</li>
+
+<li><strong>initialize_whiny_nils</strong>: If you have enabled whiny_nils then when a method is invoked on nil then noisy warning is written to the log. By default it is turned off.</li>
+
+
+<li><strong>initialize_framework_settings</strong>: Initialize all the loaded frameworks by sending 'setting' method to the class <code>Base</code>  of each of the frameworks.
+
+{% highlight ruby %}
+      configuration.frameworks.each do |framework|
+        base_class = framework.to_s.camelize.constantize.const_get("Base")
+        configuration.send(framework).each do |setting, value|
+          base_class.send("#{setting}=", value)
+        end
+      end
+{% endhighlight %}
+
+</li>
+
+
+<li><strong>load_plugins</strong>: This is where plugins are loaded. All the init.rb files under vendor/plugins/* are evaluated.
+All the lib directories under vendor/plugins/* is added to the LOAD_PATH. By default plugins are loaded in alphabetical order; however you can control the order by specifying config options.
+
+{% highlight ruby %}
+ find_plugins(configuration.plugin_paths).sort.each { |path| load_plugin path }
+{% endhighlight %}
+
+Let's look inside the load_plugin method.
+
+{% highlight ruby %}
+      def load_plugin(directory)
+        name = File.basename(directory)
+        return false if loaded_plugins.include?(name)
+        # start loading plugin
+    end 
+{% endhighlight %}
+
+The above code explains whey when I change anything in plugin I need to restart the server. That's because the load_plugin method loads a plugin only once. If you work extensively on plugins and want the behavior to reload plugins every single time in development then this method could be overridden in your application. I haven't tested this theory though.
+</li>
+
+
+<li><strong>load_observers</strong>: Observers are loaded.
+{% highlight ruby %}
+ActiveRecord::Base.instantiate_observers
+{% endhighlight %}
+</li>
+
+
+<li>
+<strong>initialize_routing</strong>: loads routing definitions
+
+{% highlight ruby %}
+    def initialize_routing
+      return unless configuration.frameworks.include?(:action_controller)
+      ActionController::Routing.controller_paths = configuration.controller_paths
+      ActionController::Routing::Routes.reload
+    end
+{% endhighlight %}
+</li>
+
+<li><strong>after_initialize</strong>: after routing configuration is loaded then rails provides a hook to do any final settings that needs to be done with the config. 
+
+{% highlight ruby %}
+    def after_initialize
+      configuration.after_initialize_block.call if configuration.after_initialize_block
+    end
+{% endhighlight %}
+
+Where would you use it. Let's say that you have written a plugin which automatically shows tables and all its values. This is so that the admin of the site can quickly update the database. The problem is that that each application will have different way of implementing check to ensure that admin is logged in. So the strategy will be to allow the user to configure the name of the method that should be called to check if the user is admin or not. 
+
+Remember that this configuration can be done only after all the plugins are loaded otherwise the value which you want to set might not be there in the config object. The best place to pass the name of method will be after_initialize block. Here is one usage.
+
+{% highlight ruby %}
+  config.after_initialize do
+    Railmail::ActionMailer::InstanceMethods.railmail_settings[:before_filter] = [:is_user_admin?]
+  end  
+{% endhighlight %}
+
+</li>
+</ul>
+
+
+<h3> config.to_prepare</h3>
+All the above methods discussed are called only once when the server is booting up. <code>config.to_prepare</code> is called before every single request in development mode and before the first request in production mode. This is a good place to check if you want to halt processing if something in the application is not quite right after the new deployment.
+
+
+<i>
+Please keep in mind that in Rails 2.0 some new functionalities are being added. However overall the booting process of Rails more or less remains same.
+</i>
+
+
+Reference: <a href="http://toolmantim.com/article/2006/12/27/environments_and_the_rails_initialisation_process">toolmantim</a>, <a href="http://www.manning.com/black/">Ruby for Rails</a>

@@ -1,0 +1,69 @@
+---
+layout: post
+title: UnboundMethod in ruby
+---
+Check this out
+
+
+{% highlight ruby %}
+class Person
+  def hello
+    'Hello'
+  end
+end
+
+m = Person.instance_method(:hello)
+puts m.class 
+#=> UnboundMethod 
+{% endhighlight %}
+
+Click "here for the rdoc":http://ruby-doc.org/core/classes/UnboundMethod.html of UnboundMethod. 
+
+Jay fields has posted a nice article about how to go about redefining a method using this "trick":http://blog.jayfields.com/2008/07/ruby-move-method-from-class-to-module.html
+
+Since 'm' is not bound to any person object we can't really use. In order to use 'm' we need to bind it to real object. This will work.
+
+{% highlight ruby %}
+class Person
+  def hello
+    'Hello'
+  end
+end
+
+m = Person.instance_method(:hello)
+puts m.class
+
+p = Person.new
+puts m.bind(p).call
+# UnboundMethod
+# Hello
+{% endhighlight %}
+
+Any method can be overridden using this UnboundMethod technique. One cool feature of unbound method is that once it has been captured the nature of this method will not change even though the underlying implementation has been changed subsequently.
+
+{% highlight ruby %}
+class Person
+  def hello
+    'Hello'
+  end
+end
+
+m = Person.instance_method(:hello)
+puts m.class
+
+p = Person.new
+puts m.bind(p).call
+
+module Revised
+  m = Person.instance_method(:hello)
+  define_method :hello do |*args|
+    tmp = m.bind(self).call(*args)
+    tmp + ' ruby'
+  end
+end
+
+puts Person.new.extend(Revised).hello
+#UnboundMethod
+#Hello
+#Hello ruby
+{% endhighlight %}

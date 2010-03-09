@@ -1,0 +1,23 @@
+---
+layout: post
+title: Representing string in alternate ways
+---
+Using quotation ( single or double) sometimes gets in the way. I use the alternate notation sometimes. But I use it so rarely that when I do need to use it, I need to refer a book. So here it is for my own reference.
+
+{% highlight ruby %}
+s1 = %q[ this acts like a single quotation string]
+s2 = %Q[ this acts like a double quotation string]
+
+s3 = <<EOF
+this is like 
+a double quotation
+string
+EOF
+
+s4 = <<'EOF'
+this is like
+a single 
+quotation
+string
+EOF
+{% endhighlight %}

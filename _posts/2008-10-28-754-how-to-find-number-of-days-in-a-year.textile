@@ -1,0 +1,22 @@
+---
+layout: post
+title: How to find number of days in a year
+---
+You would think it would be easy to find number of days in a given year in Ruby/Rails world, where lots of useful methods are by present by default. 
+
+There are multiple solutions and you can follow the discussion "here":http://groups.google.com/group/ruby-talk-google/browse_thread/thread/a6a4bf5ca179dfa1/1b3517a25ec17338?show_docid=1b3517a25ec17338&pli=1 . However the best solution was posted at the very end.
+
+{% highlight ruby %}
+# yday represents the day of the year
+>> Time.now.yday
+=> 302
+
+# to get the number of days in a year use yday
+>> require 'date'
+>> DateTime.new(2008,12,31).yday
+=> 366
+>> DateTime.new(2009,12,31).yday
+=> 365
+{% endhighlight %}
+
+Nifty usage of yday method.
