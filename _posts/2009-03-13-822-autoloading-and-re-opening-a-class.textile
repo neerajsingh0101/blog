@@ -1,0 +1,138 @@
+---
+layout: post
+title: Autoloading and re opening a class
+---
+ruby allows to re-open a class. After re-opening the class the behavior of the class can be changed.
+
+{% highlight ruby %}
+class Dog
+end
+class Dog
+  def bark
+    puts 'bho bho'
+  end
+end
+
+Dog.new.bark #=> 'bho bho'
+{% endhighlight %}
+
+In the above case initially class Dog was defined without any method. The this class was re-opened and the method <tt>bark</tt> was added. It all worked out pretty well.
+
+
+h2. Re opening a class messes with autolading feature
+
+In development mode "a model object is lazily loaded":http://www.neeraj.name/blog/articles/797-code-works-in-development-but-not-in-production-ii . What it means is that unless there is a need for a model that model is not loaded into memory. This lazy loading of the model has implication on how we should re-open a class.
+
+h2. Things going wrong
+
+Let's say you you have a model called <tt>User</tt>  and it looks like this. 
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  def speaks
+    "hello"
+  end
+end
+{% endhighlight %}
+
+You want to add a method called <tt>drinks</tt> . To add this method you would re-open the class and will add this method. Stick this code at the bottom of <tt>environment.rb</tt> .
+
+{% highlight ruby %}
+class User
+  def drinks
+    "water"
+  end
+end
+{% endhighlight %}
+
+Now try using these methods.
+
+{% highlight ruby %}
+>> User.new.drinks
+=> "water"
+>> User.new.speaks
+NoMethodError: undefined method `speaks' for #<User:0x1fa8c54>
+	from (irb):2
+{% endhighlight %}
+
+So what happened there. Why the user instance does not have method speaks when it was defined. Even worse User class is not aware of methods provided by ActiveRecord. Try this.
+
+{% highlight ruby %}
+>> User.first
+NoMethodError: undefined method `first' for User:Class
+	from (irb):3
+{% endhighlight %}
+
+Even User.first is failing.
+
+However you will not face this problem if you run your script/console in production mode. This is an inverse case where code does not work in development mode but it works in production mode.
+
+
+h2. Explanation 
+
+In order to understand what is going on here, first you need to know about the "autoloading and lazy loading feature of Rails":http://www.neeraj.name/blog/articles/797-code-works-in-development-but-not-in-production-ii .
+
+You stick your code to reopen the class at the bottom of environment.rb. Well you intended to re-open the class but mistakenly you defined a class. 
+
+Technically ruby re-opens the class only if ruby VM has already loaded that class. In the development mode by the time enviroment.rb code is fully executed the class User defined in user.rb has not yet been loaded into memory. So when ruby VM looks at the bottom of the <tt>environment.rb</tt> it assumes that this is a new definition of the class. This is the reason why in development mode User instance responds to <tt>drinks</tt> method.
+
+You might be wondering later when User class from user.rb is loaded then the missing ActiveRecord methods should become available. Well the way auto-loading works is that it relies on const_missing. Since in this case User class is already defined, VM does not invoke const_missing. And since const_missing is never invoked the User class defined in user.rb is never invoked. In fact you can test it. Change user.rb to have a raise inside it like this
+
+{% highlight ruby %}
+class User < ActiveRecord::Base
+  raise "boom"
+  def speaks
+    "hello"
+  end
+end
+{% endhighlight %}
+
+Remove the code that you added at the bottom of <tt>enviroment.rb</tt> and try running <tt>script/console</tt>
+
+{% highlight ruby %}
+> User.first
+RuntimeError: boom
+	from /Users/nkumar/dev/scratch/demo/app/models/user.rb:2
+{% endhighlight %}
+
+See you got the boom. Now add the code back at the bottom of <tt>enviroment.rb</tt> and execute <tt>script/console</tt> again.
+
+{% highlight ruby %}
+>> User.new.drinks
+=> "water"
+{% endhighlight %}
+
+You see no boom. It means that ruby VM never ever looked at User class defined in user.rb .
+
+h2. Why this code works in production mode
+
+The code works in production mode because by the time VM looks at the bottom of <tt>environment.rb</tt> all the model classes are already loaded. And in this case ruby VM rightly re-opens the class and things work fine.
+
+h2. Solution
+
+Back to the original problem of adding the method <tt>drinks</tt> to the User class. 
+
+One way to fix this problem is to have a <tt>User.new</tt> statement before re-opening the class. This is not a good solution but it works.
+
+{% highlight ruby %}
+
+User.new
+class User
+  def drinks
+    "water"
+  end
+end
+{% endhighlight %}
+
+A much better solution would be this.
+
+{% highlight ruby %}
+module Drinking
+  def drinks
+    "water"
+  end
+end
+User.instance_eval { include Drinking }
+{% endhighlight %}
+
+This post was inspired by "Living without send":http://codefluency.com/2009/03/13/living-without-send.html . <br />

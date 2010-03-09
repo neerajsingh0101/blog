@@ -1,0 +1,218 @@
+---
+layout: post
+title: Restful architecture does not mean one to one mapping with model
+---
+Rails makes it easy to adapt Restful architecture. All you have to do is
+
+{% highlight ruby %}
+map.resources :pictures    
+{% endhighlight %}
+
+I started putting all pictures related activitites in pictuers_controller.rb . In the beginning it was simple. 
+
+Slowly the application evolved. The application started handling two different types of pictures. There would be pictures for events and then there would be pictures of users using the system. 
+
+You can add comments to the event pictures but you can't add comment to user pictures. And slowly the requirement for event pictures grew vastly different from user pictures.
+
+Sounds familiar. Right. Initially controller takes on a few responsibilities but slowly the controller starts taking a lot more responsibilities and then controller becomes huge in code size.
+
+The pictures controller was really really huge and was fast becoming a mess. Especially writing test was getting very difficult.
+
+Time had come to create two different controllers: one for event pictures and one for user pictures.
+
+But wait. Lots of people would say that if we want to be restful then there has to be one to one mapping between the model and the controller. Not true.
+
+h2. Model != resource
+
+Being restful does not mean that there has be a one to one mapping between the model and the controller. 
+
+I am going to create a new controller called user_pictures_controller.rb that will take on all the functionality related to users dealing with picture. And this is going to be restful.
+
+{% highlight ruby %}
+map.resources :user_pictures
+{% endhighlight %}
+
+Above I have defined a resource called <tt>user_pictures</tt>. To keep it simple this controller would do only three things. 
+
+* display all the pictures of the user ( index )
+* allow user to upload pictures ( create )
+* allow user to delete a picture ( destroy )
+
+That's the general idea. In my application I have only three actions.
+
+However in the interest of general discussion I am going to show all the seven methods here. Also for simplicity create in this case means adding a record (I am not showing multipart upload).
+
+h2. Controller
+
+Here is the code for controller.
+
+{% highlight ruby %}
+# user_pictures_controller.rb
+class UserPicturesController < ApplicationController
+  
+  def index
+    @pictures = Picture.all
+  end
+  
+  def new
+    render
+  end
+  
+  def create
+    @picture = Picture.new(params[:picture])
+    if @picture.save
+      flash[:notice] = 'Picture was successfully created.'
+      redirect_to user_picture_path(:id => @picture.id) 
+    else
+      render :action => "new" 
+    end
+  end
+  
+  def show
+    @picture = Picture.find(params[:id])
+  end
+  
+  def edit
+    @picture = Picture.find(params[:id])    
+  end
+  
+  def update
+    @picture = Picture.find(params[:id])
+    if @picture.update_attributes(params[:picture])
+      flash[:notice] = 'Picture was successfully updated.'
+      redirect_to user_picture_path(:id => @picture.id) 
+    else
+      render :action => "edit"
+    end
+  end
+  
+  def destroy
+    @picture = Picture.find(params[:id])
+    @picture.destroy
+
+    redirect_to user_pictures_path
+  end
+  
+end
+
+{% endhighlight %}
+
+
+h2. View
+
+# index.html.erb
+
+{% highlight ruby %}
+<h1>Listing pictures</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Quality</th>
+  </tr>
+
+<% for picture in @pictures %>
+  <tr>
+    <td><%=h picture.name %></td>
+    <td><%=h picture.quality %></td>
+    <td><%= link_to 'Show', user_picture_path(picture) %></td>
+    <td><%= link_to 'Edit', edit_user_picture_path(picture) %></td>
+    <td>  <%= link_to 'Destroy',  user_picture_path(picture), 
+                                :confirm => 'Are you sure?',
+                                :method => :delete %>
+                                
+    </td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New picture', new_user_picture_path %>
+{% endhighlight %}
+
+
+# edit.html.erb
+
+{% highlight ruby %}
+<h1>Editing picture</h1>
+
+<% form_for(:picture, 
+            :url => user_picture_path(@picture),
+            :html => {:method => :put}) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :quality %><br />
+    <%= f.text_field :quality %>
+  </p>
+  <p>
+    <%= f.submit "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', user_picture_path(@picture) %> |
+<%= link_to 'All', user_pictures_path %>
+{% endhighlight %}
+
+
+# new.html.erb
+
+{% highlight ruby %}
+<h1>New picture</h1>
+
+<% form_for(:picture, :url => user_pictures_path, :html => {:method => :post}) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :quality %><br />
+    <%= f.text_field :quality %>
+  </p>
+  <p>
+    <%= f.submit "Create" %>
+  </p>
+<% end %>
+
+<%= link_to 'All', user_pictures_path %>
+{% endhighlight %}
+
+
+# show.html.erb
+
+{% highlight ruby %}
+<p>
+  <b>Name:</b>
+  <%=h @picture.name %>
+</p>
+
+<p>
+  <b>Quality:</b>
+  <%=h @picture.quality %>
+</p>
+
+
+<%= link_to 'Edit', edit_user_picture_path(:id => @picture) %> |
+<%= link_to 'All', user_pictures_path %>
+{% endhighlight %}
+
+
+h2. Another use case
+
+Let's talk about another example. Let's say that we have a model called project and besides the regular functionality of creating, deleting, updating and listing projects, one needs two more actions called enable and disable project.
+
+Well the projects controller can easily handle two more actions called enable and disable. However it is a good idea to create another controller called project_status_controller . And this controller should have only two actions - create and destroy. destroy in this case would mean disabling the project and create would mean enabling the controller. I know initially it looks counter intuitive. Why would you know have actions called 'enable' and 'disable' which are much more easy to relate to compared to having another controller with methods 'create' and 'destroy'. All I can say is that REST is a big topic. Do a search on REST and try reading a few books. Also the more you work developing RESTful controller the more you will understand about it.
+
+
+h2. Conclusion
+
+In this blog I tried to show that it is not necessary to have one to one mapping between model and controllers to be restful.
+
+It is always a good idea to create a separate controller when the existing controller is burdened with too much work. <br />

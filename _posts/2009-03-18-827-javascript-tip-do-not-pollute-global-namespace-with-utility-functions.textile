@@ -1,0 +1,107 @@
+---
+layout: post
+title: Javascript tip  do not pollute global namespace with utility functions
+---
+I am learning Javascript and as I do more Javascript work I am learning not only the language but also the best practices. Today I am developing a Javascript calendar. In the process of creating the calendar I created a bunch of utility functions that are available at global namespace.
+
+h2. What are we talking about
+
+My main concern is that as Javascript develeoper I should not be polluting global namespace. I could write the calendar code like this.
+
+{% highlight js %}
+  showCalendar = function(options,d){
+  };
+
+  calendarHeaderMonth = function(opts){
+  };
+
+  calendarHeaderWeek = function(opts){
+  };
+  
+  calendarData = function(opts){
+  };
+  
+  drawCalendar = function(opts,d){
+  };
+
+  getCellID = function(year,month,day){
+  };
+
+ // use showCalendar
+ showCalendar({},new Date());
+{% endhighlight %}
+
+You can see that the main method that I want to expose to global namespace is <tt>showCalendar</tt>. However I am also exposing six other functions to global namespace. It means that if some user has declared a global namespace function named <tt>getCellID</tt> then my <tt>getCellID</tt> is going to collide with the user's function. This is not good.
+
+h2. Goal
+
+The goal is to refactor the code in such a way that only one method <tt>showCalendar</tt> is exposed to the global namespace.  In order to test the code at the very end of the javascript I will invoke a call to method <tt>getCellID</tt>. 
+
+{% highlight js %}
+  showCalendar = function(options,d){
+  };
+
+  calendarHeaderMonth = function(opts){
+  };
+
+  calendarHeaderWeek = function(opts){
+  };
+  
+  calendarData = function(opts){
+  };
+  
+  drawCalendar = function(opts,d){
+  };
+
+  getCellID = function(year,month,day){
+  };
+
+ // use showCalendar
+ showCalendar({},new Date());
+
+ // this call should fail but is not failing now
+ getCellID(2009,5,4);
+{% endhighlight %}
+
+The above call to <tt>getCellID</tt> is currently being executed successfully. It means I have polluted the global namespace.  I am going to fix it.
+
+h2. Solution
+
+The solution is to put all the code inside a function. In a function all the variables and functions declared are scoped only to that function. Out of that function, inner functions cannot be used. Inside this function only one method <tt>showCalendar</tt> would be exposed.
+
+Here is the solution.
+
+{% highlight js %}
+(function(){
+
+  // by not declaring var this variable is going to be at global namespace
+  showCalendar = function(options,d){
+  };
+
+  var calendarHeaderMonth = function(opts){
+  };
+
+  var calendarHeaderWeek = function(opts){
+  };
+
+  var calendarData = function(opts){
+  };
+
+  var drawCalendar = function(opts,d){
+  };
+
+  var getCellID = function(year,month,day){
+  };
+	
+})();
+
+showCalendar({},new Date());
+
+// this call will fail
+getCellID(2009,5,4);
+
+{% endhighlight %}
+
+In the above case the call to <tt>showCalendar</tt> was successful. However call to <tt>getCallID</tt> failed. That's good. It means I am not polluting the global namespace.
+
+If you notice carefully in the above case after declaring an anonymous function I am invoking that function by having <tt>()</tt> at the end. You can read more about "self-invoking function here":http://www.neeraj.name/blog/articles/821-understanding-jquery-plugin-pattern-and-self-invoking-javascript-function . <br />

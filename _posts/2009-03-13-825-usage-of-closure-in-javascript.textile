@@ -1,0 +1,125 @@
+---
+layout: post
+title: Usage of Closure in Javascript
+---
+In this article you are going to see what you can do with the power of Closure in Javascript. This not an article about what Closure is. This is an article about what Closure can do. I see a lot of people asking the question what's the big deal with Closure. They want more real world cases where Closure will make sense. 
+
+
+h2. Example1: Getting digit name
+
+The goal is to read from an array and display the result. The first implementation is to put everything in Global namespace.
+
+{% highlight js %}
+var names = ['zero', 'one', 'two', 'three', 'four', 'five'];
+
+var digit_name = function(n) {
+  return names[n];
+};
+
+alert(digit_name(3)); // 'three'
+{% endhighlight %}
+
+Above solution works. However creating a global variable <tt>names</tt> is not a good thing. You should create as less global variables as possible.
+
+
+<strong>Moving to a function</strong>
+
+Next step is to move the code to a function. In this case we will not have any global variable.
+
+{% highlight js %}
+var digit_name = function(n){
+  var names = ['zero', 'one', 'two', 'three', 'four', 'five'];  
+  return names[n];
+};
+alert(digit_name(3));
+{% endhighlight %}
+
+The above solution is very slow. Every single time the function is called the whole array is loaded. This solution works and most of the developers will settle with this one. However Closure can provide a better solution.
+
+<strong>Better solution with Closure</strong>
+
+{% highlight js %}
+var digit_name = function(){
+  var names = ['zero', 'one', 'two', 'three', 'four', 'five'];  
+  
+  return function(n){
+    return names[n];
+  };
+}();
+alert(digit_name(3));
+{% endhighlight %}
+
+Note that at after declaring the function the function is also getting invoked. This is a case of self invoking function. You can find out more bout self invoking function "here":http://www.neeraj.name/blog/articles/821-understanding-jquery-plugin-pattern-and-self-invoking-javascript-function . 
+
+
+h2. Example2: Getters and Setters
+
+Developers deal with getters and setters all the time. However creating a good getter and setter could be a little tricky. Here is one implementation
+
+{% highlight js %}
+
+function Field(val){
+    var value = val;
+   
+    this.getValue = function(){
+        return value;
+    };
+   
+    this.setValue = function(val){
+        value = val;
+    };
+}
+
+var field = new Field("test");
+field.value
+// => undefined
+field.setValue("test2")
+field.getValue()
+// => "test2"
+{% endhighlight %}
+
+Above solution works and it's nicely done. 
+
+Let's look at another implementation.
+
+{% highlight js %}
+var getValue, setValue; 
+(function() { 
+  var secret = 0; 
+  getValue = function(){ 
+    return secret; 
+  }; 
+  setValue = function(v){ 
+    secret = v; 
+  }; 
+})() 
+
+setValue('foo');
+getValue(); // foo
+{% endhighlight %}
+
+
+
+h2. Example3: Building an iterator using Javascript
+
+{% highlight js %}
+function custome_iterator(x) { 
+  var i = 0; 
+  return function(){ 
+    return x[i++]; 
+  }; 
+}
+
+var next = setup(['one', 'two', 'three', 'four']); 
+
+next();
+next();
+next();
+{% endhighlight %}
+
+
+This is a simple case of serially iterating through the items provided but the logic of deciding next element can be complex and it can be private.
+
+Closure is a big topic and a lot of people have written a lot about it. Just search for Closure and you will get  tons of links. I refer to this article time to time to see what pattern to use to make best usage of Javascript Closure.
+
+This article was inspired by "this book":http://www.amazon.com/Object-Oriented-JavaScript-high-quality-applications-libraries/dp/1847194141, "this video":http://www.youtube.com/watch?v=hQVTIJBZook and "this article":http://ejohn.org/blog/javascript-getters-and-setters/ . <br />

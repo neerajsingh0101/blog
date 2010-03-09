@@ -1,0 +1,91 @@
+---
+layout: post
+title: Column change and adding data in the same migration
+---
+
+Take a look at this migration.
+
+
+{% highlight ruby %}
+class AddColumnBar5ToUsers < ActiveRecord::Migration
+  def self.up
+    add_column :users, :bar5, :string
+    User.create(:bar5 => 'bar5')
+  end
+  def self.down
+    remove_column :users, :bar5
+  end
+end
+class AddColumnBar6ToUsers < ActiveRecord::Migration
+  def self.up
+    add_column :users, :bar6, :string
+    User.create(:bar6 => 'bar6')
+  end
+  def self.down
+    remove_column :users, :bar6
+  end
+end
+{% endhighlight %}
+
+Will it surprise you, if I say that this migration will fail. And it will fail when a user record is being created with value for bar6 column.
+
+I was surprised by the result. This is the error I got.
+
+<pre>
+rake aborted!
+An error has occurred, all later migrations canceled:
+unknown attribute: bar6
+</pre>
+
+h2. Another variant of the same problem
+
+{% highlight ruby %}
+def self.up
+  Person.delete_all
+  add_column :people, :foo1, :string
+  Person.create(:foo1 => 'wow')
+end
+{% endhighlight %}
+
+The root cause of the problem in both the cases is same.
+
+h2. Explanation
+
+When it comes to executing migrations, rails does not load all the models in the beginning. It loads the classes on a need basis.
+ 
+
+However when a class is loaded, all the information regarding that class is also loaded. It includes the columns listing. So in the migration if you add a new column and if class was loaded before this change was done then the loaded class holds stale information about the columns. And now if you try to make use of new column as I did in the last two examples then you will get the error .
+
+To fix this problem you need to call reset_columns, anytime table properties are changing.
+
+{% highlight ruby %}
+User.reset_column_information
+{% endhighlight %}
+
+
+h2. Solution
+
+{% highlight ruby %}
+class AddColumnBar5ToUsers < ActiveRecord::Migration
+  def self.up
+    add_column :users, :bar5, :string
+    User.reset_column_information    
+    User.create(:bar5 => 'bar5')
+  end
+  def self.down
+    remove_column :users, :bar5
+  end
+end
+
+
+class AddColumnBar6ToUsers < ActiveRecord::Migration
+  def self.up
+    add_column :users, :bar6, :string
+    User.reset_column_information    
+    User.create(:bar6 => 'bar6')
+  end
+  def self.down
+    remove_column :users, :bar6
+  end
+end
+{% endhighlight %}

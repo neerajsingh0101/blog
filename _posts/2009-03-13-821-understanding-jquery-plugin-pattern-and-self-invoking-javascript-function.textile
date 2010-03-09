@@ -1,0 +1,56 @@
+---
+layout: post
+title: Understanding jQuery Plugin Pattern and self-invoking javascript function
+---
+
+I am learning jQuery and one of things I was struggling with is the plugin pattern. In jQuery world it is very common to wrap the major functionality of the application inside a plugin.
+
+"Here is a great article":http://www.learningjquery.com/2007/10/a-plugin-development-pattern which describes in detail how to wrap your javascript code inside a jQuery plugin. The article did a great job of explaining the basics however it took me a while to understand the self-invoking functions.
+
+h3. self-invoking functions
+
+self-invoking functions are anonymous functions declared on run time and then invoke it right then and there. Since they are anonymous functions they can't be invoked twice. However they are a good candidate for initialization work which is exactly what is happening in the jQuery plugin pattern.
+
+h3. declaring a function
+
+A function can be declared in two ways:
+
+<pre>
+function hello(){ alert('Hello');}
+var hello = function(){ alert('Hello'); }
+</pre>
+
+The end result in the above two javascript statement was same. In the end a variable named hello was created which is a function. 
+
+Please note that in the above case only the functions are declared. They are not invoked. In order to invoke the function we have to do this
+
+{% highlight js %}
+var hello = function(){ alert('Hello'); }
+hello();
+{% endhighlight %}
+
+
+How do we invoke an anonymous function. We need to call () on the anonymous function. But before that we need to wrap the whole command in (). Take a look at this
+
+{% highlight js %}
+// original
+function hello(){ alert('Hello');}
+
+// step1 wrap everything in () so that we have a context to invoke
+(function hello(){ alert('Hello');})
+
+// now call () to invoke this function
+(function hello(){ alert('Hello');})();
+{% endhighlight %}
+
+The final result is weird looking code but it works and that is how an anonymous function is declared and invoke on run time.
+
+With this understanding now it becomes easier to see what is happening in this code
+
+{% highlight js %}
+(function($) {
+  // ....
+})(jQuery);
+{% endhighlight %}
+
+In the above case an anonymous function is being created. However unlike my anonymous function this anonymous function take a parameter and the name of this paramter is $. $ is nothing else but jQuery object that is being passed while invoking this function. <br />

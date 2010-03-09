@@ -1,0 +1,41 @@
+---
+layout: post
+title: Running one instance of rake task at a time using cron job
+---
+Sending out emails in real time is tricky. Sometimes it takes forever to connect to the email server. That's why I create a table called emailtbs ( email to be sent ). The table has following columns:
+
+* receipient_email
+* sender_email
+* subject
+* body
+* sent_at
+* created_at
+
+Of course I have a cron job which sends out email. The cron job invokes a rake task.
+
+h2. Problem definition
+
+The cron job used to run every single minute and would send out emails from emailtbs for records having null value in sent_at .
+
+One day a person added a huge friends list from gmail and wanted to invited all these friends to an event. Emailtbs table was populated with around 300 records.
+
+The cron job to send out email runs every single minute. Let's assume that 9:01 cron job loads all unsent records which is 300. At 9:02 the cron job invokes the rake task again . At 9:03 the cron job invokes the rake task again. And since the emails to be sent out is large all these cron jobs keep piling up and ultimately the server ran out of memory. Not to mention first few people got 10 to 15 emails. Not good.
+
+I needed a solution that would make it clear to cron job that if a cron job is still running then do not invoke another instance. Just skip it.
+
+h2. Solution
+
+After searching the net and with help from others, "I got this solution":http://gist.github.com/66399 . The solutions ensures that at any point of time only one cron job is running. If the second cron job wakes up and finds that an instance of cron job is already running then this cron job will silently skip.
+
+h2. Testing various cases
+
+Since this cron job puts a lock I did various tests to see if the locks are left hanging in there if something bad happens.
+
+While the cron job was running I killed the process. The lock file was not left hanging.
+
+While the cron job was running I put a condition to abort the rake task after certain intervals. Blowing up the rake task was handled cleanly and no lock file was left pending.
+
+I know this solution is not the best but it works. It has been in use in production for more than six months now and so far I am pretty satisfied with the result.
+
+There are better solutions out there. Just search on the net. Once again this is not the best solution but it is the most lightweight solution I could find which reliably works.
+ <br />

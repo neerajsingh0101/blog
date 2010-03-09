@@ -1,0 +1,23 @@
+---
+layout: post
+title: Javascript double equal vs triple equal
+---
+
+The double equal sign ( == ) in Javascript might trip you. The thing is that when you use double equal then Javascript does a type coercion before checking for equality.
+
+{% highlight js %}
+1 == '1' //true
+
+false == 0 //true 
+{% endhighlight %}
+
+In the above case string 1 is same as numeric one if you are using double equal. This might not be what you wanted when you were checking for equality.
+
+h2. Solution is triple equal 
+
+Triple equal does not do type coercion and you will get right result.
+
+<pre>
+1 === '1' //false
+false === 0 //false 
+</pre>
