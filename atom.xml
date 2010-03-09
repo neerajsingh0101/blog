@@ -5,16 +5,16 @@ layout: nil
 <feed xmlns="http://www.w3.org/2005/Atom">
  
  <title>www.neeraj.name</title>
- <link href="http://tagaholic.me/atom.xml" rel="self"/>
+ <link href="http://neeraj.name/atom.xml" rel="self"/>
  <link href="http://neeraj.name/"/>
  <updated>{{ site.time | date_to_xmlschema }}</updated>
  <id>http://neeraj.name/</id>
  <author>
    <name>Neeraj</name>
-   <email>neerajdotname@gmail.com</email>
+   <email>neeraj.cmu@gmail.com</email>
  </author>
  
- {% for post in site.posts %}
+ {% for post in site.posts limit: 10 %}
  <entry>
    <title>{{ post.title }}</title>
    <link href="http://neeraj.name{{ post.url }}"/>
