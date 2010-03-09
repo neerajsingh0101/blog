@@ -1,0 +1,39 @@
+---
+layout: post
+title: Do not have a column called notify. ActiveRecord will blow up
+---
+I added a column called <tt>notify</tt> in one of my tables and all the tests started failing. In particulr factory_girl started blowing up. Here is the exception I was getting.
+
+{% highlight ruby %}
+>> User.new.save
+  ArgumentError: wrong number of arguments (1 for 0)
+	from /Library/Ruby/Gems/1.8/gems/activerecord-2.3.2/lib/active_record/callbacks.rb:350:in `notify'
+	from /Library/Ruby/Gems/1.8/gems/activerecord-2.3.2/lib/active_record/callbacks.rb:350:in `callback'
+	from /Library/Ruby/Gems/1.8/gems/activerecord-2.3.2/lib/active_record/callbacks.rb:267:in `create'
+	from /Library/Ruby/Gems/1.8/gems/activerecord-2.3.2/lib/active_record/base.rb:2868:in   
+       `create_or_update_without_callbacks'
+{% endhighlight %}
+
+This is the code ActiveRecord has
+
+{% highlight ruby %}
+# lib/active_record/callbacks.rb
+
+private
+def callback(method)
+  result = run_callbacks(method) { |result, object| false == result }
+
+  if result != false && respond_to_without_attributes?(method)
+    result = send(method)
+  end
+
+  notify(method)
+
+  return result
+end
+{% endhighlight %}
+
+Since User has a column called 'notify', the notify method defined in callbacks.rb is getting overridden by @user.notify.
+
+
+<i>This code was tested with Rails 2.3.2</i> <br />

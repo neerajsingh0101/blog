@@ -1,0 +1,104 @@
+---
+layout: post
+title: Create fixed size thumbnail using attachment_fu . Example with pictures included
+---
+__Following code has been tested with Rails 2.3 .__
+
+If you are in a hurry then take a look at following four links
+
+* "Thumbnails with Rmagick for a normal picture":http://s3.amazonaws.com/neerajdotname-blog/attachment_fu_rmagic_big_picture.html
+* "Thumbnails with Rmagick for a tiny picture":http://s3.amazonaws.com/neerajdotname-blog/attachment_fu_rmagic_small_picture.html
+* "Thumbnails with MiniMagick for a normal picture":http://s3.amazonaws.com/neerajdotname-blog/attachment_fu_mini_magick_big_picture.html
+* "Thumbnails with MiniMagick for a tiny picture":http://s3.amazonaws.com/neerajdotname-blog/attachment_fu_mini_magick_small_picture.html
+
+Now the longer version.
+
+"attachment_fu":http://github.com/technoweenie/attachment_fu/tree/master makes it incredibly easy to upload pictures and to get thumbnails of the pictures. However getting the thumbnail of exact size is not straight forward and this trick is not mentioned in the README of the attachment_fu plugin.
+
+h2. Problem Definition
+
+I want to get thumbnails of size 200x200. Here is the model.
+
+{% highlight ruby %}
+class Picture < ActiveRecord::Base
+  has_attachment  :max_size => 5.megabytes,
+                  :content_type => :image,
+                  :storage => :s3,                  
+                  :processor => :MiniMagick, 
+                  :thumbnails => { :default_200x200 => '200x200' }
+
+  validates_as_attachment
+
+end
+{% endhighlight %}
+
+If you upload a picture of height 551 and width 800 then the thumbnails we will get by Rmagick is 
+"this one":http://s3.amazonaws.com/neerajdotname-blog/pictures/37/cycle_default_200x200.jpg 
+and the thumbnail you will get by MiniMagick is 
+"this one":http://s3.amazonaws.com/neerajdotname-blog/pictures/49/cycle_default_200x200.jpg 
+.
+
+
+h2. Using Rmagick processor with attachment_fu
+
+
+If you look at the documentation of attachment_fu you will notice that the thumbnail options are something like 
+
+{% highlight ruby %}
+:thumbnails => { :small => '10x10>',
+                 :thumb => '100x100>' }
+
+{% endhighlight %}
+
+I could not understand what that greater than sign <tt>></tt> meant at the end of '10x10>'. 
+
+This is what Rmagick documentation says.
+
+<blockquote>
+Use > to change the dimensions of the image only if its width or height exceeds the geometry specification. <  resizes the image only if both of its dimensions are less than the geometry specification. For example, if you specify '640x480>' and the image size is 256x256, the image size does not change. However, if the image is 512x512 or 1024x1024, it is resized to 480x480.
+</blockquote>
+
+I could not fully understand the documentation. I uploaded a picture with five different options. Let's discuss a few of them.
+
+h3. option: 200x200
+
+{% highlight ruby %} 
+ :processor => :Rmagick, 
+ :thumbnails => { :default_200x200 => '200x200' }
+{% endhighlight %}
+
+Rmagick is being asked to create thumbnail of dimension '200x200'. Be default Rmagick maintains the aspect ratio. And that is the reason by thumbnails that are created are not of exact size ( 200x200 ). Instead the thumbnail is of size (138x200)
+
+h3. option: 200x200!
+
+{% highlight ruby %}
+ :processor => :Rmagick, 
+ :thumbnails => { :ex_200x200 => '200x200!' }
+{% endhighlight %}
+
+The  addition of an exclamation mark tell Rmagick to stretch the thumbnail to fit to the exact size mentioned . The end result is a thumbnail of the exact size but it is stretched and some people don't like stretched pictures.
+
+h3. option: c200x200
+
+{% highlight ruby %}
+ :processor => :Rmagick, 
+ :thumbnails => { :crop_200x200 => 'c200x200' }
+ {% endhighlight %}
+
+In this case Rmagick is being asked to create a thumbnail by cropping it.
+
+h2. Rmagick with five different options. 
+
+"Click here":http://s3.amazonaws.com/neerajdotname-blog/attachment_fu_rmagic_big_picture.html and you will see a thumbnail created for each option. At the bottom of the page you will get the original image. 
+
+
+I also wanted to see what will happen if I upload a really small image. "Here is the result":http://s3.amazonaws.com/neerajdotname-blog/attachment_fu_rmagic_small_picture.html
+
+
+h2. Using MiniMagick with attachment_fu
+
+Most of options used for Rmagick also worked for MiniMagick except the cropping one. The option for cropping an image in MiniMagick is <tt>200x200c</tt> while the option for cropping an image in Rmagick is <tt>c200x200</tt>. Notice the position of 'c'.
+
+"Here is the result of experiment with MiniMagick":http://s3.amazonaws.com/neerajdotname-blog/attachment_fu_mini_magick_big_picture.html .
+
+"Here is the MiniMagick working with a smaller image":http://s3.amazonaws.com/neerajdotname-blog/attachment_fu_mini_magick_small_picture.html .<br />

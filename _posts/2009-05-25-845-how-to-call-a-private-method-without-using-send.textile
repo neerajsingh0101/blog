@@ -1,0 +1,38 @@
+---
+layout: post
+title: How to call a private method without using send
+---
+In Ruby one can invoke a private or protected method by calling <tt>send</tt>. However in ruby 1.9 send cannot be used to invoke private/protected method. No need to alarm. In stead of <tt>send</tt> use <tt>send!</tt> in ruby 1.9.
+
+However I started thinking about what are the other ways of calling private method. I came up with three solutions.
+
+{% highlight ruby %}
+class Car
+  
+  private
+
+  def honk
+    puts 'beep beep'
+  end
+
+end
+
+
+c = Car.new
+
+c.send(:honk)
+
+c.method(:honk).call
+
+c.instance_eval { honk }
+
+class << c
+  public :honk
+end
+c.honk
+class << c
+  private :honk
+end
+{% endhighlight %}
+
+If anyone knows of any other solution then please post it in comments. <br />

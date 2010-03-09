@@ -1,0 +1,112 @@
+---
+layout: post
+title: How to create a dynamic javascript widget
+---
+<i>
+Following code has been tested with Rails 2.3.2
+</i>
+
+h2. Objective
+
+The goal is to create a javascript dynamic widget. This widget will display list of events happening in Mumbai, India. The data will be pulled from the API provided by "EventsInIndia.com":http://www.eventsinindia.com . I picked up EventsInIndia.com because no API_KEY is neeed to use the API.
+
+h2. Live Demo
+
+You can checkout the "DEMO":http://cal.neeraj.name/step10/widget . Also you can follow each steps by step progress "here":http://cal.neeraj.name .
+
+Since I am running this app on a low memory machine I would suggest you to try out the application by installing the app from github. It will take only 30 seconds. No database is needed. Follow the "README":http://github.com/neerajdotname/javascript_widget/tree/master instruction on how to install this app and follow along the examples.
+
+h2. Step 1
+
+First you need a calendar to get started. I picked up this calendar from "here":http://veerle.duoh.com/blog/comments/a_css_styled_calendar . This is a static html and hence next/previous links do not work. "Demo":http://cal.neeraj.name/step1
+
+
+h2. Step 2
+
+In this step the html page that was shown in step1 is generated dynamically. The links next and previous still do not work. In this step three events were added to the first of the month. These events are not pulled using the API. That integration work will happen later. "Demo":http://cal.neeraj.name/step2
+
+h2. Step 3
+
+The next and previous link has been fixed in this step. An AJAX request is sent whenever next/previous is clicked. "Demo":http://cal.neeraj.name/step3
+
+h2. Step 4
+
+In step 3 a fully functional calendar was created. In this step the calendar is wrapped up in an iframe and 
+is rendered as a widget. "Demo":http://cal.neeraj.name/step4/widget
+
+h2. Step 5
+
+The iframe solution works but the extra vertical bar is not looking good. In this step iframe has been ditched in favor of <tt>document.write</tt>.
+
+"Demo":http://cal.neeraj.name/step5/widget
+
+The vertical bar is gone and the calendar looks nicer. However there is an issue with this implementation. The next and previous links stopped working. Clicking on next and previous links used to send AJAX requests. 
+
+Browsers do not allow cross-domain AJAX requests. What it means is that if your application is deployed on www.domain1.com then you cann't make an AJAX request to www.domain2.com even though you own both the domains and you have a rails application running at both of them.
+
+In the step4 iframe was used so technically the ajax request was being submitted to the server from which the response was rendered.
+
+In this step the calendar was created using document.write. Hence sending an AJAX request would be considered cross-domain and browsers do not allow cross-domain ajax requests.
+
+Because of this security restriction the solution of using document.write will not work for developing a dynamic widget that is being built. So <tt>document.write</tt> is going to be ditched.  However remember that if your widget is going to display static content then <tt>document.write</tt> is an excellent solution. 
+
+
+As you saw AJAX request is getting in our way. One way to get around to that problem is not to send AJAX request for next/previous. In the next step the whole calendar will be built on the client side using jQuery.
+
+
+h2. Step 6
+
+In this step the whole calendar is created on the client side using jQuery. The ideas is that no need to go to server for next and previous. "Demo":http://cal.neeraj.name/step6
+
+
+h2. Step 7
+
+In this step the solution presented in step6 is being tested as a widget.  In this case step 6 and step 7 happens to be same. "Demo":http://cal.neeraj.name/step7/widget
+
+h2. Step 8
+
+Now that the calenar is ready. You need to pull data from the API. An attempt to pull data from API is done in this step. jQuery attempts to connect to EventsInIndia.com API and runs into another security issue.
+
+"Demo":http://cal.neeraj.name/step8/widget . Click on next to get the error.
+
+Browsers do not allow javascript requests to be submitted cross-domain. It means from your page you can't make a javascript request to EventsInIndia.com API. 
+
+Basically you are running into the similar security issue that you tried to avoid in earlier steps. So it seems building the calendar on the client side has no extra benefits.
+
+In the next step you will go back to using iframe. 
+
+h2. Step 9
+
+In this step iframe is being used. On the server side gem "httparty":http://railstips.org/2008/7/29/it-s-an-httparty-and-everyone-is-invited is used to get JSON data through API. After consuming the JSON data event information is displayed on the calendar. If you click on the event name then you are taken to the source even information page.
+
+"Demo":http://cal.neeraj.name/step9
+
+The calendar is working and it looks okay. However the idea of clicking on event name and going to the source page is a bit ad hoc. Ideally there should be a small popup displaying some information about the event. In the next step this feature is incorporated.
+
+h2. Step 10
+
+There is an excellent jquery plugin called "BeautyTips":http://www.lullabot.com/files/bt/bt-latest/DEMO/index.html . This plugin has been used to show a small pop up when event name is clicked .
+
+"Demo":http://cal.neeraj.name/step10/widget
+
+h2. Conclusion
+
+Finally the widget is ready. If you want to display all the events happening in mumbai in your html page then all you have to do is include following lines of code in your html code.
+
+{% highlight js %}
+<iframe 	id='widget_iframe'
+					name='widget_iframe' 
+					type='text/javascript' 
+					src='http://cal.neeraj.name/step10'
+					frameborder='0' 
+					scrolling='yes'
+					width='1020'
+					height='760'
+					style='overflow-x: hidden;'>
+</iframe>
+
+{% endhighlight %}
+
+If you have other thoughts on how to create a widget then please post a comment.
+
+The source code for this application is available at "github":http://github.com/neerajdotname/javascript_widget/tree/master . <br />

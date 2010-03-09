@@ -1,0 +1,27 @@
+---
+layout: post
+title: Validating non active record model using active_record_no_table
+---
+Sometimes I need a model which does not have a corresponding table. I would like to use all the validation goodies that come with ActiveRecord in this model. ActiveRecord makes using validation tools in a non ActiveRecord model very difficult.
+
+I have posted the solution on how to accomplish the same for "Rails 2.1 here":http://www.neeraj.name/blog/articles/646-validating-non-active-record-models-for-rails-2-1 and for "Rails 2.2 here":http://www.neeraj.name/blog/articles/810-validating-non-activerecord-models-in-rails-2-2 .
+
+After implementing the solution in a number of projects, I got tired and converted the solution into a gem. I have tested this gem with Rails 2.1, 2.2 and 2.3 and it seems to be working.
+
+Using the gem is easy.
+
+<pre>
+class User < ActiveRecord::NoTable
+   validates_presence_of :name
+   attr_accessor :name
+end
+</pre>
+
+<pre>
+>> user = User.new
+>> user.valid?
+>> user.errors.full_messages
+>> ["Name can't be blank"]
+</pre>
+
+Read the README to find out more about  gem "active_record_no_table":http://github.com/neerajdotname/active_record_no_table/tree/master . 

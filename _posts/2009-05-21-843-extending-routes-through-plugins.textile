@@ -1,0 +1,17 @@
+---
+layout: post
+title: Extending routes through plugins
+---
+Sometime back I released "admin_data plugin":http://www.neeraj.name/blog/articles/833-plugin-admin_data-for-browsing-searching-editing-and-managing-database-records in which after installing the plugin, user is asked to add a line in routes.rb .  I didn't like that. Using plugins should be as smooth as possible and I wanted a way to extend the routes without adding any line of code to the main config/routes.rb file.
+
+Today I found the answer to the question. Actually it is well documented in Rails 2.3 release notes but somehow I did not pay attention while reading the release notes first time.
+
+This is straight from the "release notes":http://guides.rubyonrails.org/2_3_release_notes.html#renewed-support-for-rails-engines .
+<blockquote>
+First, routing files in engines are automatically loaded and reloaded now, just like your routes.rb file (this also applies to routing files in other plugins). Second, if your plugin has an app folder, then app/[models|controllers|helpers] will automatically be added to the Rails load path. Engines also support adding view paths now, and Action Mailer as well as Action View will use views from engines and other plugins.
+</blockquote>
+
+
+So ,if you are developing a plugin and you intend to add to the existing routes, then remember that the key is having a folder called <tt>app</tt> in your plugin. As long as you have a folder called app then Rails will look for config/routes.rb and you will be able to extend the routes. If you don't have any use of app folder then you can leave it empty but it must be present there ,otherwise, Rails will not even look at your config/routes.rb file in the plugin. I learned it hard way. Hope it helps someone.
+
+You can look at how the directory should look like "here":http://gist.github.com/115660 . <br />

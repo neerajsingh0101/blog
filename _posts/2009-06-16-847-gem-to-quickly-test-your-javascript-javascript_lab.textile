@@ -1,0 +1,22 @@
+---
+layout: post
+title: gem to quickly test your javascript  javascript_lab
+---
+Personally I am liking jQuery over Prototype but there are many projects which use Prototype and I keep juggling between the two javascript libraries. I needed a tool to quickly test my javascript code without worrying about including the right version.
+
+I ended up creating this gem calld <tt>javascript_lab</tt>. 
+
+{% highlight ruby %}
+gem sources -a http://gems.github.com
+sudo gem install neerajdotname-javascript_lab
+{% endhighlight %}
+
+Once the gem is installed then on the command line type <tt>javascript_lab</tt> and a browser should come up.
+
+
+This tiny gem also demostrates the enormous power of Sinatra. Sinatra is a perfect tool for such cases when you want to embed a server inside your gem.
+
+A big thanks to the author of "gembox":http://github.com/quirkey/gembox/tree/master which inspired this gem.
+
+Give it a try. Send me feedback if you have any.
+ <br />
