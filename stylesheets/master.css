@@ -17,9 +17,20 @@ a:hover {
   color: black;
 }
 
+ol li, ul li { 
+  line-height: 170%;
+}
+
+tt {
+  background-color: #F8F8FF;
+  color: #444;
+  padding: 0 0.2em;
+  font-size: 16px; 
+}
+
+
 #wrapper {
   width: 960px;
-  border: 1px solid #DFDFDF;
   border: 1px solid #eFeFeF;
   margin: 0 auto;
   padding: 0;
@@ -30,18 +41,26 @@ a:hover {
 
 #header {
   text-align: left;
-  padding: 1.5em;
+  padding: 1em;
+  float: left;
 }
 
 #header h1 {
   color: #080000;
-  font-size: 4em;
+  font-size: 2em;
   display: inline;
   font-weight: normal;
   font-family: Georgia;
+  margin: 1px;
+  padding: 1px;
+}
+
+#header h1 a {
+  color: black;
 }
 
 #header h1 a:hover {
+  color: #2D2D2D;
 }
 
 
@@ -68,20 +87,21 @@ a:hover {
 }
 
 #menu ul li a {
-  font-size: 1.3em;
+  color: black;
+  font-size: 1.0em;
   padding: 0 0.5em;
   line-height: 2.5em;  
   font-weight: normal;
 }
 
 #content {
-  padding: 2em;
+  padding: 0 2em 0 2em;
 }
 
 #content h2 {
   margin: 0 0 0.5em 0;
   color: black;
-  font-size: 1.5em;
+  font-size: 1.3em;
 }
 
 #content p {
@@ -239,9 +259,6 @@ div.related {
   padding-left: 0.3em;
 }
 
-.repo ul li { 
-  line-height: 150%;
-}
 
 .float-left { float: left; }
 .float-right { float: right; }
@@ -260,3 +277,19 @@ a img { border: 0; }
   font-size: 90%;
   font-style: italic;
 }
+
+.clear {
+  clear: both;
+}
+
+hr {
+background:none repeat scroll 0 0 #DDDDDD;
+border:medium none;
+clear:both;
+color:#DDDDDD;
+float:none;
+height:0.1em;
+margin:0 0 1.45em;
+width:100%;
+}
+

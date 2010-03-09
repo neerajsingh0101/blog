@@ -4,22 +4,22 @@ layout: nil
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
  
- <title>Tagaholic</title>
+ <title>www.neeraj.name</title>
  <link href="http://tagaholic.me/atom.xml" rel="self"/>
- <link href="http://tagaholic.me/"/>
+ <link href="http://neeraj.name/"/>
  <updated>{{ site.time | date_to_xmlschema }}</updated>
- <id>http://tagaholic.me/</id>
+ <id>http://neeraj.name/</id>
  <author>
-   <name>Gabriel Horner</name>
-   <email>gabriel.horner@gmail.com</email>
+   <name>Neeraj</name>
+   <email>neerajdotname@gmail.com</email>
  </author>
  
  {% for post in site.posts %}
  <entry>
    <title>{{ post.title }}</title>
-   <link href="http://tagaholic.me{{ post.url }}"/>
+   <link href="http://neeraj.name{{ post.url }}"/>
    <updated>{{ post.date | date_to_xmlschema }}</updated>
-   <id>http://tagaholic.me{{ post.id }}</id>
+   <id>http://neeraj.name{{ post.id }}</id>
    <content type="html">{{ post.content | xml_escape }}</content>
  </entry>
  {% endfor %}
