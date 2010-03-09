@@ -1,0 +1,132 @@
+---
+layout: post
+title: Use interative rebase feature of git to keep your master branch clean
+---
+I have a directory called git_learn and I have three files. After the intial commit this is the status
+
+{% highlight sh %}
+> git show-branch
+[master] initial commit
+
+> git log --pretty=oneline
+6c99e3911df8feb631a009ca6d14719732499515 initial commit
+{% endhighlight %}
+
+I'll create an experiment branch where I will make three commits one for each file. 
+
+{% highlight sh %}
+> git branch experiment
+> git co experiment
+
+# make some change to all the three files
+# make three different commits
+#
+
+> git add file1.txt
+> git commit -m 'comments for file1'
+> git add file2.txt
+> git commit -m 'comments for file2'
+> git add file3.txt
+> git commit -m 'comments for file3'
+
+> git log --pretty=oneline
+02603462c6fbedb016b3141a462bacc2aaffc2c0 comments for file3
+7bc760e157d7df59a9b9ae099aeb2b1c92ecc7e6 comments for file2
+9fcbb0bc144356d8a6d0e49939979fa99c5f5ec8 comments for file1
+6c99e3911df8feb631a009ca6d14719732499515 initial commit
+
+{% endhighlight %}
+
+
+If we merge the changes from experiment branch to master then master will get three commits . In this case I don't want master branch to be polluted with three commits. I would rather have all three changes go into master branch as one single commit.
+
+I need to use interactive rebase feature to merge three commits into one single commit.
+
+{% highlight sh %}
+> git rebase -i master
+{% endhighlight %}
+
+Above command will show a screen which will look something like this.
+It lists all the three commits.
+
+{% highlight sh %}
+pick 9fcbb0b comments for file1
+pick 7bc760e comments for file2
+pick 0260346 comments for file3
+
+# Rebase 6c99e39..0260346 onto 6c99e39
+#
+# Commands:
+#  pick = use commit
+#  edit = use commit, but stop for amending
+#  squash = use commit, but meld into previous commit
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+# However, if you remove everything, the rebase will be aborted.
+#
+
+{% endhighlight %}
+
+In order to merge the commits, leave the first commit as 'pick' but change the rest of the commits as 'squash'. Given below is the snapshot how it might look like after changing 'pick' to 'squash'.
+
+{% highlight sh %}
+pick 9fcbb0b comments for file1
+squash 7bc760e comments for file2
+squash 0260346 comments for file3
+{% endhighlight %}
+
+Save the file and  another screen will come up which will ask to put the message for the combined commit. I put in following message.
+
+{% highlight sh %}
+This is a combination of all commits for experiment branch.
+{% endhighlight %}
+
+Now let's look at the log in experiment branch.
+
+{% highlight sh %}
+> git log --pretty=oneline
+a2eb6a2e9282b1f6451a430e79894edae9b765d0 This is a combination of all commits for experiment branch. 
+6c99e3911df8feb631a009ca6d14719732499515 initial commit
+{% endhighlight %}
+
+Next I will merge this branch to master.
+
+{% highlight sh %}
+> git co master
+Switched to branch "master"
+
+> git merge experiment
+Updating 6c99e39..a2eb6a2
+Fast forward
+ file1.txt |    1 +
+ file2.txt |    1 +
+ file3.txt |    1 +
+ 3 files changed, 3 insertions(+), 0 deletions(-)
+
+> git log --pretty=oneline
+a2eb6a2e9282b1f6451a430e79894edae9b765d0 This is a combination of all commits for experiment branch. comments for f
+6c99e3911df8feb631a009ca6d14719732499515 initial commit
+
+{% endhighlight %}
+
+
+As you can see the master branch is clean with only one single commit from experiment branch. Had we not done the interactive rebasing, master would have had three commits.
+
+In a large experiment branch master branch could really get polluted very fast.
+
+The other advantage is that if this experiment does not work as expected then it is easy to revert the changes from master branch.
+
+In order to revert all the changes from the experiment branch all I need to do is 
+
+{% highlight sh %}
+> git revert a2eb6a2e9282b1f6451a430e79894edae9b765d0
+{% endhighlight %}
+
+For such cases, it is a really good idea to consolidate all changes from other branches into one single commit.
+
+h2. Trouble in interactive rebasing
+
+Notice that while peforming interactive rebasing, I left the first commit as 'pick'. If you choose wrong options then you might get 'interactive rebase already started' error. If you get this error then the fix is
+
+cd .git
+rm -rf .dotest-merge

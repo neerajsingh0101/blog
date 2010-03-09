@@ -1,0 +1,69 @@
+---
+layout: post
+title: Difference between undef_method and remove_method
+---
+There is a subtle difference between <tt>undef_method</tt> and <tt>remove_method</tt>. Here is a test case
+
+{% highlight ruby %}
+module Speaks
+  def speak
+    puts 'hello from module'
+  end
+end
+  
+class Person
+  def speak
+    puts "hello from person"
+  end
+  include Speaks
+end
+
+Person.new.speak 
+# output : hello from person
+{% endhighlight %}
+
+<tt>remove_method</tt> is more like super. It calls the method after it in the call chain.
+
+{% highlight ruby %}
+module Speaks
+  def speak
+    puts 'hello from module'
+  end
+end
+  
+class Person
+  def speak
+    puts "hello from person"
+  end
+  include Speaks
+  
+  remove_method :speak
+end
+
+Person.new.speak
+# ouput : hello from module
+{% endhighlight %}
+
+<tt>undef_method</tt> raises <tt>NoMethodError</tt>.
+
+{% highlight ruby %}
+module Speaks
+  def speak
+    puts 'hello from module'
+  end
+end
+  
+class Person
+  def speak
+    puts "hello from person"
+  end
+  include Speaks
+  
+  undef_method :speak
+end
+
+Person.new.speak
+# ouput : NoMethodError: undefined method ‘speak’ for #<Person:0x8efd0>
+{% endhighlight %}
+
+Wonder what a good case for using <tt>remove_method</tt> be. Checkout "this":http://neeraj.name/blog/articles/800-override-automatic-timestamp-in-activerecrod-rails article. <br />

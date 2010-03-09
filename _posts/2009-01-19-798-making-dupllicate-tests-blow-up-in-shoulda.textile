@@ -1,0 +1,57 @@
+---
+layout: post
+title: Making dupllicate tests blow up  in Shoulda
+---
+<i>
+*UPDATE*: It seems the proposed solution gets into infinite loop in some cases. Will be updating the article once I know what's going on.
+</i>
+
+
+
+I use "Shoulda":http://thoughtbot.com/projects/shoulda/  for testing and it is a great framework. 
+
+Recently I visited an old project and found a few cases where tests were not running at all. That was because test were being overridden later by another test with the same name. Check this out.
+
+{% highlight ruby %}
+context "GET userinfo" do
+  setup do 
+  end
+  should_respond_with :success
+end
+
+# this should have been "POST userinfo"
+context "GET userinfo" do
+  setup do 
+  end
+  should_respond_with :success
+end
+{% endhighlight %}
+
+In the above case, I did a copy-paste and mistakenly I left the context name same for both the test cases. The result is that shoulda will not run test for the first context. Shoulda creates a test name by adding context name and the test name. In this case they will be same for both the tests, so Shoulda will print a warning and will execute only one test ( the second one).
+
+{% highlight ruby %}
+* WARNING: 'test: GET userinfo should respond with success. ' is already defined
+{% endhighlight %}
+
+Warning is nice but when it comes to testing I would rather have things blow up. 
+
+Add the following code at the bottom of <tt>test_helper.rb</tt>.
+This will make tests blow up when Shoulda encounters two tests with the same name.
+
+{% highlight ruby %}
+module Shoulda
+  class Context
+    def create_test_from_should_hash_with_blowup(should)
+      tmp = ["test:", full_name, "should", "#{should[:name]}. "]
+      test_name = tmp.flatten.join(' ').to_sym
+      if test_unit_class.instance_methods.include?(test_name.to_s)
+        raise "'#{test_name}' is already defined"
+      end
+      create_test_from_should_hash_without_blowup(should)
+    end
+    alias_method_chain :create_test_from_should_hash, :blowup
+  end
+end
+{% endhighlight %}
+
+Now I can be assured that tests will not override each other. <br />

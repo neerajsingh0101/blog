@@ -1,0 +1,50 @@
+---
+layout: post
+title: Installing mod rails on slicehost slice
+---
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+
+
+<h2> Installing mod_rails </h2>
+Follow the instructions mentioned "here":http://articles.slicehost.com/2008/5/1/ubuntu-hardy-mod_rails-installation to install mod_rails and to install your application. 
+
+This article links to "another article":http://articles.slicehost.com/2008/5/1/ubuntu-hardy-using-mod_rails-to-serve-your-application describing how to setup your rails application to mod_rails. The process suggested in this article works fine as long as you have setup only one domain. If you have more than one domain then things fall apart. For example I had www.neeraj.name and www.pageaxis.com and I ran into trouble. Only one domain was working. To get around to that problem follow the instruction mentioned below.
+
+First make sure that you have enabled anysite by command
+
+{% highlight sh %}
+sudo a2ensite testapp
+{% endhighlight %}
+
+then remove that by executing following command
+
+{% highlight sh %}
+sudo a2dissite testapp
+{% endhighlight %}
+
+Now go and take a look at /etc/apache2/sites-enabled . This directory should be empty.
+
+{% highlight sh %}
+sudo vi /etc/apache2/apache2.conf
+
+# go to the bottom of this file and add following lines
+
+NameVirtualHost 67.207.136.195:80
+
+<VirtualHost 67.207.136.195:80>
+ServerName pageaxis.com
+ServerAlias www.pageaxis.com
+DocumentRoot /home/neeraj/apps/pageaxis/current/public
+#RailsEnv development
+RailsEnv production
+</VirtualHost>
+
+<VirtualHost 67.207.136.195:80>
+ServerName neeraj.name
+ServerAlias www.neeraj.name
+DocumentRoot /home/neeraj/apps/rollmyblog/current/public
+</VirtualHost>
+
+{% endhighlight %}
+
+Make sure that you replace 67.207.136.195 by the ip address of your slice box.

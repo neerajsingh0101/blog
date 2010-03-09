@@ -1,0 +1,187 @@
+---
+layout: post
+title: Installing apache and MySQL on slicehost
+---
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+
+<h2>Installing apache</h2>
+
+{% highlight sh %}
+sudo aptitude install apache2 apache2.2-common apache2-mpm-prefork apache2-utils libexpat1 ssl-cert
+{% endhighlight %}
+
+you might have gotten some warning. let’s fix that.
+
+{% highlight sh %}
+sudo vi /etc/apache2/apache2.conf
+# at the bottom of the file add the following line
+ServerName myapacheserver
+{% endhighlight %}
+
+restart apache
+
+{% highlight sh %}
+sudo apache2ctl graceful
+{% endhighlight %}
+
+By default apache error log is stored at
+
+{% highlight sh %}
+/var/log/apache2/error.log
+{% endhighlight %}
+
+If you make some apache configuration related changes, then you can avoid restarting apache, by asking it to simply reload its configuration.
+
+{% highlight sh %}
+sudo /etc/init.d/apache2 reload
+{% endhighlight %}
+
+h2. Installing MySQL 
+
+{% highlight sh %}
+sudo aptitude install mysql-server mysql-client libmysqlclient15-dev
+# enter the password
+
+sudo aptitude install libmysql-ruby1.8
+
+irb
+#irb(main):001:0>
+require 'mysql'
+#=> true
+#irb(main):002:0>
+exit
+{% endhighlight %}
+
+we are changing the root password for mysql and not for the root user on the slice.
+
+{% highlight sh %}
+mysqladmin -u root password YOURMYSQLPASSWORD
+# note that there is no space between -p and the password
+mysql -u root -pYOURMYSQLPASSWORD 
+mysql> create database firstdb;
+mysql> exit
+{% endhighlight %}
+
+If for any reason you need to remove mysql and start all over again the you can remove mysql by executing following command
+
+{% highlight sh %}
+sudo apt-get remove --purge mysql-client mysql-server mysql-common
+{% endhighlight %}
+
+h2. Fine tuning MySQL 
+
+Default setting of mysql takes a lot of memory. Before we optimize it let’s see how memory mysql is currently taking. At the command prompt type ‘top’ without the quotes. Hold shift key and press M. This will sort the processes in the order of amount of memory they are taking. Look at the top 10 result. mysql should be there. For me it is displaying 9%. Hit q to quit top panel.
+
+Now let’s begin optimization. 
+
+{% highlight sh %}
+sudo vi /etc/mysql/my.cnf
+{% endhighlight %}
+
+We’re going to add two lines in the basic setting section. Find the first two lines shown below and add the two lines after that
+
+{% highlight sh %}
+language  = /usr/share/mysql/english
+skip-external-locking
+skip-locking
+skip-innodb
+{% endhighlight %}
+
+Next, find the Fine Tuning section and adjust the settings as shown below
+
+{% highlight sh %}
+# * Fine Tuning
+#
+key_buffer    = 16K
+max_allowed_packet  = 1M
+thread_stack    = 64K
+{% endhighlight %}
+
+add following three lines  after the thread_stack    = 64K statement line
+
+{% highlight sh %}
+thread_cache_size = 4
+sort_buffer=64K
+net_buffer_length=2K
+{% endhighlight %}
+
+restart mysql
+
+{% highlight sh %}
+sudo /etc/init.d/mysql restart
+{% endhighlight %}
+
+After mysql has been restarted repeat the top command , shift + M to find the amount of memory mysql is taking. For me the new value was 2%.
+
+<h2> Innodb vs MyISAM </h2>
+
+MySQL supports two kinds of engine: MyISAM and Innodb. You can google about the differences. One thing to note is that MyISAM engine doesn’t support foreign key constraints and does not support transactions. If you need these two things then you must use Innodb. MyISAM does support index and unique index constraint.
+
+Note that engine is not set at database level. Rather it is set at table level. So within a database you can have one table of type Innodb and another table of type MyISAM.
+
+Previously we created database ‘firstdb’ and table ‘users’. Let’s find out what engine that table is using.
+
+Following two commands will get you the engine type.
+
+{% highlight sh %}
+show table status from firstdb like 'users'
+# mysql documentation says
+#SHOW TABLE STATUS [FROM db_name]    [LIKE 'pattern' | WHERE expr]
+
+# another way
+mysqlshow -uUSERNAME -pPASSWORD -i firstdb users
+{% endhighlight %}
+
+As of this writing the default engine being created was MyISAM.
+
+Let’s say that by default you want Innodb engine and not MyISAM.
+
+sudo vi /etc/mysql/my.cnf
+
+Browse the content and you will see something like this
+
+{% highlight sh %}
+user          = mysql
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+port            = 3306
+basedir         = /usr
+datadir         = /var/lib/mysql
+tmpdir          = /tmp
+language        = /usr/share/mysql/english
+skip-external-locking 
+skip-locking
+skip-innodb  
+{% endhighlight %}
+
+Notice the last line. That line says “skip-innodb”. If by default you want all your tables to be of type Innodb then comment that line.
+
+Although by mentioning skip-innodb by default MyISAM engines are created, it is a good idea to add following line after skip-innodb line.
+
+{% highlight sh %}
+default-storage-engine = MyISAM
+{% endhighlight %}
+
+If you don’t want innodb then make sure that skip-innodb is there othewise innodb engine will be loaded and will consume extra memory.
+
+<h2>Accessing MySQL from local machine </h2>
+
+{% highlight sh %}
+ssh -N -p 22 -c 3des nkumar@123.45.67.890 -L 3306/127.0.0.1/3306
+{% endhighlight %}
+
+Enter the password you use to log into ssh.
+
+Make sure that mysql is not running on your local machine otherwise the ssh command will complain that the prot 3306 is already taken.
+
+On the mysql client now I can access all the databases by connecting to 127.0.0.1 as root and the password as YOURMYSQLPASSWORD.
+
+h2. Change MySQL password 
+
+{% highlight sh %}
+mysql -u root -pEXISTING_MYSQL_ROOT_PASSWORD ( no space in between -p and password)
+mysql> use mysql;
+mysql> update user set password=PASSWORD("NEWPASSWORD") where User='root';
+mysql> flush privileges;
+mysql> quit
+{% endhighlight %}

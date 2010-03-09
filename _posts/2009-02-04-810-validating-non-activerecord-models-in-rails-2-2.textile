@@ -1,0 +1,17 @@
+---
+layout: post
+title: Validating non ActiveRecord models in Rails 2.2
+---
+*Update (June 30, 2009)*: The proposed solution has been converted into a gem. "Read more about the gem here":http://www.neeraj.name/blog/articles/851-validating-non-active-record-model-using-active_record_no_table .
+
+
+I "previously posted":http://www.neeraj.name/blog/articles/646-validating-non-active-record-models-for-rails-2-1 about how to validate non ActiveRecord models with Rails 2.1 . 
+
+However that solution does not work in Rails 2.2 . Here is the solution that will work with Rails 2.2 . 
+
+<i>A lot of people emailed and I quickly came up with this solution. If you find something is not working then do let me know by posting comment.</i>
+
+"Click here to see the code":http://gist.github.com/57889 that will make non ActiveRecord models work with Rails 2.2.
+
+
+That’s it. With this change follow "this":http://www.neeraj.name/blog/articles/646-validating-non-active-record-models-for-rails-2-1 and "this":http://www.neeraj.name/blog/articles/639 article and things will work fine with Rails 2.1.<br />

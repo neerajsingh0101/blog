@@ -1,0 +1,122 @@
+---
+layout: post
+title: Marking the slicehost slice secure
+---
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+
+<h2> Securing ssh </h2>
+
+ssh runs on port 22 by default. It’s a good idea to change the default port to something else. It’s a simple measure and protects you from amateur hackers.
+
+ssh into your slice
+
+{% highlight sh %}
+sudo vi /etc/ssh/sshd_config
+Find line "Port 22" and change that to 30000. #You can pick any number you want
+Find the PermitRootLogin line and change it from yes to no. Root is not allowed to ssh into the box 
+{% endhighlight %}
+
+In order for these changes to take place execute 
+
+{% highlight sh %}
+sudo /etc/init.d/ssh reload
+{% endhighlight %}
+
+If you change the port number then don’t forget to make necessary changes at the command to connect to mysql server from local machine and also in your capistrano file.
+
+
+<h2>iptable firewall</h2>
+
+Configuring iptables firewall
+
+iptables is a good mechanism to further protect from unwanted activities happening in your slice.
+
+I am not sure why but all iptables operations should be performed directly as root. sudo doesn’t work. In order to switch to root just do this.
+sudo -i
+
+You should notice that now the command prompt is showing root@slice_name instead of nkumar@slice_name.
+
+Before we configure iptables. Run following command.
+
+{% highlight sh %}
+iptables -L -v
+{% endhighlight %}
+
+I get output like this.
+
+{% highlight sh %}
+ sudo iptables -L -v
+Chain INPUT (policy ACCEPT 10 packets, 636 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain OUTPUT (policy ACCEPT 8 packets, 1148 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+{% endhighlight %}
+
+It’s kind of hard to read what it means if you are seeing it for the first time. Notice that INPUT chain policy is blank. It means anything can come inside this slice. Not good. Let’s tighten up the policy. iptables is highly configurable and you need to know a lot more in order to configure it but a good base iptables configuration policy is give "here":http://articles.slicehost.com/assets/2007/9/4/iptables.txt . Let’s apply this configuration to start with.
+
+{% highlight sh %}
+touch /etc/iptables.test.rules
+sudo vi /etc/iptables.test.rules
+{% endhighlight %}
+
+You will see a blank screen. Copy data from "http://articles.slicehost.com/assets/2007/9/4/iptables.txt":http://articles.slicehost.com/assets/2007/9/4/iptables.txt and paste it on the screen. This configuration file assumes that you are runnign ssh on port 30000. However If you are running ssh on port other than 30000 then make that change.
+Ctrl + O to save and then ctrl + x to exit.
+
+Before exiting add the following two lines after the ping rule
+
+{% highlight sh %}
+# Allows svnserve connections from anywhere
+-A INPUT -p tcp --dport 3690 -j ACCEPT
+{% endhighlight %}
+
+Let’s apply these rules.
+
+{% highlight sh %}
+iptables-restore < /etc/iptables.test.rules
+{% endhighlight %}
+
+Now let’s see the result
+iptables -L -v
+
+{% highlight sh %}
+iptables -L -v
+Chain INPUT (policy ACCEPT 348 packets, 27468 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  lo     any     anywhere             anywhere
+    0     0 REJECT     all  --  !lo    any     anywhere             127.0.0.0/8         reject-with icmp-port-unreachable
+   38  2884 ACCEPT     all  --  any    any     anywhere             anywhere            state RELATED,ESTABLISHED
+    0     0 ACCEPT     tcp  --  any    any     anywhere             anywhere            tcp dpt:www
+    0     0 ACCEPT     tcp  --  any    any     anywhere             anywhere            tcp dpt:https
+    0     0 ACCEPT     tcp  --  any    any     anywhere             anywhere            state NEW tcp dpt:2233
+    0     0 ACCEPT     icmp --  any    any     anywhere             anywhere            icmp echo-request
+    1    40 LOG        all  --  any    any     anywhere             anywhere            limit: avg 5/min burst 5 LOG level debug prefix `iptables denied: '
+    1    40 REJECT     all  --  any    any     anywhere             anywhere            reject-with icmp-port-unreachable
+
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 REJECT     all  --  any    any     anywhere             anywhere            reject-with icmp-port-unreachable
+
+Chain OUTPUT (policy ACCEPT 283 packets, 37712 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+   29  2676 ACCEPT     all  --  any    any     anywhere             anywhere
+{% endhighlight %}
+
+Now let’s see the result. This is much better. Barring a few things we have defined rest of the operations will be rejected. This way our slice is much more secure.
+
+Whatever changes we made to iptables is temporary. It will all be gone when we logout. Let’s make the changes permanent.
+
+{% highlight sh %}
+iptables-save > /etc/iptables.up.rules
+{% endhighlight %}
+
+If you want a clean slate and start from scratch
+
+{% highlight sh %}
+iptables -F
+{% endhighlight %}
+
+type exit to get out of root.

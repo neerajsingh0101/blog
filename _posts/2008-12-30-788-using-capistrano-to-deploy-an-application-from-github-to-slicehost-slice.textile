@@ -1,0 +1,87 @@
+---
+layout: post
+title: Using Capistrano to deploy an application from github to slicehost slice
+---
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+
+Log into github.com and create a public repository. In this case the project name is gitlearn.
+
+On the mac machine I will create a rails application.
+
+{% highlight sh %}
+rails gitlearn
+cd gitlearn
+git init
+{% endhighlight %}
+
+{% highlight sh %}
+cd gitlearn
+vi .gitignore
+*.log
+tmp/*
+.DS_Store
+coverage.data
+coverage/*
+{% endhighlight %}
+
+{% highlight sh %}
+cd gitlearn
+capify .
+mkdir config/deploy
+{% endhighlight %}
+
+save the .gitignore file and exit.
+
+{% highlight sh %}
+cd gitlearn
+git add .
+git commit -m 'first commit'
+
+# in the following command replace neerajdotname with your userid
+git remote add origin git@github.com:neerajdotname/gitlearn.git
+
+git push origin master
+{% endhighlight %}
+
+Now let's try to deploy this rails application to the slice using capistrano.
+
+{% highlight sh %}
+sudo gem install capistrano
+sudo gem install capistrano-ext
+
+gem list cap
+# this is what I see. You might see something different
+capistrano (2.5.3, 2.3.0, 2.2.0, 2.0.0)
+capistrano-ext (1.2.1, 1.2.0)
+{% endhighlight %}
+
+{% highlight sh %}
+cd gitlearn
+capify .
+mkdir config/deploy
+touch config/deploy/staging.rb
+touch config/deploy/production.rb
+{% endhighlight %}
+
+Replace the contents of config/deploy.rb, config/deploy/staging.rb and config/deploy/production.rb with the contents of 
+"following file":http://gist.github.com/41716
+
+In subversion there is something called trunk and usually there is a branch called production. In the git environment 'master' is the trunk. For production I create a branch called 'production'. Right now we are dealing with master so we will deploy to staging environment.
+
+Execute following commands on your mac machine.
+
+{% highlight sh %}
+cap staging deploy:setup
+cap staging deploy:check
+cap staging deploy:update_code
+cap staging deploy:update
+cap staging deploy
+{% endhighlight %}
+
+Now your application is up and running. If you have configured phusion passenger correctly and if you have proper DNS settings then you should be able to browse the home page of your application in the browser.
+
+If you want to deploy your application to production environment then follow "this article":http://neeraj.name/blog/articles/789-how-to-use-branch-feature-of-git-and-work-with-github .
+
+If you want to know more about how to use git and git branching feature then "checkout this article":http://neeraj.name/blog/articles/789-how-to-use-branch-feature-of-git-and-work-with-github .
+
+ <br />

@@ -1,0 +1,7 @@
+---
+layout: post
+title: Git branch name in the prompt
+---
+One of the cool things about git is easy creation of branches. With so many branches sometimes it gets confusing which branch I am currently in. Rather than executing <tt>git branch</tt> all the time, it is much useful to have the current branch name in the prompt.
+
+"Here is the prompt file I use":http://gist.github.com/50212 . <br />

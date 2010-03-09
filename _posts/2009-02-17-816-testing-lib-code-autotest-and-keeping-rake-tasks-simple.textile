@@ -1,0 +1,75 @@
+---
+layout: post
+title: Testing lib code , autotest and keeping rake tasks simple
+---
+
+I like to keep my rake tasks as simple as possible. Here is one of my rake tasks.
+
+{% highlight ruby %}
+# lib/tasks/alert.rake
+namespace :alert do
+  task :run => :environment do
+    begin    
+      include HoptoadNotifier::Catcher        
+      AlertUtil.run
+    rescue Exception => e
+      notify_hoptoad e
+    end
+  end
+end
+{% endhighlight %}
+
+That's it. The main code is <tt>Alert.run</tt> .
+
+The main reason why I do that is to be able to test my code as easily as possible. <tt>alert_util.rb</tt> resides at lib directory and the code might look like this.
+
+{% highlight ruby %}
+# lib/alert_util.rb
+class AlertUtil
+  def self.run
+    # ..
+  end
+end
+{% endhighlight %}
+
+h2. How to test code residing in lib
+
+I like to create a directory called lib under test which is where I put all the test code for lib directory. Under test/lib I created a file called <tt>alert_util_test.rb</tt> . This is what the test file might look like
+
+{% highlight ruby %}
+# test/lib/alert_util_test.rb
+require File.expand_path(File.dirname(__FILE__) + "/../test_helper")
+
+class AlertUtilTest < ActiveSupport::TestCase
+
+  setup do
+    Alert.delete_all
+  end
+
+  context 'generate alert report' do
+    setup do
+    end
+    should 'have created an alert' do
+      assert_equal 1, Alert.count
+    end
+  end
+
+end
+{% endhighlight %}
+
+h2. Making autotest pick up files from test/lib
+
+I have written a test which is working fine. However there is a problem. I use "autotest":http://www.zenspider.com/ZSS/Products/ZenTest/ . Be default autotest will not pick any test file under test/lib .
+
+To tell autotest to pick up files from test/lib add following lines in .autotest residing at your default home directory.
+
+{% highlight ruby %}
+# ~/.autotest
+Autotest.add_hook :initialize do |at|
+  at.add_mapping %r%^test/(lib)/.*rb$% do |filename, _|
+    filename
+  end
+end
+{% endhighlight %}
+
+Now I have accomplished two things. I have test for my content residing in lib and I have configured autotest to pick up tests written for lib files. <br />

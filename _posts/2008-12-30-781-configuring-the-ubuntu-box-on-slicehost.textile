@@ -1,0 +1,151 @@
+---
+layout: post
+title: Configuring the ubuntu box on slicehost
+---
+
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+
+<h2>Ubuntu 8.04.1</h2>
+I am running Ubuntu 8.04.1 on my slice that I got from slicehost.com . The instructions mentioned here might or might not work for other linux flavor.
+
+<h2>Adding a new user </h2>
+
+If you are using mac or linux then try 
+
+{% highlight sh %}
+ssh root@123.45.67.890
+# to change password
+passwd
+{% endhighlight %}
+
+<h2> Adding a new user </h2>
+Let's create a new user named 'neeraj'
+
+{% highlight sh %}
+adduser neeraj
+#It will prompt for password and password confirmation. 
+{% endhighlight %}
+
+Let's provide sudo access to this user 'neeraj'
+
+{% highlight sh %}
+visudo
+{% endhighlight %}
+
+Go to the end of file and add the following line .
+
+{% highlight sh %}
+neeraj ALL=(ALL) ALL
+{% endhighlight %}
+
+save the data and exit.
+
+Logout of your slice and log back in with userid neeraj and password you used to create this userid. In fact now you don’t need to login as root ever. Login as neeraj and when you need root access all you need to do is
+
+{% highlight sh %}
+sudo -i
+{% endhighlight %}
+
+<h2> ssh setup </h2>
+
+
+{% highlight sh %}
+# get out of slicehost and make sure that you are at your local
+# machine prompt
+
+# Generate ssh key 
+ssh-keygen -t rsa
+
+# copy the public key to the server. below replace 12.345.67.890 
+# with the ip address of your box
+scp ~/.ssh/id_rsa.pub neeraj@12.345.67.890:/home/neeraj/
+
+# ssh into the box and create a directory
+mkdir /home/neeraj/.ssh
+
+# move and rename the public key
+mv /home/neeraj/id_rsa.pub /home/neeraj/.ssh/authorized_keys
+
+# change owner
+chown -R neeraj:neeraj /home/neeraj/.ssh
+
+# change permission
+chmod 700 /home/neeraj/.ssh
+
+# change permission
+chmod 600 /home/neeraj/.ssh/authorized_keys
+{% endhighlight %}
+
+<h2> Check the OS we are running </h2>
+
+{% highlight sh %}
+cat /etc/lsb-release
+
+# the ouptput would be something like
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=8.04
+DISTRIB_CODENAME=hardy
+DISTRIB_DESCRIPTION="Ubuntu 8.04.1" 
+{% endhighlight %}
+
+<h2> Set aliases </h2>
+
+{% highlight sh %}
+vi ~/.bash_profile
+
+# add following lines to .bash_profile
+alias free="free -m" 
+alias update="sudo aptitude update" 
+alias install="sudo aptitude install" 
+alias upgrade="sudo aptitude safe-upgrade" 
+alias remove="sudo aptitude remove" 
+{% endhighlight %}
+
+<h2> Configure bash profile </h2>
+
+{% highlight sh %}
+vi ~/.bash_profile
+# Add following line at the bottom of the file
+export PS1="\n\[\e[36;1m\]\u@\[\e[32;1m\]\H:\w\n> \[\e[0m\]" 
+{% endhighlight %}
+
+Get out of file and reload the changes by running
+
+{% highlight sh %}
+source ~/.bash_profile
+{% endhighlight %}
+
+<h2> Set locale </h2>
+
+{% highlight sh %}
+sudo locale-gen en_GB.UTF-8
+sudo /usr/sbin/update-locale LANG=en_GB.UTF-8
+mkdir ~/tmp
+{% endhighlight %}
+
+<h2> uptodate your machine </h2>
+
+{% highlight sh %}
+sudo aptitude safe-upgrade
+sudo aptitude full-upgrade
+sudo apt-get update
+sudo aptitude install build-essential
+sudo apt-get install build-essential
+{% endhighlight %}
+
+restart the box
+
+{% highlight sh %}
+sudo shutdown -r now
+{% endhighlight %}
+
+
+<h2> Change ssh password </h2>
+
+If sometime later you need to change the ssh password then use this command.
+
+{% highlight sh %}
+passwd
+{% endhighlight %}
+
+It will prompt for old and new passwords.

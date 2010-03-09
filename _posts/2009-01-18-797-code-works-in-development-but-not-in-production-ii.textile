@@ -1,0 +1,136 @@
+---
+layout: post
+title: Code works in development but not in production - II
+---
+
+First part of the article is "here":http://neeraj.name/blog/articles/791-code-works-in-development-but-not-in-production .
+
+Let's try the following code with Rails 2.2 . The following code will work fine in  Rails 2.2 development environment but will not work in Rails 2.2 production environment . The code will work fine in both development and production with Rails 2.1 and I will explain later in this blog why the code works in Rails 2.1 but in Rails 2.2 . Let's get started.
+
+h2. Code setup
+
+At the bottom of environmet.rb add the following lines
+
+{% highlight ruby %}
+# environment.rb
+class MyArgumentError < ArgumentError
+end
+
+# user.rb
+raise MyArgumentError, 'do not use this model'
+class User < ActiveRecord::Base
+end
+{% endhighlight %}
+
+
+h2. development vs production
+
+Now start the server in development mode. The server will start and then you can go ahead with your business.
+
+Try starting the server in production mode.
+
+{% highlight ruby %}
+> ruby script/server -e production
+** Starting Rails with production environment...
+Exiting
+`load_missing_constant': uninitialized constant MyArgumentError (NameError)
+{% endhighlight %}
+
+
+So we have a case where things work in development but not in production.
+
+h2. try this with Rails 2.1
+
+go to the top of environment.rb and change the rails version
+
+{% highlight ruby %}
+#from
+
+RAILS_GEM_VERSION = '2.2.2' unless defined? RAILS_GEM_VERSION
+
+#to
+RAILS_GEM_VERSION = '2.1.0' unless defined? RAILS_GEM_VERSION
+{% endhighlight %}
+
+Now try starting server in both development and production mode. The server will start fine.
+
+h2. What is the issue here
+
+The issue is why the server did not start in production mode in Rails 2.2 but it starts fine in production mode in Rails 2.1 .
+
+h2. Rails missing constant magic
+
+In development mode rails does not load all the classes. Classes are loaded on demand. For example if the application has a model called user.rb then rails will not load it until rails encounters a usage of this class. That is how rails achieves autoloading behavior in development mode where a change made is immediately reflected.
+
+Let's test the theory that not all the application classes are loaded when server is started. To test this theory we will make a syntax error in user.rb.
+
+{% highlight ruby %}
+change from 
+Class User < ActiveRecord::Base
+to
+lass User < ActiveRecord::Base
+{% endhighlight %}
+
+A syntax error has been deliberately caused in user.rb . In Rails 2.1 if you start the server in both development and production mode, the server will start fine. That proves that rails did not even look at the contents of user.rb . 
+
+Change the rails version from rails 2.1 to rails 2.2 and start the server in development mode and it will work fine. If you start the server in rails 2.2 and in production mode then the server will fail.
+
+h2. Rails 2.1 production behavior
+
+In Rails 2.1 when server is started in production mode, rails will not try to load all the classes. It behaves exactly like development mode except that once a class is loaded then that class will not be loaded again. However rails will not try to pre-load all the application classes.
+
+h2. Rails 2.2 production behavior
+
+In rails 2.2 production mode the behavior has changed. Now rails pre loads all the application classes. 
+
+h2. Back to original problem
+
+The original problem was that we got <tt>uninitialized constant MyArgumentError</tt> error when server tried to load user.rb . Since the declaration of <tt>MyArgumentError</tt> is at the very bottom of environment.rb, rails must have attempted to load all application classes even before it finished reading the full enviroment.rb 
+
+h2. Rails 2.2 thread safety issue
+
+I will not go into what thread safety is and why it was needed for rails but the rails core team decided to make rails 2.2 thread safe.
+
+However there was a problem with the way ruby handles require statement. The <tt>require</tt> is not thread safe. This is a ruby issue and not rails issue. Take this case.
+
+{% highlight ruby %}
+class User < ActiveRecord
+{% endhighlight %}
+
+As I said before, in 2.1 rails does the loading of application classes on a need basis. Let's start a rails 2.1 application in production made. This application has a model user.rb . Now two people hit the site and two threads hit user.rb . Let's say that thread1 sees the line <tt>class User < ActiveRecord</tt> . thread2 is a bit behind and it checks if User class has already been loaded in memory or not. Since thread1 has processed the first line, thread2 will get the message that User class has already been loaded. So thred2 will go about with its business. However thred2 will fail with method not found error. That is because even though thread1 has signalled to vm that is has loaded User class, thread1 is not yet finished loading all the methods of User class. The problem with ruby is that the vm gets the signal the user.rb has already been loaded even though thread has not yet finished loading all the method definitions of the class.
+
+h2. Rails 2.2 loads all the application classes in production mode
+
+To avoid the race condition in production environment, rails core team decided to load all the application classes during the server start up. This will avoid the issue of two threads trying to load user.rb .
+
+Rails core team decided to load all the application specific classes after loading all the initializers. It means the rails application is already loaded when the config class finishes loading.
+
+Our original code was 
+
+{% highlight ruby %}
+Rails::Initializer.run do |config|
+  # config processing
+end
+
+class MyArgumentError < ArgumentError
+end
+{% endhighlight %}
+
+As part of the change rails 2.2 in production mode will load all application specific classes as part of config processing. When the config block is done, application is already loaded. Notice that the declaration of <tt>MyArgumentError</tt> is after the config block and that is why we got <tt>uninitialized constant MyArgumentError </tt>
+
+
+h2. What is the fix
+
+The fix is to move the declaration of MyArgumentError in an initializer. Rails ensures that all the initializers are properly loaded before rails application code is loaded.
+
+{% highlight ruby %}
+# config/initializers/my_argument_error.rb
+class MyArgumentError < ArgumentError
+end
+{% endhighlight %}
+
+Now if you start the server in production mode, you will get the raise statement and not the constant not found error.
+
+
+<i>If you have a case where code works in development but not in production then do let me know.</i>
+ <br />

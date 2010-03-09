@@ -1,0 +1,115 @@
+---
+layout: post
+title: How to resolve git merge conflict caused while doing git rebase
+---
+h2. Objective
+
+Sometimes while performing <tt>git rebase master</tt> I get merge conflicts. In this blog I am showing the process I follow to resolve the merge conflicts cause while performing git rebase.
+
+h2. Setup
+
+{% highlight sh %}
+> mkdir demo
+> cd demo
+> touch ruby.txt rails.txt java.txt perl.txt
+
+# open all the four files and add one line saying 'this is line1'
+# save all the four files
+> git add .
+> git commit -m 'initial commit'
+
+# create a new experiment branch
+> git co -b experiment
+# open the ruby.txt and rails.txt and next to first line 
+# add 'comments addded in branch experiment'. Notice that I 
+# have asked to alter the first line and not to create another line
+# save both the files
+# now open java.txt and add a new line 'comment added in 
+# experiment branch'. save the file
+> git commint -a -m 'added in experiment'
+> git co master
+# open the ruby.txt and rails.txt and next to first line 
+# add 'comments addded in master experiment'. Notice that I 
+# have asked to alter the first line and not to create another line
+# save both the files
+# now open perl.txt and add a new line 'comment added in 
+# master branch' 
+# save perl.txt
+{% endhighlight %}
+
+h2. run rebase
+
+Setup is done. let's run rebase.
+
+{% highlight sh %}
+> git co experiment
+> git rebase master
+First, rewinding head to replay your work on top of it...
+HEAD is now at 6274cfd... added master comments
+Applying added experiment comments
+error: patch failed: rails.txt:1
+error: rails.txt: patch does not apply
+error: patch failed: ruby.txt:1
+error: ruby.txt: patch does not apply
+Using index info to reconstruct a base tree...
+Falling back to patching base and 3-way merge...
+Auto-merged rails.txt
+CONFLICT (content): Merge conflict in rails.txt
+Auto-merged ruby.txt
+CONFLICT (content): Merge conflict in ruby.txt
+Failed to merge in the changes.
+Patch failed at 0001.
+
+When you have resolved this problem run "git rebase --continue".
+If you would prefer to skip this patch, instead run "git rebase --skip".
+To restore the original branch and stop rebasing run "git rebase --abort".
+
+{% endhighlight %}
+
+Notice that the output clearly tells that there were conflicts in rails.txt and ruby.txt .
+
+Also notice that now you are in a special branch called (no branch)
+
+{% highlight sh %}
+> git branch
+* (no branch)
+  experiment
+  master
+{% endhighlight %}
+
+Open rails.txt and remove the extra lines that have been added by git.Once the file looks good then save the file. Do the same with ruby.txt .
+
+Now add both the files. But do not commit them. Just add the resolved files.
+
+{% highlight sh %}
+> git add ruby.txt
+> git add rails.txt
+{% endhighlight %}
+
+Now let's continue with rebase.
+
+{% highlight sh %}
+> git rebase --continue
+# if you still get some message then try running this command 
+# again. It seems sometimes you get some message which is not 
+# a problem. So try rebase --continue two times just to be on 
+# the safe side.
+{% endhighlight %}
+
+Now the rebase work is done and notice that the current branch has changed from (no branch) to experiment branch.
+
+{% highlight sh %}
+> git branch
+* experiment
+  master
+{% endhighlight %}
+
+h2. Abort the whole merge
+
+If you get merge conflicts and you find out the merge conflicts are massive and you do not want to go ahead with rebase then you can issue following command to abort the whole rebase command.
+
+{% highlight sh %}
+> git rebase --abort
+{% endhighlight %}
+
+When the merge conflict message appears then you are put into (no branch). After the abort you will be taken back to your experiment branch. <br />

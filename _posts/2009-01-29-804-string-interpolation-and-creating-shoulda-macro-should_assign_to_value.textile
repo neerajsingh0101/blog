@@ -1,0 +1,146 @@
+---
+layout: post
+title: String interpolation and creating shoulda macro should_assign_to_value
+---
+h2. String Interpolation 
+
+{% highlight ruby %}
+>> a = 10
+>> b = 'a is #{a}'
+{% endhighlight %}
+
+Notice that b has string with single quotes. Now if I want the value of b to be interpolated then this could be done this way.
+
+{% highlight ruby %}
+>> c = '"' + b + '"'
+=> ""a is \#{a}""
+>> eval c
+=> "a is 10"
+{% endhighlight %}
+
+I created another variable called c which has the value of 'b' within double quotes and then I did an eval on c to get the result.
+
+Above code can also be written as
+
+{% highlight ruby %}
+eval %Q["#{b}"]
+{% endhighlight %}
+
+
+h2. Using macro should_assign_to macro
+
+I use "shoulda":http://thoughtbot.com/projects/shoulda testing framework. It comes up with some built in macros like <tt>should_assign_to</tt> . This macro is used like this
+
+{% highlight ruby %}
+# users_controller.rb
+def show
+ @user = User.find(params[:id])
+end
+
+#users_controller_test.rb
+should_assign_to :user
+{% endhighlight %}
+
+h2. Why I need should_assign_to_value macro
+
+I set <tt>@page_title</tt> in most of pages as a response to get request. In order to test the value of <tt>@page_title</tt> this is what I have to do
+
+{% highlight ruby %}
+should 'have page title' do
+  assert_equal assigns(:page_title),"new members"    
+end
+{% endhighlight %}
+
+Above code works. But writing three lines of code every single time I want to test page_title is not very DRY.
+
+h2. Implementation of should_assign_to macro
+
+I created a macro which reduced three lines to one line of test.
+
+{% highlight ruby %}
+def self.should_assign_to_value(name,value)
+  should "assign @#{name}" do
+    assert assigns(name.to_sym), "The action isn't assigning to @#{name}"
+    assert_equal assigns(name.to_sym),value
+  end
+end
+
+
+# users_controller_test.rb
+# initially
+should 'have page title' do
+  assert_equal assigns(:page_title),"new members"    
+end
+
+# now
+should_assign_to_value :page_title, 'new members'
+{% endhighlight %}
+
+Cool. Now I can use one liner <tt>should_assign_to_value</tt> anywhere. However I ran into an issue pretty soon.
+
+h2. Trouble in the macro
+
+{% highlight ruby %}
+# users_controller.rb
+def show
+ @user = User.find(params[:id])
+ @page_title = "Profile of #{@user.name}"
+end
+
+# users_controller_test.rb
+# WILL NOT WORK
+should_assign_to_value :page_title, "Profile of #{@user.name}"
+{% endhighlight %}
+
+In order to make the above code work try this
+
+{% highlight ruby %}
+should_assign_to_value :page_title, '"Profile of #{@user.name}"'
+{% endhighlight %}
+
+Above strategy will work but it is not very easy on eyes. Having single quotes and then double quotes is confusing. A better fix would be to change the implementation of <tt>should_assign_to_value</tt> .
+
+h2. Revised implementation of should_assign_to_value
+
+{% highlight ruby %}
+def self.should_assign_to_value(name,value)
+  should "assign @#{name}" do
+    assert assigns(name.to_sym), "The action isn't assigning to @#{name}"
+    if value =~ /#\{/
+      tmp = '"' + value + '"'
+      assert_equal assigns(name.to_sym),eval(tmp,binding)
+    else
+      assert_equal assigns(name.to_sym),value
+    end
+  end
+end
+{% endhighlight %}
+
+With the above code both the assertions pass
+
+{% highlight ruby %}
+should_assign_to_value :page_tile, 'Profile of #{assigns(:user).name}'
+should_assign_to_value :page_title, 'new members'
+{% endhighlight %}
+
+h2. Revision of should_redirect_to
+
+Shoulda built-in macro <tt>should_redirect_to</tt> suffers from the same problem.
+
+{% highlight ruby %}
+should_redirect_to '"/invite/friends/#{assigns(:event).id}"'
+{% endhighlight %}
+
+Above code works but ,again, with single quotes and double quotes it is not easy on eyes. I revised the implementation of <tt>should_redirect_to</tt> and now I can refactor the same test to
+
+{% highlight ruby %}
+should_redirect_to '/invite/friends/#{assigns(:event).id}'
+{% endhighlight %}
+
+h2. A complete test example
+
+Add "this code":http://gist.github.com/54190 at the bottom of test_helper.rb .
+
+An example of a full test "is provided here":http://gist.github.com/54194 . Please note that I am using "factory_girl":http://github.com/thoughtbot/factory_girl/tree/master but you get the idea .
+
+ <br />

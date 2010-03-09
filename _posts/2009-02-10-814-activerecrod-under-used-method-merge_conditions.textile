@@ -1,0 +1,29 @@
+---
+layout: post
+title: ActiveRecrod under used method merge_conditions
+---
+
+<tt>merge_conditions</tt> method was added to ActiveRecord long time back by DHH. However I find this is one of those methods which is incredibly useful still it is under used.
+
+This method is excellent for building a condition incrementally. A situation like advance search is a perfect example where one has to build a condition incrementally.
+
+This is one way to build a complex query.
+
+{% highlight ruby %}
+conditions = ["sex =? and email =? and created_at > ? and created_at < ?",'male','foo@bar.com',Time.now, Time.now.end_of_day]
+{% endhighlight %}
+
+As you build more complex query it gets messier. The visual mapping between the variable usage and the actual variable gets further and further off.
+
+A better way to tackle this kind of problem would be to use <tt>merge_conditions</tt> method.
+
+{% highlight ruby %}
+>> conds = []
+>> conds << ["sex = ?",'male']
+>> conds << ["email = ?",'foo@bar.com']
+>> conds << ["created_at > ? and created_at < ?",Time.now,Time.now.end_of_day]
+>> conditions = User.merge_conditions(*conds)
+>> User.find(:all, :conditions => conditions)
+{% endhighlight %}
+
+This one is more easier on eyes. <br />

@@ -1,0 +1,248 @@
+---
+layout: post
+title: How to use branch feature of git and work with github
+---
+In this article I am going to discuss how to use easy branching offered to us by git. Before I get started please read "this article":http://neeraj.name/blog/articles/788-using-capistrano-to-deploy-an-application-from-github-to-slicehost-slice which describes in detail how I setup a brand new rails application on slicehost using capistrano.
+
+Based on that article, we have a rails application up and running on slicehost using capistrano. The application is using github to store the source code.
+
+Let's say that currently public/index.html looks like this.
+
+{% highlight sh %}
+Ruby rocks!
+
+copyright - 2008
+{% endhighlight %}
+
+This is what we are going to do.
+<ol>
+<li>create a production branch</li>
+<li>deploy production</li>
+<li>now production and master branches have same source code</li>
+<li>in the master branch add a line 'rails rocks!'</li>
+<li>deploy this change on staging server and make sure changes look good</li>
+<li>do a production fix. change 2008 to 2009. deploy this fix to production</li>
+<li>Bring the production fix change to master branch</li>
+<li>in the master branch add one more line 'github rocks!'</li>
+<li>merge master changes to production</li>
+<li>deploy production</li>
+</ol>
+
+After the deployment to production the index.html page should look like
+
+{% highlight sh %}
+Ruby rocks!
+Rails rocks!
+github rocks!
+
+copyright - 2009
+{% endhighlight %}
+
+h2. Creating a production branch locally and on github
+
+{% highlight sh %}
+cd gitlearn
+
+> git branch
+* master
+
+> git branch production
+
+> git branch
+* master
+  production
+{% endhighlight %}
+
+Remember that star indicates the current branch we are operating on. 
+
+{% highlight sh %}
+git checkout master
+# add "rails rocks!" to index.html and save the file 
+git status
+git add .
+git commit -m 'added rails rocks'
+{% endhighlight %}
+
+Now the change is committed to master branch. 
+
+To be sure that there is change from production to master branch try this.
+
+{% highlight sh %}
+> git diff production master
+diff --git a/public/index.html b/public/index.html
+index d9c72a9..4ecec9f 100644
+--- a/public/index.html
++++ b/public/index.html
+@@ -1,4 +1,5 @@
+ <p>ruby rocks!</p>
++<p>rails rocks!</p>
+{% endhighlight %}
+
+You should see differences.
+
+The production branch that we crated exists only locally. If you go to github you will not see any branch called production. So let's push the local production branch to github production branch.
+
+{% highlight sh %}
+> git checkout production
+Switched to branch "production"
+
+> git push origin production
+{% endhighlight %}
+
+Now go to github and click on 'all branches'. You should see a branch called 'production'.
+
+Let's deploy  production branch to the production server. If you followed the article mentioned at the top then all we need to do is 
+
+{% highlight sh %}
+cap production deploy
+{% endhighlight %}
+
+Now go to the production server and you should see the index.html page different from the staging server.
+
+h2. Now let's do the production fix
+
+{% highlight sh %}
+> git checkout production
+Already on branch "production"
+{% endhighlight %}
+
+Change the index.html replacing 2008 by 2009.
+
+{% highlight sh %}
+> git add .
+> git commit -m 'changed copyright year from 2008 to 2009'
+> git push
+> cap production deploy
+{% endhighlight %}
+
+Make sure that on the production server we are seeing 2009 now.
+
+h2. Merge the production changes into the master branch
+
+We did a production fix and now we need to bring that change to master branch.
+
+{% highlight sh %}
+git checkout master
+> git merge production
+Auto-merged public/index.html
+Merge made by recursive.
+ public/index.html |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+{% endhighlight %}
+
+git automatically merged the changes from production and committed it. To see the commit let's look at the last log message.
+
+{% highlight sh %}
+> git log -n 1
+commit 24f7d5c1df28b82424263a48a7e5ac388b45588f
+Merge: 942b96b... 15d8d00...
+Author: Neeraj Singh <neerajdotname@gmail.com>
+Date:   Fri Jan 2 22:53:49 2009 -0500
+
+    Merge branch 'production'
+{% endhighlight %}
+
+
+Notice next to Merge we have 942b96b and 15d8d00 . Git is telling us that as part of merge two commits were processed. If you want details of the commits then do this
+
+{% highlight sh %}
+git show 942b96b
+git show 15d8d00
+{% endhighlight %}
+
+Let's push the changes and deploy the code to staging server.
+
+{% highlight sh %}
+git push
+cap staging deploy
+{% endhighlight %}
+  
+h2. Last step is to add one more line to master branch
+
+{% highlight sh %}
+> git checkout master
+
+# edit index.html file to add a line
+
+> git add .
+> git commit -m 'added github rocks'
+> git push
+> cap staging deploy
+{% endhighlight %}
+
+
+Now check staging server to see that index.html looks okay. Everything looks good on my staging server. 
+
+h2. Merge source code from production to master
+
+Now we need to merge the changes from master branch to production branch. 
+
+{% highlight sh %}
+> git checkout production
+Switched to branch "production"
+
+> git diff production master
+ <p>ruby rocks!</p>
++<p>rails rocks!</p>
++<p>github rocks!</p>
+
+
+# note that if there are no merging conflict then git
+# will automatically commit the change
+> git merge master
+> git push
+> cap production deploy
+{% endhighlight %}
+
+Now go to production server and index.html should have the necessary changes.
+
+Now if you do diff between master and production then the result should be empty.
+
+{% highlight sh %}
+git diff master production
+{% endhighlight %}
+
+
+h2. How to find the difference between local and remote branch in git
+
+Let's say that you have made a number of local commits and now you are ready to push the changes to github. You want to see what changes are going to be pushed to github. Here is the way to do it.
+
+{% highlight sh %}
+> git checkout master
+> git diff origin/master..HEAD
+
+# if you are in production branch then the command is
+> git diff origin/production..HEAD
+{% endhighlight %}
+
+
+h2. How to delete a branch both locally and from the github
+
+To delete production branch from github 
+
+{% highlight sh %}
+> git push origin :production
+
+# to clean stale branches
+> git remote prune origin
+{% endhighlight %}
+
+That's it. Branch production is gone from github. However this branch is still locally as can be see here
+
+{% highlight sh %}
+> git branch
+  master
+* production
+{% endhighlight %}
+
+To remove the branch from local repository 
+
+{% highlight sh %}
+> git branch -D production
+Deleted branch production.
+
+> git branch
+* master
+{% endhighlight %}
+
+production branch is gone.

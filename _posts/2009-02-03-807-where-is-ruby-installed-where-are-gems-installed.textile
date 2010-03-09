@@ -1,0 +1,73 @@
+---
+layout: post
+title: Where is ruby installed? Where are gems installed?
+---
+h2. Where is ruby installed on my machine?
+
+irb can help you.
+
+{% highlight ruby %}
+>  irb  -rrbconfig 
+>> Config::CONFIG["bindir"] 
+=> "/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin"
+{% endhighlight %}
+
+That's a tough one. I could never remember that.
+
+A much easier way is 
+
+{% highlight ruby %}
+> gem env
+RubyGems Environment:
+  - RUBYGEMS VERSION: 1.3.1
+  - RUBY VERSION: 1.8.6 (2008-03-03 patchlevel 114) [universal-darwin9.0]
+  - INSTALLATION DIRECTORY: /Library/Ruby/Gems/1.8
+  - RUBY EXECUTABLE: /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/bin/ruby
+  - EXECUTABLE DIRECTORY: /usr/bin
+  - RUBYGEMS PLATFORMS:
+    - ruby
+    - universal-darwin-9
+  - GEM PATHS:
+     - /Library/Ruby/Gems/1.8
+     - /Users/nkumar/.gem/ruby/1.8
+     - /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/gems/1.8
+  - GEM CONFIGURATION:
+     - :update_sources => true
+     - :verbose => true
+     - :benchmark => false
+     - :backtrace => false
+     - :bulk_threshold => 1000
+     - :sources => ["http://gems.rubyforge.org/", "http://gems.github.com", "http://gems.github.com"]
+  - REMOTE SOURCES:
+     - http://gems.rubyforge.org/
+     - http://gems.github.com
+     - http://gems.github.com
+{% endhighlight %}
+
+This is much better. Just run <tt>gem env</tt> and you will get <tt>RUBY EXECUTABLE</tt> which lists where ruby is running from.
+
+<tt>gem env</tt> is also a good way to find out location of your gems. Above <tt> GEM PATHS</tt> lists the path where gems are installed.
+
+
+h2.  Where is a specific gem installed
+
+If you are interested in finding where a particular gem is installed then run following command. It lists the location of the gem also.
+
+> gem list -d rails
+
+*** LOCAL GEMS ***
+
+rails (2.2.2, 2.2.1, 2.1.2, 2.1.1, 2.1.0, 2.0.2, 2.0.1, 1.2.6, 1.2.5)
+    Author: David Heinemeier Hansson
+    Rubyforge: http://rubyforge.org/projects/rails
+    Homepage: http://www.rubyonrails.org
+    Installed at (2.2.2): /Library/Ruby/Gems/1.8
+                 (2.2.1): /Library/Ruby/Gems/1.8
+                 (2.1.2): /Library/Ruby/Gems/1.8
+                 (2.1.1): /Library/Ruby/Gems/1.8
+                 (2.1.0): /Library/Ruby/Gems/1.8
+                 (2.0.2): /Library/Ruby/Gems/1.8
+                 (2.0.1): /Library/Ruby/Gems/1.8
+                 (1.2.6): /Library/Ruby/Gems/1.8
+                 (1.2.5): /Library/Ruby/Gems/1.8
+

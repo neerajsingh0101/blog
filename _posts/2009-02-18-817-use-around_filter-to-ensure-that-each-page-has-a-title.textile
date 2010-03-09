@@ -1,0 +1,36 @@
+---
+layout: post
+title: Use around_filter to ensure that each page has a title
+---
+Talk about SEO (search engine optimization) and the very first thing that everyone suggests is to have "a unique title for every html page":http://www.quicksprout.com/2009/02/02/how-to-optimize-your-blog-for-search-engines/ .
+
+h2. Objective
+
+That made me think how do I ensure that every page has a title. And if a page does not have a title then "hoptoad should notify me":http://www.neeraj.name/blog/articles/792-how-to-handle-exceptions-in-controllers-rake-tasks-and-regular-classes-using-hoptoad .
+
+h2. Solution
+
+around_filter to rescue. around_filter allows you to do a task before the request is handled and then after the request has been processed, control comes back again for further processing.
+
+"This is how":http://gist.github.com/64471 I defined the around_filter to ensure that every page has a page title.
+
+h2. How does it work
+
+The key is to understand how Rails builds up the response. Let's say that I am accessing http://localhost:3000/users/2 . In this case the sequence of operation would be
+ 
+* before filter for controller
+* controller processing
+* show.html processing
+* corresponding layout processing
+* if using around_filter then control will come back to the controller
+
+By using around_filter I get to check at the very end if the instance variable @page_title has been setup.
+
+I don't want to ensure that page_title has been setup when the response is a redirect. I added code to exclude the check for page title if the response code is in the range of 300 and 399.
+
+Also I want to check for page_title only for get requests.
+
+
+That's it. It is a simple solution and it works. And it ensures that every single page that should have page_title has a valid page_title.
+
+*Update:* As Zubin mentioned in the comment "after_filter" would suffice in this case and is a better choice. Thanks Zubin. <br />

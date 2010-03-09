@@ -1,0 +1,74 @@
+---
+layout: post
+title: I just render html and hence I do not need to worry about respond_to. Wrong!
+---
+h2. Basics
+
+If you run <tt>ruby script/generate scaffold User name:string</tt> then you will get <tt>users_controller.rb</tt> with following code.
+
+{% highlight ruby %}
+def show
+  @user = User.find(params[:id])
+
+  respond_to do |format|
+    format.html # show.html.erb
+    format.xml  { render :xml => @user }
+  end
+end
+{% endhighlight %}
+
+Requests like <tt>http://localhost:3000/users/4</tt> from browser will be properly rendered.
+
+If you do not need output in xml format then most of the users quickly reduce the above code to
+
+{% highlight ruby %}
+def show
+  @user = User.find(params[:id])
+end
+{% endhighlight %}
+
+Reducing 7 lines of code to 3 lines of code looks cleaner but it comes with a price.
+
+h2. Problem Definition
+
+I wrote  a blog and someone put a link to this blog in his blog. However mistakenly the link did not come out right. The link turned out to be
+
+{% highlight ruby %}
+http://localhost:3000/articles/4.php
+{% endhighlight %}
+
+I would get following error in my application.
+
+{% highlight ruby %}
+Missing template users/show.erb
+{% endhighlight %}
+
+
+The reality is that I only wanted to handle html files so I had <tt>show.html.erb</tt>. However I did not have any file called <tt>show.erb</tt>
+
+
+The same problem could come from other unexpected sources like bots.
+Some of the bots hit the site with url like <tt>http://localhost:3000/users/4.rss</tt>
+
+
+h2. Solution
+
+Fix is simple. It was provided by scaffold generator output.
+
+{% highlight ruby %}
+def show
+  @user = User.find(params[:id])
+  respond_to do |format|
+    format.html
+  end
+end
+{% endhighlight %}
+
+With the above fix, the request like <tt>http://localhost:3000/users/4.rss</tt> would be sent a response like this
+
+{% highlight ruby %}
+406 Not Acceptable [http://localhost:3000/users/4.rss]    
+{% endhighlight %}
+
+
+Think before you remove respond_to code. Even though your application is meant to provide only html responde respond_to is a useful tool. <br />

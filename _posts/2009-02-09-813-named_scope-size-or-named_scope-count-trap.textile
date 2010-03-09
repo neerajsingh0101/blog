@@ -1,0 +1,51 @@
+---
+layout: post
+title: named_scope.size or named_scope.count trap
+---
+
+I have a Comment model and I want recent comments to be displayed on my blog. On some pages I want the most recent 5 comments and on some pages I want the most recent 10 comments. I created this named_scope.
+
+{% highlight ruby %}
+named_scope :recent_comments, lambda { |limit_size|
+    { :order => 'id desc',
+      :limit => limit_size }
+}
+{% endhighlight %}
+
+That was easy.
+
+I need to determine if there are any recent comments. If the size of recent comments is zero then I will not display the label. In order to get the count of recent comments this is what I did.
+
+{% highlight ruby %}
+Comment.recent_comments(5).count
+{% endhighlight %}
+
+I would expect a value between 0 and 5 because 5 is the max limit I am passing.
+
+The sql that results from that named scope is 
+
+{% highlight ruby %}
+SELECT count(*) AS count_all FROM `comments` LIMIT 5 ORDER BY id desc
+{% endhighlight %}
+
+I was getting a count of more than 5. And the above sql explains why. Rails is sending a select count(*) sql to the database. I don't want that. I want regular sql statement and then in memory count should be done of the number of objects.
+
+I changed the the code and this is what changed code looked like.
+
+{% highlight ruby %}
+# old
+Comment.recent_comments(5).count
+# resulting sql
+SELECT count(*) AS count_all FROM `comments` LIMIT 5 ORDER BY id desc
+
+
+
+# new
+Comment.recent_comments(5).length
+# resulting sql
+SELECT *  FROM `comments` LIMIT 5 ORDER BY id desc
+{% endhighlight %}
+
+Notice that a change from .count to .length is causing a big change in the sql that is generated. The new sql is no more selecting all the records.
+
+You can read more about the difference between count, size and length "here":http://blog.hasmanythrough.com/2008/2/27/count-length-size . 

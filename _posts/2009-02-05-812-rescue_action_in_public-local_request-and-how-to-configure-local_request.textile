@@ -1,0 +1,76 @@
+---
+layout: post
+title: rescue_action_in_public, local_request? and how to configure local_request
+---
+
+h2. How does Rails handle exceptions
+
+Rails exception handling depends on two factors and we are going to discuss both of them here.
+
+{% highlight ruby %}
+# ~/lib/action_controller/rescue.rb
+if consider_all_requests_local || local_request?
+  rescue_action_locally(exception)
+else
+  rescue_action_in_public(exception)
+end
+{% endhighlight %}
+
+When exceptions are handled by rescue_action_locally then we get to see the page with stacktrace. When exceptions are handled by rescue_action_in_public, we get to see the public/500.html or an error page matching the error code.
+
+As you can see Rails uses two different factors consider_all_requests_local and local_request? to decide how exception should be handled.
+
+h2. consider_all_requests_local
+
+consider_all_requests_local is a class level variable for ActionController::Base . We hardly pay attention to it but it is configured through files residing in config/environments
+
+{% highlight ruby %}
+# config/environments/development.rb
+config.action_controller.consider_all_requests_local = true
+
+# config/environments/production.rb
+config.action_controller.consider_all_requests_local = false
+{% endhighlight %}
+
+As you can see in development environment all the requests are considered local. 
+
+h2. I have overridden the method local_request? but I am still not able to see public page when exception is raised.
+
+That is a common question I see in the mailing list. As you can see the condition to decide how to handle exception is
+
+{% highlight ruby %}
+if consider_all_requests_local || local_request?
+{% endhighlight %}
+
+In development environment consider_all_requests_local is always true as I showed before. Since one of the conditions is true Rails always handles the exception using rescue_action_locally .
+
+h2. I am running in production mode but I am still not able to see public/500.html page when I get exception at http://localhost:3000 .
+
+Same issue. In this case you are running in production mode so consider_all_requests_local is false but local_request? is still true because of localhost.
+
+h2. I want local_request? to be environment dependent
+
+
+Recently I started using hoptoad and I needed to test how hoptoad will handle exception in production mode. However without any change local_request? was always returning true for http://localhost:30000 .
+
+Then I stick following file under config/initializers
+
+{% highlight ruby %}
+# config/initializers/local_request_override.rb
+module CustomRescue
+  def local_request?
+    return false if Rails.env.production? || Rails.env.staging?
+    super
+  end
+end
+
+ActionController::Base.class_eval do
+  include CustomRescue
+end
+{% endhighlight %}
+
+Now all request in production or in staging mode are treated as NOT local.
+
+Now in both staging and production mode I get to see 500.html page even if I am accessing the application from http://localhost:3000 .
+
+ <br />

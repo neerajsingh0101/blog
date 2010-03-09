@@ -1,0 +1,46 @@
+---
+layout: post
+title: Do not pass 'false' as a paramter
+---
+I found this code in one of the projects.
+
+{% highlight ruby %}
+<%= link_to 'Info', :controller => 'users', :action => 'lab', :show_info => 'false' %>
+{% endhighlight %}
+
+Please do not do that. Above code produces following url
+
+{% highlight ruby %}
+http://localhost:3000/users/lab?show_info=false
+{% endhighlight %}
+
+It is confusing because it is common practice to have code like <tt>params[:foo]</tt> to check if a param has value true or false.
+
+In this case even though <tt>false</tt> is being passed for <tt>show_info</tt> the code <tt>params[:show_info]</tt> will return true.
+
+{% highlight ruby %}
+def lab
+  if params[:show_info]
+    raise "show info"
+  else
+    raise "do not show data"
+  end
+end
+{% endhighlight %}
+
+<tt>http://localhost:3000/users/lab?show_info=false</tt> will return <tt>show info</tt> .
+
+In this case the value of <tt>params[:show_info]</tt> is false string. And false string is not the same as false boolean.
+
+If you ever see <tt>false</tt> as a parameter , be assured that it will cause a lot of confusion.
+
+
+
+h2. Solution
+
+Fix is simple. Do not pass 'false' string rather pass false , the boolean. The modified code would look like
+
+{% highlight ruby %}
+<%= link_to 'Info', :controller => 'users', :action => 'lab', :show_info => false %>
+{% endhighlight %}
+ <br />

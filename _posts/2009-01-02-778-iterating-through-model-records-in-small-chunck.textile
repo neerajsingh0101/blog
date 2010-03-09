@@ -1,0 +1,15 @@
+---
+layout: post
+title: Iterating through model records in small chunck
+---
+If you have 1 million records and if you want to invoke save on all of them then the following strategy is a bad idea because it will load all million records in memory in one swoop.
+
+{% highlight ruby %}
+User.all.each { |user| user.save! }
+{% endhighlight %}
+
+In order to get around to this problem in one of my previous blogs I had mentioned "this strategy":http://neeraj.name/blog/articles/635-iterating-through-models-in-small-chunks .
+
+I am not sure when but that strategy has now become part of the core will_paginate plugin. That means I don't need to carry that code around in my application. Now all you need to do is
+
+User.paginated_each { |user| user.save! } 

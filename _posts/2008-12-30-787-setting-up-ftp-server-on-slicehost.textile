@@ -1,0 +1,51 @@
+---
+layout: post
+title: Setting up ftp server on slicehost
+---
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+
+Usually to a copy a file from local mac machine to the slice I use scp. Similarly I use scp command to copy a file from slicehost slice to the local mac machine. 
+
+{% highlight sh %}
+# copy a file from localhost to remote server
+# the goal is to copy file 2008-12-17-11-38-28.sql.gz from mac to slicehost slice.
+# the ssh port is running on 30000
+# the file is being copied to /home/nkumar/tmp 
+scp -P 30000 2008-12-17-11-38-28.sql.gz nkumar@67.207.136.78:/home/nkumar/tmp 
+
+
+# copy a file from remote server to localhost
+# file is being copied from /home/neeraj/tmp/2008-12-23-09-44-21.sql.gz to current directory
+scp -P 30000 neeraj@67.207.132.88:/home/neeraj/tmp/2008-12-23-09-44-21.sql.gz  .
+{% endhighlight %}
+
+
+When I do need an ftp server then I follow this process to install it.
+
+<h2> Setting up ftp server </h2>
+
+{% highlight sh %}
+sudo apt-get install vsftpd
+{% endhighlight %}
+
+You don't need to edit configuration file to get started. The default setting is pretty good. Default setting does allow anonymous login but anonymous users can't do anything. However it is a good idea to block anonymous user login.
+
+
+{% highlight sh %}
+sudo nano /etc/vsftpd.conf
+Uncomment line local_enable=YES to allow local users to login.
+change anonymous_enable=YES to anonymous_enable=NO
+Uncommenting the line (write_enable=YES) will let ftp users upload content to the server
+#reload the config file
+sudo /etc/init.d/vsftpd reload
+#Restart the ftp server 
+sudo /etc/init.d/vsftpd restart
+{% endhighlight %}
+
+Now I am able to use any ftp client to connect to my slice.
+
+The log files are at 
+
+{% highlight sh %}/var/log/vsftpd.log and /var/log/auth.log  {% endhighlight %}
+
+To login to the ftp server login with the ssh id 'neeraj" and the corresponding ssh password.
