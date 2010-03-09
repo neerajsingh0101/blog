@@ -1,0 +1,48 @@
+---
+layout: post
+title: __FILE__  in ruby
+---
+228
+I come across <notextile>__FILE__</notextile> a lot in RoR and I have no clue what it means.  So I did a quick test and this is what I found:
+
+{% highlight ruby %} 
+raise(__FILE__) # in home_controller.rb  
+#=>  app/controllers/home_controller.rb
+{% endhighlight %}
+
+As it turns out <notextile>__FILE__</notextile>  if the full filename of the file in which the current code is residing and is being executed.
+
+Also you will notice a lot of code like this.
+
+{% highlight ruby %}
+if $0 == __FILE__
+  # do something
+end
+{% endhighlight %}
+
+Variable $0 holds the name of the script that was fired at the command prompt. Let's do a quick test.
+
+{% highlight ruby %}
+# ror.rb
+puts "$0 is: " + $0
+puts "__FILE__ is: " + __FILE__
+{% endhighlight %}
+
+Now execute the above file as "ruby ror.rb". 
+
+{% highlight ruby %}
+$0 is: ror.rb
+__FILE__ is: ror.rb
+{% endhighlight %}
+
+Now let's see the result in irb.
+
+{% highlight ruby %}
+> irb
+irb(main):001:0> load 'ror.rb'
+$0 is: irb
+__FILE__ is: ./ror.rb
+=> true
+{% endhighlight %}
+
+The conditional statement $0 == <notextile>__FILE__</notextile> can be used to determine if the file is being invoked directly invoked or is being invoked by some other script.
