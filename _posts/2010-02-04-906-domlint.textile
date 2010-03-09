@@ -2,13 +2,9 @@
 layout: post
 title: DOMLint
 ---
-I have seen "JSLint":http://www.jslint.com ,
-"JavaScript Lint":http://www.javascriptlint.com ,
-"JSON Lint":http://www.jsonlint.com and
-"jQuery Lint":http://james.padolsey.com/javascript/jquery-lint .
+I have seen "JSLint":http://www.jslint.com , "JavaScript Lint":http://www.javascriptlint.com , "JSON Lint":http://www.jsonlint.com and "jQuery Lint":http://james.padolsey.com/javascript/jquery-lint .
 
 Today I came across "DOM Lint":http://yura.thinkweb2.com/domlint/ in this "jQuery thread":http://forum.jquery.com/topic/using-bind#14737000000685714 .
-
 
 I never really thought it before but what if  the name of a form is <tt>getElementById</tt>.
 
@@ -19,9 +15,11 @@ I never really thought it before but what if  the name of a form is <tt>getEleme
 
 How about <tt>addEventListener</tt> as the id of a div.
 
-<pre> <div id="addEventListener">
-    ...
-  </div></pre>
+<pre> 
+<div id="addEventListener">
+  ...
+</div>
+</pre>
 
 I am quoting Dave here. He explained the problem very well.
 

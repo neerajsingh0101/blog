@@ -1,0 +1,23 @@
+---
+layout: post
+title: Build a google chrome extension using jQuery
+---
+
+Lately I have been following "jQuery commits on github":http://github.com/jquery/jquery/commit/da966573c3f3cb083c48cd3ead88e7542937d4df . If I look at a commit which fixes a bug then I would like to go and see the bug description. In order to do that I need to type url which would be something like this <tt>http://dev.jquery.com/ticket/6084</tt> . 
+
+I wrote a chrome extension which would add a link to the bug at the end of commit message.
+
+h2. Install the extension and try it
+
+The extension is "available here":http://chrome.google.com/extensions/detail/hmgjfmlhbojmehdghpfnofdekdhmbcik . After installing the extension visit "this page":http://github.com/jquery/jquery/commit/da966573c3f3cb083c48cd3ead88e7542937d4df and you should see a link at the end of commit message.
+
+h2. Developing the extension and packaging it
+
+Developing an extension on google chrome is very simple.  
+
+* git clone "the source code":http://github.com/neerajdotname/jQueryBugLink of my extension or create file structure similar to "this":http://github.com/neerajdotname/jQueryBugLink 
+* Zip the folder contents and create jQueryBugLink.zip 
+* Visit "chrome.google.com/extensions":http://chrome.google.com/extensions  and click on publish your extensions
+* Upload the zip file and publish your extension 
+
+That's it.

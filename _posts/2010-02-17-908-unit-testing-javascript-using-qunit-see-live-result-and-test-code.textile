@@ -1,7 +1,8 @@
 ---
 layout: post
-title: Unit Testing JavaScript using Qunit . See live result and test code.
+title: Unit Testing JavaScript using Qunit . See live result and test code
 ---
+
 <i>If you are in a hurry then take a look at these "two":http://demo.neeraj.name/admin_data/jstest "links":http://github.com/neerajdotname/admin_data/tree/master/lib/js/test/ and you are done.</i>
 
 h2. Introduction

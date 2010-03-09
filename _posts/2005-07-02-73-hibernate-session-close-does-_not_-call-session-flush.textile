@@ -2,6 +2,7 @@
 layout: post
 title: Hibernate session.close does _not_ call session.flush
 ---
+
 Someone who doesn't know anything about Hibernate but has been a programmer for a while would understand what flush means in general. The person would rightly assume that flush is something called at specific time (probably caused by a trigger) to flush the data to the desired destination. For example while rendering the pages, JSP pages periodically flush the content out. It is also assume that if for someone reason the bucket is filled with data and a close command is called before the trigger could flush the data then before closing the pipe the data left out in the bucket will be flushed. Not so in hibernate.
 
 In hibernate world we have Hibernate session. One gets a session from the session factory and after the processing is done a call to session.close()  is done to release the connection. As one might have guessed session has a flush method which synchronizes the data in memory with the data in database. The flush method is not called immediately when an object is attached to the session. For example.
