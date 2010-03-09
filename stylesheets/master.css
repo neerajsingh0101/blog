@@ -144,7 +144,7 @@ div.post {
 }
 
 
-code {
+code,pre {
   background: #fff5dd;
   font-size: 14px;
   color:#444444;
@@ -168,20 +168,20 @@ code {
   line-height:normal;
 }
 
-.code pre {
+.code pre,pre {
   font-size:120%;
   overflow:auto;
   padding:5px;
 }
 
-.highlight pre, .highlight code {
+.highlight pre, .highlight code, pre {
   overflow:auto;
   line-height:1.4em;
   background-color:#F8F8FF;
   color:#444444;
 }
 
-.highlight pre {
+.highlight pre,pre {
   margin:1em 0;
   padding:0.5em;
   border:1px solid #DEDEDE;
