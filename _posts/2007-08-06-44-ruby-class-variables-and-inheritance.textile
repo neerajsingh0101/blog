@@ -1,0 +1,55 @@
+---
+layout: post
+title: Ruby class variables and inheritance
+---
+44
+Let's look at this example
+
+{% highlight ruby %}
+class User
+  @@base_salary = 5.75
+  def self.base_salary
+    @@base_salary
+  end
+end
+class Developer < User
+  @@base_salary = 35.00
+end
+class Tester < User
+  @@base_salary = 32.00
+end
+puts Developer.base_salary
+{% endhighlight %}
+
+Since the base_salary of Developers is 35.00 I was expecting '35.00' in the result. But the result was '32.00'. Why is that?
+
+As per <a href="http://rubyhacker.com/">'Ruby Way Second Edition'</a>
+
+
+<blockquote>
+The answer is that class variables aren't truly class variables; they belong not to the class but to the entire inheritance hierarchy. The class variables aren't copied from the parent class but are shared with the parent ( and thus with the 'sibling' classes).
+</blockquote>
+
+So how to fix the code. First let's see the solution.
+
+{% highlight ruby %}
+class User
+  @@base_salary = 5.75
+  class  << self
+	  attr_accessor :base_salary
+  end
+end
+class Developer <   User
+  self.base_salary = 35.00
+end
+class Tester <   User
+  self.base_salary = 32.00
+end
+puts Developer.base_salary
+{% endhighlight %}
+
+Because of the stated issue with the class variables we ditched the class variable approach completely. In the solution base_salary is no more a class level variable. Rather it is a class instance variable.
+
+Here the singleton class for User was opened up and an instance variable method was added. This instance variable for the anonymous singleton class is a class variable for 'User' class and all the classes that inherit this class.
+
+This blog is inspired by the reading of <a href="http://rubyhacker.com/">'Rub way second edition'</a>.

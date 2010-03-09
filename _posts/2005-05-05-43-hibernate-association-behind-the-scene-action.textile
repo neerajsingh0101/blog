@@ -1,0 +1,405 @@
+---
+layout: post
+title: Hibernate association   behind the scene action
+---
+43
+I must admit that I had trouble understanding the various associations and  the semantics related to cascade and inverse in Hibernate. In order to fully  understand how the association works I decided to have different test cases  covering different combinations. I noted down the result in my notebook. On  various forums I see newbies like me struggling with the concepts of association  in hibernate. So I decided to put my test result on the blog.
+
+Hope it helps others. I am using Hibernate 3.0 and Java SDK 1.4 .
+
+I have taken a simple case of parent - child relationship. Here are the  mapping files.
+
+<strong>Parent.hbm.xml</strong>
+
+The hibernate mapping file:
+
+{% highlight xml %}
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC"-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+  <hibernate-mapping>
+   <class name="com.neeraj.Parent"  table="parent">
+      <id name="id" type="long"  column="pid">
+        <generator class="native"  />
+      </id>
+      <set name="children" inverse="false"  cascade="none">
+         <key column="pid" />
+         <one-to-many  class="com.neeraj.Child"  />
+     </set>
+  </class>
+</hibernate>
+{% endhighlight %}
+
+Corresponding Java file:
+
+{% highlight xml %}
+package com.neeraj;
+import java.util.Set;
+public class Parent {
+   private long id;
+   private Set Children;
+   public Set getChildren() {return Children;}
+   public void setChildren(Set children) { Children = children;}
+   public long getId() {return id; }
+   public void setId(long id) {this.id = id;}
+}
+{% endhighlight %}
+
+<strong>Child.hbm.xml</strong>
+
+The hibernate mapping file:
+
+{% highlight xml %}
+<?xml  version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC"-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+   <class name="com.neeraj.Child"  table="child">
+      <id name="id" type="long"  column="cid">
+          <generator class="native" />
+      </id>
+      <property name="firstName" column="firstName" />
+      <property name="lastName" column="lastName"  />
+  </class>
+</hibernate>
+{% endhighlight %}
+
+Corresponding Java file:
+
+{% highlight xml %}
+package com.neeraj;
+public class Child {
+  private long id;
+  private String firstName;
+  private String lastName;
+  public String getFirstName() {return firstName; }
+  public void setFirstName(String firstName) {this.firstName =  firstName; }
+  public long getId() {return id; }
+  public void setId(long id) {this.id = id;}
+  public String getLastName() {return lastName;}
+  public void setLastName(String lastName) {this.lastName = lastName;}
+}
+{% endhighlight %}
+
+<strong>Note: </strong>The code formatter plugin is creating some trouble  here. In the xml hibenate-mapping is shown as hibernate double space mapping. Don't  worry the full source code is provided as a download at the end of the blog.
+
+<strong>DDL</strong>
+
+{% highlight xml %}
+create table child (
+   cid bigint not null  auto_increment,
+   firstName varchar(12),
+   lastName varchar(12),
+   pid  bigint,
+  primary key (cid)
+);
+create table parent (
+   pid bigint not  null auto_increment,
+   primary key (pid)
+);
+{% endhighlight %}
+
+I have given the names parent and child so that it's easy to understand. 'pid' stands for the 'parent id' and 'cid' stands for the child id. In the  Parent.hbm.xml I have explicitly mentioned cascade as 'none' and inverse as 'false'. Both are the default values and I could easily omit them. The reason  they are there is to make it explicit that no cascading and no inverse is being  used. If any setting is changed then it will be explicitly mentioned.Now let's  look at some test scenarios.
+
+<strong>1 Uni directional one-to-many association </strong>
+
+This is the simplest possible case I could think of. As mentioned it's  uni-directional mapping. The parent object knows about the child object but the  child object doesn't know anything about the parent object.
+
+In this case  inverse is 'false'. Simply stated it means that the onus of setting up the  relationship is with the parent object. As we move along the test cases the  relevance of inverse attribute would become clearer. So hang on as we move along  the test cases.
+
+<strong>1.1 Both parent and child are persisted </strong>
+
+<strong>Source code:</strong>
+
+{% highlight sh %}
+Parent parent = new Parent();
+Child child = new  Child();
+child.setFirstName("John");
+child.setLastName("Smith");
+Set  children = new  HashSet();
+children.add(child);
+parent.setChildren(children);
+session.saveOrUpdate(child);
+session.saveOrUpdate(parent);
+{% endhighlight %}
+
+<strong>Query </strong>
+
+{% highlight sh %}
+Hibernate: insert into child (firstName, lastName) values (?,  ?)
+Hibernate: insert into parent values ( )
+Hibernate: update child set  pid=? where cid=?
+{% endhighlight %}
+
+<strong>Analysis </strong>
+
+The result is an insertion of a record in both the parent and the child  table. Pay special attention to the sequence of events here. First the child  record is inserted, then the parent record is inserted and then the primary key  of the parent record is put into the child record.
+
+<strong>1.2 Only parent is persisted </strong>
+
+<strong>Source code:</strong> ( for the sake of brevity I'm not going to put  the whole source code. Majority of the code is same as mentioned in step 1.1.  The changes are mentioned here)
+
+{% highlight java %}
+//  session.saveOrUpdate(child);
+session.saveOrUpdate(parent);
+{% endhighlight %}
+
+<strong>Query:</strong>
+
+{% highlight sh %}
+Hibernate: insert into parent values ( )
+Hibernate: update child  set pid=? where cid=?
+{% endhighlight %}
+
+<strong>Error</strong>
+
+{% highlight sh %}
+SEVERE: Could not synchronize database state with  session
+net.sf.hibernate.TransientObjectException: object references an  unsaved transient instance - save the transient instance before flushing:  example.Child
+at  net.sf.hibernate.impl.SessionImpl.throwTransientObjectException(SessionImpl.java:2788)
+{% endhighlight %}
+
+<strong>Analysis</strong>
+
+Hibernate inserts a record in the parent table.Then Hibernate realizes that  there is a relationship with a child. Since inverse is false , the onus of  implementing the association falls on the shoulders of the parent object . Now  hibernate attempts to put the value of the primary key of the parent record on  the child object. But realizes that the child object is still not persisted.  Hence the exception. Look at the exception message. Hibernate is saying that the  child object is still transient and it can't establish the relationship. What do  you think will happen to the parent record because of the exception. Will that  inserted record be rolled back.No. The parent record will be there.
+
+<strong>1.3 Only child is persisted </strong>
+
+<strong>Source code:</strong>
+
+{% highlight java %}
+session.saveOrUpdate(child);
+//  session.saveOrUpdate(parent);
+{% endhighlight %}
+
+<strong>Query:</strong>
+
+{% highlight sh %}Hibernate: insert into child (firstName, lastName) values (?,  ?){% endhighlight %}
+
+<strong>Analysis:</strong>
+
+In this case only a child record is inserted. No record was inserted in the  parent table. Why no exception? Because child doesn't even know that there is  any one out there trying to have an association with it. Inverse is false- it  means the onus of setting the relationship falls on the parent object. Child  object gets persisted oblivious to any association issue.
+
+<strong>2 Uni directional one-to-many association with  cascade.</strong>
+
+In this case everything remains same except that the <strong>cascade option  has been changed from none to all in the parent.hbm.xml</strong>. Now that  cascade is turned on if a parent record is persisted then the child record  will automatically be persisted by the virtue of cascade.
+
+<strong>2.1 Parent has reference to the child. Both are persisted.  </strong>
+
+<strong>Source code:</strong>
+
+{% highlight sh %}
+Parent parent = new Parent();
+Child child = new  Child();
+child.setFirstName("John");
+child.setLastName("Smith");
+Set  children = new  HashSet();
+children.add(child);
+parent.setChildren(children);
+session.saveOrUpdate(child);
+session.saveOrUpdate(parent);
+{% endhighlight %}
+
+<strong>Query:</strong>
+
+Exactly same as in step1.1.
+
+<strong>Analysis:</strong>
+
+Both the parent and the child record are successfully persisted. This test  doesn't prove much since we are persisting both the parent and the child.
+
+<strong>2.2 Only parent is persisted.</strong>
+
+<strong>Source code:</strong>
+
+{% highlight java %}
+//  session.saveOrUpdate(child);
+session.saveOrUpdate(parent);
+{% endhighlight %}
+
+<strong>Query:</strong>
+
+{% highlight sh %}
+Hibernate: insert into parent values ( )
+Hibernate: insert into  child (firstName, lastName) values (?, ?)
+Hibernate: update child set pid=?  where cid=?
+{% endhighlight %}
+
+<strong>Analysis:</strong>
+
+The parent record is persisted. The child record is persisted with the  foreign key. It's all good. This is interesting. In this case we are not  explicitly persisting the child and still the child record got persisted. Last  time we did that case 1.2 we had an error. This shows what 'cascade' does. It  persists all the child records anytime it is asked to be persisted. It takes so  much work off the shoulders of the developers.
+
+Pay attention to the query. It's the same as case 1.1. It simply means that  in stead of developers doing the job, some of the tasks are now being done by  Hibernate.
+
+<strong>2.3 Only child is persisted.</strong>
+
+<strong>Source code:</strong>
+
+{% highlight java %}
+session.saveOrUpdate(child);
+//  session.saveOrUpdate(parent);
+{% endhighlight %}
+
+<strong>Query:</strong>
+
+Exactly same as in step1.3
+
+<strong>Analysis:</strong>
+
+In this case the result is exactly similar to case case 1.3 for the same  reason. Child object has no idea that it is part of association and is happily  persisted. In this case cascade had no effect since the parent was not even  persisted.
+
+<strong>3 Bi directional one-to-many association.</strong>
+
+Now we will make the association bi-directional. No changes will be done to  the parent.hbm.xml. The child.hbm.xml will be changed to have a reference to the  parent. It means the POJO for Child will also change. The cascade setting for  the parent.hbm.xml is reset to none. 
+
+<strong>Modified Child.hbm.xml</strong>
+
+The hibernate mapping file:
+
+{% highlight xml %}
+<?xml  version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC"-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.neeraj.Child"  table="child">
+       <id name="id" type="long"  column="cid">
+          <generator class="native" />
+       </id>
+       <property name="firstName" column="firstName" />
+       <property name="lastName" column="lastName" />
+       <many-to-one name="parent" class="com.neeraj.Parent" column="pid"  />
+   </class>
+</hibernate>
+{% endhighlight %}
+
+The child.java will have following lines added to them :
+
+{% highlight java %}
+package  com.neeraj;
+public class Child {
+   private Parent parent;
+  public Parent getParent() {return parent;}
+  public void setParent(Parent parent) {this.parent = parent;}
+}
+{% endhighlight %}
+
+<strong>3.1 Child has reference to parent. Parent has reference to the  child. Both are persisted.</strong>
+
+We need to make change to our test case to add a reference to the parent to  the child.
+
+<strong>Source code:</strong>
+
+{% highlight sh %}
+Parent parent = new  Parent();
+Child child = new  Child();
+child.setFirstName("John");
+child.setLastName("Smith");
+child.setParent(parent);  //set parent to the child
+Set children = new  HashSet();
+children.add(child);
+parent.setChildren(children);
+session.saveOrUpdate(child);
+session.saveOrUpdate(parent);{% endhighlight %}
+
+<strong>Query:</strong>
+
+{% highlight sh %}
+Hibernate: insert into child (firstName, lastName, pid) values (?,  ?, ?)
+Hibernate: insert into parent values ( )
+Hibernate: update child set  firstName=?, lastName=?, pid=? where cid=?
+Hibernate: update child set pid=?  where cid=?
+{% endhighlight %}
+
+<strong>Analysis:</strong>
+
+The first query is easy. Note how the first query here is different from the  first query of the case1.1 where we had only uni-directional mapping. In that  case the query didn't have any column named pid because, you guessed it, the  mapping in case 1.1 is uni-directional. The second query is generated because  the child has a relationship with the parent. The third query is for the parent  and in the fourth query the parent establishes a relationship with the child.  Please note that although in the first query pid is being passed , it is null  until the fourth query is executed.
+
+<strong>3.2 Child has reference to parent. Parent has reference to the  child. Only parent is persisted.</strong>
+
+<strong>Source code:</strong>
+
+{% highlight java %}
+//  session.saveOrUpdate(child);
+session.saveOrUpdate(parent);
+{% endhighlight %}
+
+<strong>Query:</strong>
+
+{% highlight sh %}
+Hibernate: insert into parent values ( )
+Hibernate: update child  set pid=? where cid=?
+{% endhighlight %}
+
+<strong>Error:</strong>
+
+{% highlight sh %}
+SEVERE: Could not synchronize database state with  session
+net.sf.hibernate.TransientObjectException:
+object references an  unsaved transient instance -
+save the transient instance before flushing:  example.Child
+{% endhighlight %}
+
+<strong>Analysis:</strong>
+
+Hibernate successfully persisted a record in the parent table. Look at the  second query. Hibernate rightly attempted to establish a relationship. "Inverse"  is set at 'false' and hence the parent object is trying to establish the  relationship. But Hibernate realizes that the child record is still not  persisted ( remember cascade is 'none' now).
+
+<strong>3.3 Child has reference to parent. Parent has reference to the  child. Only child is persisted.</strong>
+
+<strong>Source code:</strong>
+
+{% highlight java %}
+session.saveOrUpdate(child);
+//  session.saveOrUpdate(parent);
+{% endhighlight %}
+
+<strong>Query:</strong>
+
+{% highlight sh %}
+Hibernate: insert into child (firstName, lastName, pid) values (?,  ?, ?)
+{% endhighlight %}
+
+<strong>Error:</strong>
+
+{% highlight sh %}
+net.sf.hibernate.TransientObjectException:
+object references an  unsaved transient instance -
+save the transient instance before flushing:  example.Parent 
+{% endhighlight %}
+
+<strong>Analysis:</strong>
+
+A record is inserted in the child table. But this record has the 'pid' as  null. Hibernate inserts a record in the child table. Now it needs to update the  value of 'pid' in the child table. Hibernate attempts to find the pid by looking  at the parent object. It finds that the parent object is still transient and it  fails.
+
+<strong>4 Bi directional one-to-many association with inverse set as  "true".</strong>
+
+This case is an extension of case discussed in step 3. In this case we are  going to set inverse as 'true'. It means now the onus of setting up the  relationship is NOT with the parent.
+
+<strong>4.1 Child has reference to parent. Parent has reference to the  child. Both are persisted.</strong>
+
+<strong>Query:</strong>
+
+{% highlight sh %}
+Hibernate: insert into child (firstName, lastName, pid) values (?,  ?, ?)
+Hibernate: insert into parent values ( )
+Hibernate: update child set  firstName=?, lastName=?, pid=? where cid=?
+{% endhighlight %}
+
+<strong>Analysis</strong>
+
+Result is same as case 3.1 . So what difference 'inverse' made. Look at the  query. Compare these queries with the queries generated by case 3.1 and the  power of 'inverse' will come to you. Inverse maps the two bidirectional mappings  so that unnecessary updates will not be taking place. In stead of both the  parties trying to setup the association by setting inverse
+as 'true' one party clearly dictates that the onus of maintaining the relationship is someone  else's. This results in one less query.
+
+<strong>4.2 Child has reference to parent. Parent has reference to the  child. Only parent is persisted.</strong>
+
+<strong>Query:</strong>
+
+{% highlight sh %}
+Hibernate: insert into parent values ()
+{% endhighlight %}
+
+<strong>Analysis</strong>
+
+Before looking at the query please revisit the result of step 3.2. There we  got an exception. No exception here.But no record is inserted in the child  table. This is the effect of setting inverse to "true". By doing that the parent  says that the association is child's responsibility and I can persist myself  without worrying about the association. Hence in this case parent gets persisted  irrespective of whether child is persisted.
+
+<strong>4.3 Child has reference to parent. Parent has reference to the  child. Only child is persisted.</strong>
+
+In this case the result is exactly same as case 3.3.
+
+List of jar files  used in the project:asm.jar, cglib-2.1.jar, commons-collections-3.0.jar,  commons-logging-1.0.4.jar, dom4j-1.6.jar, ehcache-1.1.jar, hibernate3.jar,  jta.jar,log4j-1.2.9.jar, mysql-3.1.7.jar.

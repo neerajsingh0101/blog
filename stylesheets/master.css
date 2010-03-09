@@ -28,6 +28,10 @@ tt {
   font-size: 16px; 
 }
 
+p {
+  line-height: 150%;
+}
+
 
 #wrapper {
   width: 960px;
@@ -47,16 +51,20 @@ tt {
 
 #header h1 {
   color: #080000;
-  font-size: 2em;
+  font-size: 2.9em;
   display: inline;
-  font-weight: normal;
-  font-family: Georgia;
+  font-weight: bold;
+  font-family: HeaderFont, Arial, Georgia;
   margin: 1px;
   padding: 1px;
+  width: 200px;
+  float: left;
+  letter-spacing: 1px;
 }
 
 #header h1 a {
   color: black;
+  text-decoration: none;
 }
 
 #header h1 a:hover {
@@ -74,6 +82,7 @@ tt {
 
 #menu {
   float: right;
+  margin-left: 300px;
 }
 
 #menu ul {
@@ -291,5 +300,13 @@ float:none;
 height:0.1em;
 margin:0 0 1.45em;
 width:100%;
+}
+
+blockquote {
+border:1px dotted #575757;
+color:#575757;
+font-size:15px;
+margin:20px;
+padding:10px;
 }
 
