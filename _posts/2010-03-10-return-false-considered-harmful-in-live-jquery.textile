@@ -1,7 +1,36 @@
 ---
 layout: post
 title: return false considered harmful in live
-published: false
 ---
 
-testing
+Checkout following jQuery code written with jQuery.1.4.2. What do you think will happen when first link is clicked.
+
+<pre>
+$('a:first').live('click', function(){
+  log('clicked once');
+  return false;
+});
+$('a:first').live('click', function(){
+  log('clicked twice');
+  return false;
+});
+</pre>
+
+I was expecting that I would see both the messages. However jQuery only invokes the very first message.
+
+<tt>return false</tt> does two things. It stops the default behavior which is go and fetch the link mentioned in the
+<tt>href</tt> of the achor tags. Also it stops the event from bubbling up. Since live method relies on event bubbling, it makes sense that second message does not appear.
+
+Fix is simple. Just block the default action but let the event bubble up.
+
+<pre>
+$('a:first').live('click', function(e){
+  log('clicked once');
+  e.preventDefault();
+});
+$('a:first').live('click', function(e){
+  log('clicked twice');
+  e.preventDefault();
+});
+</pre>
+
