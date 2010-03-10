@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Hibernate association   behind the scene action
+title: Hibernate association behind the scene action
 ---
 I must admit that I had trouble understanding the various associations and  the semantics related to cascade and inverse in Hibernate. In order to fully  understand how the association works I decided to have different test cases  covering different combinations. I noted down the result in my notebook. On  various forums I see newbies like me struggling with the concepts of association  in hibernate. So I decided to put my test result on the blog.
 
