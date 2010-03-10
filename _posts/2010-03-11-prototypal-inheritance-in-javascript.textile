@@ -1,0 +1,212 @@
+---
+layout: post
+title: prototypal inheritance in JavaScript
+---
+
+One of the key features of JavaScript language is its support for prototype method. This feature could be used bring inheritance in JavaScript.
+
+h1. In the beginning there was duplication
+
+<pre>
+function Person(dob){
+  this.dob = dob;
+  this.votingAge = 21;
+}
+</pre>
+
+<pre>
+function Developer(dob, skills){
+  this.dob = dob;
+  this.skills = skills || '';
+  this.votingAge = 21;
+}
+</pre>
+
+<pre>
+// create a Person instance
+var person = new Person('02/02/1970');
+
+//create a Developer instance
+var developer = new Developer('02/02/1970', 'JavaScript');
+</pre>
+
+As you can see both Person and Developer objects have votingAge property. This is code duplication. This is an ideal case where inheritance can be used.
+
+h2. prototype method
+
+Whenever you create a function, that function instantly gets a property called prototype. The initial value of this prototype property is empty JavaScript object <tt>{}</tt> .
+
+<pre>
+var fn = function(){};
+fn.prototype //=> {}
+</pre>
+
+JavaScript engine while looking up for a method in a function first searches for method in the function itself. Then the engine looks for that method in that functions' prototype object.
+
+Since prototype itself is a JavaScript object, more methods could be added to this JavaScript object.
+
+<pre>
+var fn = function(){};
+fn.prototype.author_name = 'John';
+var f = new fn();
+f.author_name; //=> John
+</pre>
+
+h2. Refactoring code to make use of prototype method
+
+Currently Person function is defined like this.
+
+<pre>
+function Person(dob){
+  this.dob = dob;
+  this.votingAge = 21;
+}
+</pre>
+
+Problem with above code is that every time a new instance of Person is created, two new properties are created and they take up memory. If a million objects are created then all instances will have a property called <tt>votingAge</tt> even though the value of votingAge is going to be same. All the million person instances can refer to same votingAge method if that method is define in prototype. This will save a lot of memory.
+
+<pre>
+function Person(dob){
+  this.dob = dob;
+}
+Person.prototype.votingAge = 21;
+</pre>
+
+The modified solutions will save memory if a lot of objects are created. However notice that now it will a bit longer for JavaScript engine to look for <tt>votingAge</tt> method. Previously JavaScript engine would have looked for property named <tt>votingAge</tt> inside the person object and would have found it. Now the engine will not find <tt>votingAge</tt> property inside the person object. Then engine will look for person.prototype and will search for <tt>votingAge</tt> property there. It means, in the modified code engine will find <tt>votingAge</tt> method in the second hop instead of first hop. 
+
+h2. Bringing inheritance using prototype property
+
+Currently Person is defined like this.
+
+<pre>
+function Person(dob){
+  this.dob = dob;
+}
+Person.prototype.votingAge = 21;
+</pre>
+
+If Developer Object wants to extend Person then all that needs to be done is this.
+
+<pre>
+function Developer (dob, skills) {
+ this. skills = skills || '';
+ this.dob = dob;
+}
+Developer.prototype = new Person();
+</pre>
+
+Now Developer instance will have access to <tt>votingAge</tt> method. This is much better. Now there is no code duplication between Developer and Person.
+
+However notice that looking for <tt>votingAge</tt> method from a Developer instance will take an extra hop.
+
+* JavaScript engine will first look for votingAge property in the Developer instance object.
+* Next engine will look for votingAge property in its prototype property of Developer instance which is an instance of Person. votingAge method is not declared in the Person instance.
+* Next engine will look for votingAge property in the prototype of Person instance and this method would be found.
+
+Since only the methods that are common to both Developer and Person are present in the Person.prototype there is nothing to be gained by looking for methods in the Person instance. Next implementation will be removing the middle man.
+
+h2. Remove the middle man
+
+Here is the revised implementation of Developer function.
+
+<pre>
+function Developer (dob, skills) {
+ this.skills = skills || '';
+ this.dob = dob;
+}
+Developer.prototype = Person.prototype;
+</pre>
+
+In the above case Developer.prototype directly refers to Person.prototype. This will reduce the number of hops needed to get to method <tt>votingAge</tt> by one compared to previous case.
+
+However there is a problem. If Developer changes the common property then instances of person will see the change. Here is an example.
+
+<pre>
+Developer.prototype.votingAge = 18;
+var developer = new Developer('02/02/1970', 'JavaScript');
+developer.votingAge; //=> 18
+
+var person = new Person();
+person.votingAge; //=> 18. Notice that votingAge for Person has changed from 21 to 18
+</pre>
+
+In order to solve this problem Developer.prototype should point to an empty object. And that empty object should refer to Person.prototype .
+
+h2. Solving the problem by adding an empty object
+
+Here is revised implementation for Developer object.
+
+<pre>
+function Developer(dob, skills) {
+  this.dob = dob;
+  this.skills = skills;
+}
+var F = function(){};
+F.prototype = Person.prototype;
+Developer.prototype = new F();
+</pre>
+
+Let's test this code.
+
+<pre>
+Developer.prototype.votingAge = 18;
+var developer = new Developer('02/02/1970', 'JavaScript');
+developer.votingAge; //=> 18
+
+var person = new Person();
+person.votingAge; //=> 21
+</pre>
+
+As you can see with the introduction of empty object, Developer instance have votingAge of 18 while Person intances have votingAge of 21.
+
+h2. Accessing super
+
+If child wants to access super object then that should be allowed. That can be accomplished like this.
+
+<pre>
+function Person(dob){
+ this.dob = dob;
+}
+Person.prototype.votingAge = 21;
+
+function Developer(dob, skills) {
+  this.dob = dob;
+  this.skills = skills;
+}
+var F = function(){};
+F.prototype = Person.prototype;
+Developer.prototype = new F();
+Developer.prototype.__super = Person.prototype;
+Developer.prototype.votingAge = 18;
+</pre>
+
+h2. Capturing it as a pattern
+
+The whole thing can be captured in a helper method that would make it simple to create inheritance.
+
+<pre>
+var extend = function(parent, child){
+  var F = function(){};
+  F.prototype = parent.prototype;
+  child.prototype = new F();
+  child.prototype.__super = parent.prototype; 
+};
+</pre>
+
+h2. Pure prototypal inheritance
+
+A simpler form of pure prototypal inheritance can be structured like this.
+
+<pre>
+if (typeof Object.create !== 'function') {
+    Object.create = function (o) {
+        function F() {}
+        F.prototype = o;
+        return new F();
+    };
+}
+</pre>
+
+Before adding the create method to object, I checked if this method already exists or not. That is important because <tt>Object.create</tt> is part of ECMAScript 5 and slowly more and more browsers will start adding that method natively to JavaScript.
+
+You can see that Object.create takes only one parameter. This method does not necessarily create a parent child relationship . But it can be a very good tool in converting an object literal to a function. 
