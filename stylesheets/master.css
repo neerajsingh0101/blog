@@ -28,11 +28,6 @@ tt {
   font-size: 16px; 
 }
 
-p {
-  line-height: 150%;
-}
-
-
 #wrapper {
   width: 960px;
   border: 1px solid #eFeFeF;
@@ -114,7 +109,7 @@ p {
 }
 
 #content p {
-  line-height: 140%;
+  line-height: 160%;
   letter-spacing: -0.03em;
 }
 

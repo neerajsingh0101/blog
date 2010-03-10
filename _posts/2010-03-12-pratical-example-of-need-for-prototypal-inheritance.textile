@@ -1,0 +1,135 @@
+---
+layout: post
+title: Practical example of need for prototypal inheritance
+---
+
+Alex Sexton wrote "a wonderful article":http://alexsexton.com/?p=51 about how to use inheritance pattern to manage large piece of code. His code also has a pratical need for prototypal inheritance for writing modular code.
+
+h1. Solving the problem how most people would do it
+
+Given below is code that does exactly what Alex's code does. 
+
+<pre>
+$(function() {
+	$.fn.speaker = function(options) {
+		if (this.length) {
+			return this.each(function() {
+
+				var defaultOptions = {
+					name: 'No name'
+				};
+				options = $.extend({},
+				defaultOptions, options);
+
+				var $this = $(this);
+
+				$this.html('<p>' + options.name + '</p>');
+
+				var fn = {};
+				fn.speak = function(msg) {
+					$this.append('<p>' + msg + '</p>' );
+				};
+
+				$.data(this, 'speaker', fn);
+			});
+		}
+	};
+});
+</pre>
+
+For smaller plugins this code is not too bad. However if the plugin is huge then it presents one big problem. The code for business problem and the code that deals with jQuery is all mixed in. What it means is that if tomorrow same functionality needs to be implemented for Prototype framework then it is not clear what part of code deals with framework and what part deals with business logic.
+
+h2. Separating business logic and framework code.
+
+Given below is code that separates business logic and framework code.
+
+<pre>
+var Speaker = function(opts, elem) {
+
+	this._build = function() {
+		this.$elem.html('<h1>' + options.name + '</h1>');
+	};
+
+	this.speak = function(msg) {
+		this.$elem.append('<p>' + msg + '</p>');
+	};
+
+	var defaultOptions = {
+		name: 'No name'
+	};
+
+	var options = $.extend({},
+	defaultOptions, this.opts);
+
+	this.$elem = $(elem);
+
+	this._build();
+
+};
+
+$(function() {
+	$.fn.speaker = function(options) {
+		if (this.length) {
+			return this.each(function() {
+				var mySpeaker = new Speaker(options, this);
+				$.data(this, 'speaker', mySpeaker);
+			});
+		}
+	};
+});
+</pre>
+
+This code is an improvement over first iteration of code. However the whole business logic is captured inside a function. This code can be further improved by embracing "object literal style":http://blog.rebeccamurphey.com/2009/10/15/using-objects-to-organize-your-code/ of coding.
+
+h2. Final Improvement
+
+Third and final iteration of the code is the code presented by Alex.
+
+<pre>
+var Speaker = {
+	init: function(options, elem) {
+		this.options = $.extend({},
+		this.options, options);
+
+		this.elem = elem;
+		this.$elem = $(elem);
+
+		this._build();
+	},
+	options: {
+		name: "No name"
+	},
+	_build: function() {
+		this.$elem.html('<h1>' + this.options.name + '</h1>');
+	},
+	speak: function(msg) {
+		this.$elem.append('<p>' + msg + '</p>');
+	}
+};
+
+// Make sure Object.create is available in the browser (for our prototypal inheritance)
+if (typeof Object.create !== 'function') {
+	Object.create = function(o) {
+		function F() {}
+		F.prototype = o;
+		return new F();
+	};
+}
+
+$(function() {
+	$.fn.speaker = function(options) {
+		if (this.length) {
+			return this.each(function() {
+				var mySpeaker = Object.create(Speaker);
+				mySpeaker.init(options, this);
+				$.data(this, 'speaker', mySpeaker);
+			});
+		}
+	};
+</pre>
+
+Notice the Object.create patten Alex used. The business logic code was converted from a function to a JavaScript object. However the problem is that you can't create a new on that object. And you need to create new object so that you could dole out new objects to each element. Object.create pattern comes to rescue. This pattern takes a standard Object and returns an instane of a function. This function has the input object set as prototype. So you get a brand new object for each element and you get to have all your business logic in object literal way and not in a function. If you want to know more about prototypal inheritance then you can read my "previous blog":http://neeraj.name/2010/03/11/prototypal-inheritance-in-javascript.html .
+
+
+<tt>Object.create</tt> is now part of  ECMAScript 5.
+
