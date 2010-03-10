@@ -1,7 +1,8 @@
 ---
 layout: post
-title: How animate really works in jQuery. Simple animation case discussed.
+title: How animate really works in jQuery. Simple animation case discussed
 ---
+
 jQuery has "animate method":http://api.jquery.com/animate/ which  is just awesome. Today I looked into jQuery source code to see exactly how animate works. 
 
 I will take a simple case of animating a <tt>div</tt> from height of <tt>34</tt> to <tt>100</tt>.
