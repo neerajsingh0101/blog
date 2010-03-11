@@ -248,4 +248,8 @@ var regex = /\b(?:java|ruby|rails)\b/;
 text.match(regex);
 </pre>
 
-
+<pre>
+text = '#container a.filter(.top).filter(.bottom).filter(.middle)';
+matches = text.match(/^[^.]*|\.[^.]*(?=\))/g);
+log(matches);
+</pre>

@@ -3,7 +3,7 @@ layout: post
 title: prototypal inheritance in JavaScript
 ---
 
-One of the key features of JavaScript language is its support for prototype method. This feature could be used bring inheritance in JavaScript.
+One of the key features of JavaScript language is its support for prototype method. This feature could be used to bring inheritance in JavaScript.
 
 h1. In the beginning there was duplication
 

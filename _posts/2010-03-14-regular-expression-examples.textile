@@ -1,0 +1,16 @@
+---
+layout: post
+title: Regular expression in JavaScript
+published: false
+---
+
+
+<pre>
+text = 'aa@';
+regex = /(@){1,2}/
+log(text.match(regex));
+</pre>
+
+In the above case if there are more than two @ then regex will not complain. regex will complain if the number of @ is 1 or 2. However
+if there are 3 @ then regex is happy. If you want to enforce an upper bound then regex needs to be like this
+

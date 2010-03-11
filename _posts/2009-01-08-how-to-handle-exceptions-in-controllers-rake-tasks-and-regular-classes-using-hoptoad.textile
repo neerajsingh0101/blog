@@ -2,6 +2,7 @@
 layout: post
 title: How to handle exceptions in controllers, rake tasks and regular classes using Hoptoad
 ---
+
 When things go wrong , we want to be notified of the problem. "Exception Notifier Plugin":http://agilewebdevelopment.com/plugins/exception_notifier is a good solution. However "Hoptoad":http://hoptoadapp.com/welcome is the new kid on the block. Hoptoad  is free, useful and easy to setup.
 
 h2. Basics of Exception
@@ -81,7 +82,7 @@ namespace :alert do
     begin
       # do business processing
     rescue Exception => e
-      notify_hoptoad e
+      HoptoadNotifier.notify(e)
       puts e
     end
     
