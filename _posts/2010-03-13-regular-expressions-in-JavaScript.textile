@@ -1,0 +1,251 @@
+---
+layout: post
+title: Regular expression in JavaScript
+published: false
+---
+
+Regular expressions is a powerful tool in any language. Here I am discussing how to use regular expression in JavaScript.
+
+h2. Defining regular expressions
+
+In JavaScript regular expression can be defined two ways.
+
+<pre>
+var regex = /hello/ig; // i is for ignore case. g is for global.
+var regex = new RegExp("hello", "ig");
+</pre>
+
+If I am defining regular expression using "RegExp":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp#Properties_2 then I need to add escape charater in certain cases.
+
+<pre>
+var regex = /hello_\w*/ig; 
+var regex = new RegExp("hello_\\w*", "ig"); //notice the extra backslash before \w
+</pre>
+
+When I am defining regular expression using RegExp then <tt>\w</tt> needs to be escaped otherwise it would be
+taken literally.
+
+h2. test method
+
+"test method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/test is to check if a match is found or not. Ir returns true or false.
+
+<pre>
+var regex = /hello/ig;
+var text = 'hello_you';
+var bool = regex.test(text); 
+</pre>
+
+h2. exec method
+
+"exec method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/exec finds if a match is found or not. It returns an array if a match is found. Otherwise it returns null.
+
+<pre>
+var regex = /hello_\w*/ig;
+var text = 'hello_you';
+var matches = regex.exec(text); 
+console.log(matches); //=> hello_you
+</pre>
+
+h2. match method
+
+"match method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/match acts exactly like
+exec method if no <tt>g</tt> parameter is passed. When global flag is turned on the match returns an Array containing
+all the matches.
+
+Note that in <tt>exec</tt> the syntax was <tt>regex.exec(text)</tt> while in <tt>match</tt> method the syntax is
+<tt>text.match(regex)</tt> . 
+
+<pre>
+var regex = /hello_\w*/i;
+var text = 'hello_you and hello_me';
+var matches = text.match(regex); 
+console.log(matches); //=> ['hello_you']
+</pre>
+
+Now with global flag turned on.
+
+<pre>
+var regex = /hello_\w*/ig;
+var text = 'hello_you and hello_me';
+var matches = text.match(regex); 
+console.log(matches); //=> ['hello_you', 'hello_me']
+</pre>
+
+
+h2. Getting multiple matches
+
+Once again both <tt>exec</tt> and <tt>match</tt> method without <tt>g</tt> option do not get all the matching values.
+So if you want all the matching values then you need to iterate through the text. Here is an example.
+
+Get both the bug numbers in the following case.
+
+<pre>
+var matches = [];
+var regex = /#(\d+)/ig;
+var text = 'I fixed bugs #1234 and #5678';
+while (match = regex.exec(text)) {
+  matches.push(match[1]);
+}
+console.log(matches); // ['1234', '5678']
+</pre>
+
+Note that in the above case global flag <tt>g</tt>. Without that above code will run forever.
+
+<pre>
+var matches = [];
+var regex = /#(\d+)/ig;
+var text = 'I fixed bugs #1234 and #5678';
+matches = text.match(regex);
+console.log(matches);
+</pre>
+
+In the above case match is used instead of regex . However since match with global flag option brings all
+the matches there was no need to iterate in a loop.
+
+h2. match attributes
+
+When a match is made then an array is returned. That array has two methods.
+
+* index: This tells where in the string match was done
+* input: the original string
+
+<pre>
+var regex = /#(\d+)/i;
+var text = 'I fixed bugs #1234 and #5678';
+var match = text.match(regex);
+console.log(match.index); //13
+console.log(match.input); //I fixed bugs #1234 and #5678
+</pre>
+
+h2. replace 
+
+"replace method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
+takes both regexp and string as argument.
+
+<pre>
+var text = 'I fixed bugs #1234 and #5678';
+var output = text.replace('bugs', 'defects');
+console.log(output); //I fixed defects #1234 and #5678
+</pre>
+
+Example of using a function to replace text.
+
+<pre>
+var text = 'I fixed bugs #1234 and #5678';
+var output = text.replace(/\d+/g, function(match){ return match * 2});
+console.log(output); //I fixed bugs #2468 and #11356
+</pre>
+
+Another case.
+
+<pre>
+// requirement is to change all like within <b> </b> to love.
+var text = ' I like JavaScript. <b> I like JavaScript</b> ';
+var output = text.replace(/<b>.*?<\/b>/g, function(match) { return match.replace(/like/g, "love") } );
+console.log(output); //I like JavaScript. <b> I love JavaScript</b> 
+</pre>
+
+Example of using special variables.
+
+* $& -	the matched substring.
+* $` -  the portion of the string that precedes the matched substring.
+* $' -  the portion of the string that follows the matched substring.
+* $n -  $0, $1, $2 etc where number means the captured group.
+
+
+<pre>
+var regex = /(\w+)\s(\w+)/;
+var text = "John Smith";
+var output = text.replace(regex, "$2, $1");
+console.log(output);//Smith, John
+</pre>
+
+<pre>
+var regex = /JavaScript/;
+var text = "I think JavaScript is awesome";
+var output = text.replace(regex, "before:$` after:$' full:$&");
+console.log(output);//I think before:I think after: is awesome full:JavaScript is awesome
+</pre>
+
+Replace method also accepts caputured groups as parameters in the function. Here is an example;
+
+<pre>
+var regex  = /#(\d*)(.*)@(\w*)/;
+var text = 'I fixed bug #1234 and twitted to @javascript';
+text.replace(regex,function(_,a,b,c){
+  log(_); //#1234 and twitted to @javascript
+  log(a); //1234
+  log(b); //  and twitted to 
+  log(c); // javascript
+});
+</pre>
+
+As you can see the very first argument to function is the fully matched text. But other captured
+groups are sub sequent arguments. This strategy can be applied recursively.
+
+<pre>
+var bugs = [];
+var regex = /#(\d+)/g;
+var text = 'I fixed bugs #1234 and #5678';
+text.replace(regex, function(_,f){
+    bugs.push(f);
+});
+log(bugs); //["1234", "5678"]
+</pre>
+
+h2. Split method
+
+"split method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/split takes both string or a regular expression.
+
+An example of split using a string.
+
+<pre>
+var text = "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec";
+var output = text.split(',');
+log(output); // ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+</pre>
+
+An example of split using regular expression.
+
+<pre>
+var text = "Harry Trump ;Fred Barney; Helen Rigby ; Bill Abel ;Chris Hand ";
+var regex = /\s*;\s*/;
+var output = text.split(regex);
+log(output); // ["Harry Trump", "Fred Barney", "Helen Rigby", "Bill Abel", "Chris Hand "]
+</pre>
+
+
+h2. Non capturing Group
+
+The requirement given to me states that I should strictly look for word <tt>java</tt>, <tt>ruby</tt> or <tt>rails</tt> within
+word boundary. This can be done like this.
+
+<pre>
+var text = 'java';
+var regex = /\bjava\b|\bruby\b|\brails\b/;
+text.match(regex);
+</pre>
+
+Above code works. However notice the code duplication. This can be refactored to the one given below.
+
+<pre>
+var text = 'rails';
+var regex = /\b(java|ruby|rails)\b/;
+text.match(regex);
+</pre>
+
+Above code works and there is no code duplication. However in this case I am asking regular expression engine
+to create a captured group which I'll not be using. Regex engines need to do extra work to keep track of captured
+groups. It would be nice if I could say to regex engine do not capture this into a group because I will not be
+using it.
+
+<tt>?:</tt> is a special symbol that tells regex engine to create non capturing group. Above code can 
+be refactored into the one given below.
+
+<pre>
+var text = 'rails';
+var regex = /\b(?:java|ruby|rails)\b/;
+text.match(regex);
+</pre>
+
+
