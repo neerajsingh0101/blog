@@ -1,0 +1,114 @@
+---
+layout: post
+title: git pull witout git pull origin experiment
+published: false
+---
+
+Getting started with github is easy. However when you create a branch and push it to remote then pulling from that 
+branch can cause problem to some people. Here is a run down of the problem and how to fix it.
+
+First create a project called gitlab and push it to github. 
+
+<notextile><pre>
+> git branch -a
+* master
+  remotes/origin/master
+</pre></notextile>
+
+Above commands lists all the remote and local branches. At this point of time we have only master branch.
+
+Let's create a branch called <tt>experiment</tt> .
+
+<pre>
+> git co -b experiment
+Switched to a new branch 'experiment'
+</pre>
+
+Let's push this branch to github .
+
+<pre>
+> git push origin experiment
+Total 0 (delta 0), reused 0 (delta 0)
+To git@github.com:neerajdotname/gitlab.git
+ * [new branch]      experiment -> experiment
+</pre>
+
+Let's check if this branch has been pushed to github.
+
+<notextile><pre>
+>  git branch -a
+* experiment
+  master
+  remotes/origin/experiment
+  remotes/origin/master
+</pre></notextile>
+
+Not try doing git pull and you will get following error.
+
+<pre>
+> git pull
+You asked me to pull without telling me which branch you
+want to merge with, and 'branch.experiment.merge' in
+your configuration file does not tell me either.	Please
+specify which branch you want to merge on the command line and
+try again (e.g. 'git pull <repository> <refspec>').
+See git-pull(1) for details.
+
+If you often merge with the same branch, you may want to
+configure the following variables in your configuration
+file:
+
+    branch.experiment.remote = <nickname>
+    branch.experiment.merge = <remote-ref>
+    remote.<nickname>.url = <url>
+    remote.<nickname>.fetch = <refspec>
+
+See git-config(1) for details.
+</pre>
+
+Let's see what config looks like .
+
+<pre>
+> cat .git/config
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+[remote "origin"]
+	url = git@github.com:neerajdotname/gitlab.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+</pre>
+
+Open a text editor and add three lines at the bottom of file. After modification the config file should look like this
+
+<pre>
+> cat .git/config
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+[remote "origin"]
+	url = git@github.com:neerajdotname/gitlab.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "experiment"]
+    remote = origin
+    merge = refs/heads/experiment
+</pre>
+
+Now do a git pull .
+
+<pre>
+> git pull
+Already up-to-date.
+</pre>
+
+git pull worked. However if you don't want to setup all this then you can use below given command.
+
+<pre>
+git pull origin experiment
+</pre>
+
