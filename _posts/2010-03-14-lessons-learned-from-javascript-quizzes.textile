@@ -1,0 +1,140 @@
+---
+layout: post
+title: Lessons learned from JavaScript quizzes
+published: false
+---
+
+Nicholas answered three JavaScript quizzes in his blog. I am not interested in quiz like the one given below
+
+<pre>
+var num1 = 5,
+    num2 = 10,
+    result = num1+++num2;
+</pre>
+
+However some of the questions helped me learn a few things. 
+
+h2. Questions from "quiz":http://www.nczonline.net/blog/2010/02/23/answering-soshnikovs-quiz/
+
+This was question #5 in the original blog. I have modified the quiz a little bit to suit my needs.
+
+<pre>
+var x = 10;
+var foo = {
+  x: 20,
+  bar: function () {
+    var x = 30;
+    return this.x;
+  }
+};
+
+// 1
+console.log(foo.bar());
+
+// 2
+console.log((foo.bar)());
+
+// 3
+console.log(foo.bar.call());
+
+</pre> 
+
+I got the first two answers wrong. In JavaScript a variable and a property are two different things.  When <tt>this.xyx</tt> is invoked then JavaScript engine is looking for property called <tt>xyz</tt>.
+
+<pre>
+var  bar = function () {
+  var x = 30;
+  return this.x;
+};
+console.log(bar()); //=> undefined
+</pre> 
+
+In the above case output is <tt>undefined</tt>. This is because <tt>this</tt> refers to a property named <tt>x</tt>
+and since no such property was found <tt>undefined</tt> is the answer.
+
+
+<pre>
+var foo = {
+  x: 20,
+  bar: function () {
+    return x;
+  }
+};
+console.log(foo.bar());
+</pre>
+
+Above code causes <tt>ReferenceError</tt> because <tt>x is not defined</tt>. Same thoery applies here.  In this case <tt>x</tt> is a variable and since no such variable was found code failed.
+
+Coming back to the third part of the original question. This one uses call.
+
+<pre>
+console.log(foo.bar.call());
+</pre>
+
+First arugument of <tt>call</tt> or <tt>apply</tt> method determines what <tt>this</tt> would be inside the function. If no argument is passed is passed then JavaScript engine assumes that <tt>this</tt> would be global scope which translates to <tt>this</tt> being <tt>window</tt>. Hence the answer is <tt>10</tt> in this case.  
+h2. Questions from "quiz":http://www.nczonline.net/blog/2010/02/18/my-javascript-quiz-answers/
+
+In the original blog this is question #2.
+
+<pre>
+var x = 5,
+    o = {
+        x: 10,
+        doIt: function doIt(){
+            var x = 20;
+            setTimeout(function(){
+                alert(this.x);
+            }, 10);
+        }
+    };
+o.doIt();
+</pre>
+
+The key thing to remember here is that <tt>All functions passed into setTimeout() are executed in the global scope</tt> .
+
+In the original blog this is question #5.
+
+<pre>
+var o = {
+        x: 8,
+
+        valueOf: function(){
+            return this.x + 2;
+        },
+        toString: function(){
+            return this.x.toString();
+        }
+    },
+    result = o < "9";
+
+alert(o);
+</pre>
+
+The thing to remember here is that when comparison is done then <tt>valueOf</tt> method is called on the object.
+
+
+h2. Questions from "quiz":http://www.nczonline.net/blog/2010/01/26/answering-baranovskiys-javascript-quiz/
+
+This is question #1 in the original blog.
+
+<pre>
+if (!("a" in window)) {
+  var a = 1;
+}
+alert(a);
+</pre>
+
+I knew that all the variable declarations are hoisted up but somehow failed to apply that logic here.  Please see the original blog for a detailed answer. 
+
+
+This is question #5 in the original blog.
+
+<pre>
+function a() {
+  alert(this);
+}
+a.call(null);
+</pre>
+
+I knew that if nothing is passed to <tt>call</tt> method then <tt>this</tt> becomes global but did not 
+know that if <tt>null</tt> is passed then also <tt>this</tt> becomes global.
