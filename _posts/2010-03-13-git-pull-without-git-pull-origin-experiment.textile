@@ -1,7 +1,6 @@
 ---
 layout: post
 title: git pull witout git pull origin experiment
-published: false
 ---
 
 Getting started with github is easy. However when you create a branch and push it to remote then pulling from that 
