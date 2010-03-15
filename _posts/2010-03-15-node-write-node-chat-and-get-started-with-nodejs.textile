@@ -209,3 +209,9 @@ server = http.createServer(function(req, res) {
 server.listen(PORT, HOST);
 sys.puts("Server at http://" + HOST + ':' + PORT.toString() + '/');
 </pre>
+
+When a user hit connect button after entering nick name then a request is sent to <tt>/join</tt> . Now we need to work on developing /join.
+When a user joins chat application then we need something to store his 
+
+<pre>
+</pre>

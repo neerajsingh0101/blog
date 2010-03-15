@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Lessons learned from JavaScript quizzes
-published: false
 ---
 
 Nicholas answered three JavaScript quizzes in his blog. I am not interested in quiz like the one given below
@@ -52,7 +51,6 @@ console.log(bar()); //=> undefined
 In the above case output is <tt>undefined</tt>. This is because <tt>this</tt> refers to a property named <tt>x</tt>
 and since no such property was found <tt>undefined</tt> is the answer.
 
-
 <pre>
 var foo = {
   x: 20,
@@ -72,6 +70,7 @@ console.log(foo.bar.call());
 </pre>
 
 First arugument of <tt>call</tt> or <tt>apply</tt> method determines what <tt>this</tt> would be inside the function. If no argument is passed is passed then JavaScript engine assumes that <tt>this</tt> would be global scope which translates to <tt>this</tt> being <tt>window</tt>. Hence the answer is <tt>10</tt> in this case.  
+
 h2. Questions from "quiz":http://www.nczonline.net/blog/2010/02/18/my-javascript-quiz-answers/
 
 In the original blog this is question #2.

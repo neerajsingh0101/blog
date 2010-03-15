@@ -111,3 +111,12 @@ git pull worked. However if you don't want to setup all this then you can use be
 git pull origin experiment
 </pre>
 
+*Update*
+
+Andy mentioned in the comment an easier way to enter required information in config file without actually editing the file.
+
+<pre>
+git config branch.experiment.remote origin
+git config branch.experiment.merge refs/heads/experiment
+</pre>
+
