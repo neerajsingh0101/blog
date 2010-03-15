@@ -1,0 +1,75 @@
+---
+layout: post
+title: Two ways of declaring functions and impact on variable hoisting
+---
+
+All the JavaScript books I read so far do not distinguish between following two ways of declaring a function. 
+
+
+<pre>
+var foo = function(){};
+function foo(){};
+</pre>
+
+Thanks to "Ben":http://www.adequatelygood.com today I learned that "there is a difference":http://www.adequatelygood.com/2010/2/JavaScript-Scoping-and-Hoisting .
+
+
+h2. When a var is used to declare a function then only the definition gets hoisted up
+
+<pre>
+function test(){
+  foo();
+  var foo = function(){ console.log('foo'); };
+};
+test();
+</pre>
+
+Above code is same as one given below.
+
+<pre>
+function test(){
+  var foo;
+  foo();
+  foo = function(){ console.log('foo'); };
+};
+test();
+</pre> 
+
+h2. When a function variable is declared without var then both definition and body gets hoisted up
+
+<pre>
+function test(){
+  foo();
+  function foo(){ console.log('foo'); };
+};
+test();
+</pre>
+
+Above code is same as one given below.
+
+<pre>
+function test(){
+  var foo;
+  foo = function(){};
+  console.log(foo());
+};
+test();
+</pre> 
+
+h2. Conclusion
+
+Now it will be clear why <tt>foo()</tt> does not work in the following case while <tt>bar()</tt> does work.
+
+<pre>
+function test() { 
+    foo(); // TypeError "foo is not a function" 
+    bar(); // "this will run!" 
+    var foo = function () { // function expression assigned to local variable 'foo' 
+        alert("this won't run!"); 
+    } 
+    function bar() { // function declaration, given the name 'bar' 
+        alert("this will run!"); 
+    } 
+} 
+test();
+</pre>
