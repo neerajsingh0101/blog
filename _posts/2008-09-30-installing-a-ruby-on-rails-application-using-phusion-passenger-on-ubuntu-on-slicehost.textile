@@ -2,16 +2,17 @@
 layout: post
 title: Installing a ruby on rails application using phusion passenger on ubuntu on slicehost
 ---
+
 Given below are the exact steps I follow every single time I need to install a ruby on rails application on a new slice on slicehost.
 
 There are a number of automated scripts out there which will make it easier to setup your box but I like to know what's happening and hence I prefer to do it manually. Anyway it takes only 30 minutes to setup the box with the instructions mentioned below.
 
-* "Configure ubuntu box":http://neeraj.name/blog/articles/781-configuring-the-ubuntu-box-on-slicehost
-* "Install ruby, rails and other gems on slicehost":http://neeraj.name/blog/articles/782-installing-ruby-rails-and-other-gems-on-slicehost
-* "Install apache and MySQL on slicehost":http://neeraj.name/blog/articles/783-installing-apache-and-mysql-on-slicehost
-* "Setup DNS":http://neeraj.name/blog/articles/784-dns-settings
-* "Make the slice secure":http://neeraj.name/blog/articles/785-marking-the-slicehost-slice-secure
-* "Install phusion passenger":http://neeraj.name/blog/articles/786-installing-mod-rails-on-slicehost-slice
-* "Setup up FTP server":http://neeraj.name/blog/articles/787-setting-up-ftp-server-on-slicehost
-* "Setup capistrano to deploy application on slice":http://neeraj.name/blog/articles/788-using-capistrano-to-deploy-an-application-from-github-to-slicehost-slice
-* "send compressed data":http://www.neeraj.name/blog/articles/874-enabling-gzip-on-apache-to-send-compressed-data
+* "Configure ubuntu box":http://neeraj.name/2008/12/30/configuring-the-ubuntu-box-on-slicehost.html
+* "Install ruby, rails and other gems on slicehost":http://neeraj.name/2008/12/30/installing-ruby-rails-and-other-gems-on-slicehost.html
+* "Install apache and MySQL on slicehost":http://neeraj.name/2008/12/30/installing-apache-and-mysql-on-slicehost.html
+* "Setup DNS":http://neeraj.name/2008/12/30/dns-settings-on-slicehost.html
+* "Make the slice secure":http://neeraj.name/2008/12/30/marking-the-slicehost-slice-secure.html
+* "Install phusion passenger":
+* "Setup up FTP server":http://neeraj.name/2008/12/30/setting-up-ftp-server-on-slicehost.html
+* "Setup capistrano to deploy application on slice":http://neeraj.name/2008/12/30/using-capistrano-to-deploy-an-application-from-github-to-slicehost-slice.html
+* "send compressed data":http://www.neeraj.name/2009/08/27/enabling-gzip-on-apache-to-send-compressed-data.html
