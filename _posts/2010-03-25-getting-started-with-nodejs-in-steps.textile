@@ -1,0 +1,14 @@
+---
+layout: post
+title: Getting started with nodejs in steps
+---
+
+"nodejs":http://nodejs.org is awesome. To get people started with nodejs, "node-chat":http://chat.nodejs.org has been developed. Source code for node-chat app is "here":http://github.com/ry/node_chat .
+
+When I looked at source code for the first time, it looked intimidating. In order to get started with nodejs, I have developed a small portion of the node-chat application in 13 incremental steps.
+
+The first step is as simple as "15 lines of code":http://github.com/neerajdotname/node-chat-in-steps/raw/step1/server.js .
+
+If you want to follow along then go through "README":http://github.com/neerajdotname/node-chat-in-steps and you can get a feel of nodejs very quickly. How to checkout each step and other information is mentioned in README.
+
+Enjoy nodejs.
