@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Getting started with nodejs in steps
+title: Get started with nodejs in steps
 ---
 
 "nodejs":http://nodejs.org is awesome. To get people started with nodejs, "node-chat":http://chat.nodejs.org has been developed. Source code for node-chat app is "here":http://github.com/ry/node_chat .
