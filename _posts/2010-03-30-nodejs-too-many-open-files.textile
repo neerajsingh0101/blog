@@ -1,0 +1,157 @@
+---
+layout: post
+title: nodejs too many open files
+---
+
+nodejs provides API to read data from file in asyc manner. This is a great win because usually any IO operation is slow. 
+
+h2. nodejs version check
+
+Following code has been tested with nodejs version 0.1.32 . This is how you can install that specific version.
+
+<pre>
+git clone git://github.com/ry/node.git 
+cd node 
+git checkout v0.1.32 
+./configure 
+make 
+make install
+</pre>
+
+h2. Reading from a directory
+
+Here I am writing a program that would read all the files in a given directory and then will spit out the data from those files. Here is the initial cut.
+
+<pre>
+var sys = require('sys'),
+fs = require('fs'),
+path = './_posts',
+open_files_count = 0,
+cwd = process.cwd();
+
+function handleError(err) {
+	sys.puts('Error!!! encountered ' + err);
+	process.exit();
+}
+
+function readFiles(files) {
+	files.forEach(function(file) {
+		var filename = cwd + '/_posts/' + file.toString();
+		readFile(filename);
+	});
+}
+
+function readFile(file) {
+	fs.readFile(file, function(err, data) {
+		if (err) handleError(err);
+		sys.debug(data);
+	});
+}
+</pre>
+
+The above program would read all the files in <tt>_posts</tt> directory and will spit out the data. I am executing this nodejs program on this "blog's code respository on github":http://github.com/neerajdotname/blog . You can clone mentioned repository if you want data to play with this program.
+
+When I execute the program this is the result I get.
+
+<pre>
+Too many open files
+</pre>
+
+h2. How many file handlers are open
+
+In order to fix this issue I need to know how many files are open. 
+
+I changed the readFile to print the count of number of files open like this.
+
+<pre>
+function readFile(file) {
+	open_files_count++;
+  sys.debug(open_files_count);
+	fs.readFile(file, function(err, data) {
+		if (err) handleError(err);
+		open_files_count--;
+	});
+}
+</pre>
+
+When I executed above program I got following output .
+
+<pre>
+...
+DEBUG: 284
+DEBUG: 285
+DEBUG: 286
+DEBUG: 287
+Error!!! encountered Error: Too many open files
+</pre>
+
+It seems on my mac the max number of file handlers that can be open is 286. On 287 it blows up.
+
+h2. Fixing it
+
+Fix is easy. Keep a count of number of files open. If that number goes above 200 then set a time out and execute agagain after a while.
+
+<pre>
+function readFile(file) {
+	if (open_files_count > 200) {
+		global.setTimeout(readFile, 1000, file);
+	} else {
+		open_files_count++;
+		fs.readFile(file, function(err, data) {
+			if (err) handleError(err);
+			open_files_count--;
+			//sys.debug(data);
+		});
+	}
+}
+</pre>
+
+h2. Complete program
+
+Here is the complete program that would read all the files in <tt>_posts</tt> directory.
+
+<pre>
+var sys = require('sys'),
+fs = require('fs'),
+path = './_posts',
+open_files_count = 0,
+cwd = process.cwd();
+
+function handleError(err) {
+	sys.puts('Error!!! encountered ' + err);
+	process.exit();
+}
+
+function readFiles(files) {
+	files.forEach(function(file) {
+		var filename = cwd + '/_posts/' + file.toString();
+		readFile(filename);
+	});
+}
+
+function readFile(file) {
+	if (open_files_count > 200) {
+		global.setTimeout(readFile, 1000, file);
+	} else {
+		open_files_count++;
+		fs.readFile(file, function(err, data) {
+			if (err) handleError(err);
+			open_files_count--;
+      sys.debug(data);
+		});
+	}
+}
+
+
+fs.readdir(path, function(err, files) {
+	if (err) handleError(e);
+	readFiles(files);
+});
+</pre>
+
+h2. Synchronous route
+
+nodejs API also provides synchronous read: <tt>fs.readdirSync(path)</tt> and <tt>fs.readSync(fd, length, position, encoding)</tt>
+
+However try to use async feature as much as possible. nodejs shines because it has strong support for async and in this way your application will be able to scale under heavy load.
+
