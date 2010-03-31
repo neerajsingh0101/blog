@@ -4,7 +4,6 @@ title: Regular expression in JavaScript
 published: false
 ---
 
-
 <pre>
 text = 'aa@';
 regex = /(@){1,2}/
@@ -53,4 +52,16 @@ with explanation
 .{6,}       -- Match at least 6, as many as desired of any character
 $           -- Match end of line
 
+
+/Win(?=98)/ matches 'Win' only if 'Win' is followed by '98'.
 </pre>
+
+find all the urls in a string. However reject urls that are ending with .dtd. Notice the url should be ending with .dtd and url like http://a.dtd.google.com should pass.
+
+<pre>
+ /(htdtp:\/\/(?![^\s]*\.dtd\b)[^\s]*)/
+</pre>
+
+h2. Negative lookahead
+
+/Win(?!98)/ matches Win2000 but rejects Win98
