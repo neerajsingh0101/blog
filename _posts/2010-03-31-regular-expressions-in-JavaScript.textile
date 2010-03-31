@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Regular expression in JavaScript
-published: false
 ---
 
 Regular expressions is a powerful tool in any language. Here I am discussing how to use regular expression in JavaScript.
@@ -15,7 +14,7 @@ var regex = /hello/ig; // i is for ignore case. g is for global.
 var regex = new RegExp("hello", "ig");
 </pre>
 
-If I am defining regular expression using "RegExp":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp#Properties_2 then I need to add escape charater in certain cases.
+If I am defining regular expression using "RegExp":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp#Properties_2 then I need to add escape character in certain cases.
 
 <pre>
 var regex = /hello_\w*/ig; 
@@ -27,7 +26,7 @@ taken literally.
 
 h2. test method
 
-"test method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/test is to check if a match is found or not. Ir returns true or false.
+"test method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/test is to check if a match is found or not. This method returns true or false.
 
 <pre>
 var regex = /hello/ig;
@@ -48,9 +47,7 @@ console.log(matches); //=> hello_you
 
 h2. match method
 
-"match method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/match acts exactly like
-exec method if no <tt>g</tt> parameter is passed. When global flag is turned on the match returns an Array containing
-all the matches.
+"match method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/match acts exactly like exec method if no <tt>g</tt> parameter is passed. When global flag is turned on the match returns an Array containing all the matches.
 
 Note that in <tt>exec</tt> the syntax was <tt>regex.exec(text)</tt> while in <tt>match</tt> method the syntax is
 <tt>text.match(regex)</tt> . 
@@ -74,8 +71,7 @@ console.log(matches); //=> ['hello_you', 'hello_me']
 
 h2. Getting multiple matches
 
-Once again both <tt>exec</tt> and <tt>match</tt> method without <tt>g</tt> option do not get all the matching values.
-So if you want all the matching values then you need to iterate through the text. Here is an example.
+Once again both <tt>exec</tt> and <tt>match</tt> method without <tt>g</tt> option do not get all the matching values from a string. If you want all the matching values then you need to iterate through the text. Here is an example.
 
 Get both the bug numbers in the following case.
 
@@ -180,8 +176,7 @@ text.replace(regex,function(_,a,b,c){
 });
 </pre>
 
-As you can see the very first argument to function is the fully matched text. But other captured
-groups are sub sequent arguments. This strategy can be applied recursively.
+As you can see the very first argument to function is the fully matched text. Other captured groups are subsequent arguments. This strategy can be applied recursively.
 
 <pre>
 var bugs = [];
@@ -195,7 +190,7 @@ log(bugs); //["1234", "5678"]
 
 h2. Split method
 
-"split method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/split takes both string or a regular expression.
+"split method":https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/split can take both string or a regular expression.
 
 An example of split using a string.
 
@@ -217,8 +212,7 @@ log(output); // ["Harry Trump", "Fred Barney", "Helen Rigby", "Bill Abel", "Chri
 
 h2. Non capturing Group
 
-The requirement given to me states that I should strictly look for word <tt>java</tt>, <tt>ruby</tt> or <tt>rails</tt> within
-word boundary. This can be done like this.
+The requirement given to me states that I should strictly look for word <tt>java</tt>, <tt>ruby</tt> or <tt>rails</tt> within word boundary. This can be done like this.
 
 <pre>
 var text = 'java';
@@ -234,13 +228,10 @@ var regex = /\b(java|ruby|rails)\b/;
 text.match(regex);
 </pre>
 
-Above code works and there is no code duplication. However in this case I am asking regular expression engine
-to create a captured group which I'll not be using. Regex engines need to do extra work to keep track of captured
-groups. It would be nice if I could say to regex engine do not capture this into a group because I will not be
+Above code works and there is no code duplication. However in this case I am asking regular expression engine to create a captured group which I'll not be using. Regex engines need to do extra work to keep track of captured groups. It would be nice if I could say to regex engine do not capture this into a group because I will not be
 using it.
 
-<tt>?:</tt> is a special symbol that tells regex engine to create non capturing group. Above code can 
-be refactored into the one given below.
+<tt>?:</tt> is a special symbol that tells regex engine to create non capturing group. Above code can be refactored into the one given below.
 
 <pre>
 var text = 'rails';
