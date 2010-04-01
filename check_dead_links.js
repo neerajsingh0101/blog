@@ -46,12 +46,15 @@ function processFileData(file, data, short_file_name) {
 	if (matches) {
 		for (i = 0; i < matches.length; i++) {
 			url = matches[i];
-			fn = function(statusCode) {
-				var msg = statusCode + '\n' + url + '\n' + short_file_name + '\n' + sfn + '\n';
-				sys.puts(msg);
-			};
-			statusCodeForURL(url, fn);
+			statusCodeForURL(url, statusCodeCallback(url, short_file_name));
 		}
+	}
+}
+
+function statusCodeCallback(url, short_file_name) {
+	return function(statusCode) {
+		var msg = statusCode + '\n' + url + '\n' + short_file_name + '\n';
+		sys.puts(msg);
 	}
 }
 
