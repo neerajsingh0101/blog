@@ -1,4 +1,9 @@
-var sys = require('sys'),
+// Objective is to find all the files under _posts directory
+// scan those files for url
+// report the http status code returned by hitting those urls
+
+var number_of_files_to_process = 90,
+sys = require('sys'),
 http = require('http'),
 fs = require('fs'),
 url = require('url'),
@@ -105,7 +110,7 @@ function isReportReady() {
 
 fs.readdir(path, function(err, files) {
 	if (err) handleError(e);
-	files = files.slice(0, 58);
+	files = files.slice(0, number_of_files_to_process);
 	readFiles(files);
 	global.setTimeout(isReportReady, 10);
 	sys.puts('processing ' + files.length + ' file(s)');
