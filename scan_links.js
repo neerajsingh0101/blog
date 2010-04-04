@@ -1,6 +1,9 @@
 // Objective is to find all the files under _posts directory
 // scan those files for url
 // report the http status code returned by hitting those urls
+//
+// Usage: node scan_links.js
+//
 var sys = require('sys'),
 http = require('http'),
 fs = require('fs'),
@@ -55,7 +58,7 @@ function statusCodeCallback(url, short_file_name) {
 	return function(statusCode) {
 		var msg = statusCode + '\n' + url + '\n' + short_file_name + '\n';
 		sys.puts(msg);
-	}
+	};
 }
 
 function statusCodeForURL(_url, callback) {
@@ -64,7 +67,7 @@ function statusCodeForURL(_url, callback) {
 	host = tmp.host,
 	pathname = tmp.pathname;
 
-	connection = http.createClient(80, host); // make it 443 if https
+	connection = http.createClient(80, host); // TODO make it 443 if https
 	request = connection.request('GET', pathname, {
 		'host': host
 	});
