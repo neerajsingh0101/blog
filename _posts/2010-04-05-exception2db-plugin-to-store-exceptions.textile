@@ -1,0 +1,17 @@
+---
+layout: post
+title: exception2db - Rails plugin to store exceptions in database
+---
+
+I love hoptoad. I especially like the ability to catch exceptions in rake tasks and have those exceptions logged at hoptoad using hoptoad_notifier.
+
+Currently I am working on a government project where hoptoad can’t be used. Rather than writing code that captures all the information about exception, I am letting hoptoad_notifier do all the heavy lifting.  Instead of sending the information to hoptoad this plugin ensures that information is written to a database.  Since this plugin relies on hoptoad_notifier, you get to catch exception as if you are using hoptoad. Except that exceptions will be logged into a database.
+
+"README":http://github.com/neerajdotname/exception2db has more information about this plugin.  This plugin has been tested with Rails 2.3.5 .  "Source code is on github":http://github.com/neerajdotname/exception2db
+
+h2. What about exception_logger
+
+I looked at "exception_logger":http://github.com/defunkt/exception_logger which has over 200 people watching it. However it has not been updated in almost 2 years. Since I could not find alternative, I decided to write one from scratch and I built it on top of hoptoad_notifier.
+
+
+
