@@ -1,0 +1,22 @@
+---
+layout: post
+title: nodejs just the right tool for ...
+---
+
+Recenly I moved my blog from "kite_runner":http://github.com/neerajdotname/kite_runner to "jekyll":http://github.com/mojombo/jekyll . I wanted to know how many links that I referred in my previous posts were dead.
+
+I wrote the code in nodejs and all it took was "84 lines":http://github.com/neerajdotname/blog/blob/master/scan_links.js . However the best part is that the running the code takes only 4 minues thanks to nodejs.
+
+Here is what the code does.
+
+<ol>
+<li> get a full list of articles in <tt>_posts</tt> directory . </li>
+<li> scan each of the articles looking for any links . </li>
+<li> make a GET request to each of those links and print the response return code .</li>
+</ol>
+
+Because of nodejs step2 is totally asynchronous and 200 files read simultaneously. Similarly when it comes to making a GET request to url there is no time being wasted in waiting to get the response because nodejs handles everything asynchronously.
+
+I can't image how much time it will take to get the result if it is written in ruby. Of couse you can do multi-threading but that's a lot of work. 
+
+It seems nodejs is just the right tool if you are interacting with other services that might not be fast.
