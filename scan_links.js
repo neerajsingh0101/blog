@@ -1,3 +1,5 @@
+// Following code has been tested with nodejs version 0.1.32
+//
 // Objective is to find all the files under _posts directory
 // scan those files for url
 // report the http status code returned by hitting those urls
