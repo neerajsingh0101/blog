@@ -2,6 +2,7 @@
 layout: post
 title: JavaScript Basics Quiz
 ---
+
 h2. Question 1
 
 What's the output.

@@ -2,6 +2,7 @@
 layout: post
 title: Dynamic restful routes
 ---
+
 Restul routes are awesome. All you have to do is add one line to routes file <tt>map.resources :users</tt> and you are is done. 
 
 How about the case where the names of models are not know before hand and ,at run time, you need to handle such cases. Lets take an example. If you have two restful routes for users and houses then they would be defined like this.

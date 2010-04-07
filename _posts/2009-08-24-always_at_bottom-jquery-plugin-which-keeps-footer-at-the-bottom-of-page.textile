@@ -2,6 +2,7 @@
 layout: post
 title: always_at_bottom  jQuery plugin which keeps footer at the bottom of  page
 ---
+
 __Following code has been tested with jQuery 1.3 .__
 
 If you have a really really short page then footer comes up right in the middle of page. There are a number of solutions available and most of them are CSS based. I found all those solutions to be too clunky. I'm using jQuery in all of my projects and decided to fix this problem using jQuery.

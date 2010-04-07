@@ -2,6 +2,7 @@
 layout: post
 title: Understanding jQuery effects queue
 ---
+
 Recently I tried following code in jQuery and it did not work.
 
 <pre>

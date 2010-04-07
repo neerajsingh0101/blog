@@ -2,6 +2,7 @@
 layout: post
 title: Handling JSON parsing natively in jQuery 1.4 and what changed from jQuery 1.3
 ---
+
 With the popularity of JavaScript JSON has become very very popular. "JSON":http://www.json.org which stands for <tt>JavaScript Object Notation</tt> is a popular way to send and receive data between browser and server. 
 
 jQuery makes it extremely easy to deal with JSON data. In the below example server sends a success message to browser. The JSON data looks like this.

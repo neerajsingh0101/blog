@@ -2,6 +2,7 @@
 layout: post
 title: Act on Result  made easy with jQuery Form
 ---
+
 Imagine a typical web application. You searched for something. The search result produced ten thousands results. However only first 50 results are shown. You are also being presented link to delete all the records. I call this <tt>act on result</tt> pattern. You are presented with a small subset or result and you have the opportunity to act on the result.
 
 Acting on the result could be anything like deleting all the found records, exporting the data or sending email to all the found users. The pattern is same.

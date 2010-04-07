@@ -2,6 +2,7 @@
 layout: post
 title: Why not use join instead
 ---
+
 I am looking at the source code of "cache_fu":http://github.com/defunkt/cache_fu/tree/master and this is what I found. 
 
 <pre>

@@ -2,6 +2,7 @@
 layout: post
 title: jQuery fadeTo method fades even the hidden elements
 ---
+
 <i>Following code has been tested with jQuery 1.4.1 . Code demo links are the end of the blog .</i>
 
 "fadeTo":http://api.jquery.com/fadeTo method of jQuery ,strangely, fades event the hidden elements.

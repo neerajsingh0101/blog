@@ -2,6 +2,7 @@
 layout: post
 title: Encapsulation in JavaScript
 ---
+
 JavaScript does not allow you to define a method as public or private. This is a limitation users need to get around to, because in real life you don't want to expose all methods as public method.
 
 Here is a simple implementation of the case where you want to verify input code.

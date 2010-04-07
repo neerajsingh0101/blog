@@ -2,6 +2,7 @@
 layout: post
 title: $stdout.sync = true to flush output immediately
 ---
+
 Try this.
 
 <pre>

@@ -2,6 +2,7 @@
 layout: post
 title: Integrating JavaScriptLint with mvim and getting rid of annoying warnings
 ---
+
 I use "JavaScriptLint":http://www.javascriptlint.com along with "JavaScriptLint.vim":http://www.vim.org/scripts/script.php?script_id=2578 on mvim to catch any JavaScript syntax error or missing semicolons. It works great except in cases when I am chaining methods like this.
 
 <pre>

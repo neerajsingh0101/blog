@@ -2,6 +2,7 @@
 layout: post
 title: Use end more often in jQuery while building DOM elements
 ---
+
 I want to create following markup dynamically using jQuery.
 
 <pre>

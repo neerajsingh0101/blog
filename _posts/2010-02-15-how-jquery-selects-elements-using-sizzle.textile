@@ -2,6 +2,7 @@
 layout: post
 title: How jQuery selects elements using Sizzle
 ---
+
 h2. Introduction
 
 jQuery's motto is to select something and do something with it. As jQuery users, we provide the selection criteria and then we get busy with doing something with the result. This is a good thing. jQuery provides extermely simple API for selecting elements. If you are selecting ids then just prefix the name with '#'. If you are selecting a class then prefix it with '.'.

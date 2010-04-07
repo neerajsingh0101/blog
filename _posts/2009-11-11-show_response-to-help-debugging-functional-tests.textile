@@ -2,6 +2,7 @@
 layout: post
 title: show_response to help debugging functional tests
 ---
+
 While writing functional tests, I use <tt>assert_tag</tt> a lot. Many times the assertion fails and debugging  with 'response text' dump on terminal is not easy. It would be much easier to debug if the response text is opened in a browser. This is how that can be done.
 
 In your <tt>test/test_helper.rb</tt> add a new method called <tt>show_response</tt>.

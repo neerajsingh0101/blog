@@ -2,6 +2,7 @@
 layout: post
 title: action caching in broken in plugin cache_fu
 ---
+
 Y'day I noticed that action caching stopped working when I moved the caching mechanism from 'file storage' to 'memcached'. After some investigation I found that "cache_fu":http://github.com/defunkt/cache_fu/tree/master is broken.
 
 Here is the code from ActionController.rb .

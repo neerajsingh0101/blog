@@ -2,6 +2,7 @@
 layout: post
 title: memcached and cache_fu
 ---
+
 __Following code has been tested with Rails 2.3 .__
 
 memcached is a popular caching solution in Rails community.  "cache_fu":http://github.com/defunkt/cache_fu/tree/master is an excellent plugin that makes it a breeze to deal with memcached. However going through the README of this plugin does not tell you much if you are new to this plugin. 

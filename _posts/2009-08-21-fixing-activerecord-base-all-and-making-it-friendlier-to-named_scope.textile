@@ -2,6 +2,7 @@
 layout: post
 title: Fixing ActiveRecord  Base.all and making it friendlier to named_scope
 ---
+
 __Following code has been tested with Rails 2.3 .__
 
 Search feature of this blog is powered by following named_scope.

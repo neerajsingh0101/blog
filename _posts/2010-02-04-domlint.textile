@@ -2,6 +2,7 @@
 layout: post
 title: DOMLint
 ---
+
 I have seen "JSLint":http://www.jslint.com , "JavaScript Lint":http://www.javascriptlint.com , "JSON Lint":http://www.jsonlint.com and "jQuery Lint":http://james.padolsey.com/javascript/jquery-lint .
 
 Today I came across "DOM Lint":http://yura.thinkweb2.com/domlint/ in this "jQuery thread":http://forum.jquery.com/topic/using-bind#14737000000685714 .

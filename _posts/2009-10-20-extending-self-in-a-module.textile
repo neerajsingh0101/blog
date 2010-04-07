@@ -2,6 +2,7 @@
 layout: post
 title: extending self in a module
 ---
+
 What does this code do.
 
 <pre>

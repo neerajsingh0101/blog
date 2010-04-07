@@ -2,6 +2,7 @@
 layout: post
 title: jQuery show method edge case
 ---
+
 Here is a simple case of invoking <tt>show</tt> method on a hidden element.
 
 <pre>

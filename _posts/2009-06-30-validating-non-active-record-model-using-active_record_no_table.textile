@@ -2,6 +2,7 @@
 layout: post
 title: Validating non active record model using active_record_no_table
 ---
+
 Sometimes I need a model which does not have a corresponding table. I would like to use all the validation goodies that come with ActiveRecord in this model. ActiveRecord makes using validation tools in a non ActiveRecord model very difficult.
 
 I have posted the solution on how to accomplish the same for "Rails 2.1 here":http://www.neeraj.name/blog/articles/646-validating-non-active-record-models-for-rails-2-1 and for "Rails 2.2 here":http://www.neeraj.name/blog/articles/810-validating-non-activerecord-models-in-rails-2-2 .

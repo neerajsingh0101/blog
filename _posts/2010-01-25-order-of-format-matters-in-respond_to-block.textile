@@ -2,6 +2,7 @@
 layout: post
 title: Order of format matters in respond_to block
 ---
+
 This is a standard Rails code. I am using Rails 2.3.5 .
 
 <pre>

@@ -2,6 +2,7 @@
 layout: post
 title: Ruby EventMachine  a short introduction
 ---
+
 h1. Introduction
 
 Before answering what is EventMachine, first I will try to explain the problem that EventMachine solves.

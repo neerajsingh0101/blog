@@ -2,6 +2,7 @@
 layout: post
 title: Calling collect method on an array with single item
 ---
+
 Ruby offers a lot of goodies and one of them is "inject":http://ruby-doc.org/core/classes/Enumerable.html#M003140 . Jay Fields wrote a "good article":http://blog.jayfields.com/2008/03/ruby-inject.html about various ways in which you can use inject . As per the documentation if you do not specity an input value for inject then inject will treat the first element as the first value and will start with second item.
 
 Code will make it easier to understand.

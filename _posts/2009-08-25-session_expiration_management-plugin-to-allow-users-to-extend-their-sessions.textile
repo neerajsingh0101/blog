@@ -2,6 +2,7 @@
 layout: post
 title: session_expiration_management plugin to allow users to extend their sessions
 ---
+
 __Following code is tested with Rails 2.3 .__
 
 Most of the bank sites log you out or allow you to extend your session if you are inactive for a while. This plugin provides an opportunity for users to extend their sessions before they are logged out.

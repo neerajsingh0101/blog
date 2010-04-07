@@ -2,6 +2,7 @@
 layout: post
 title: Running rake task in background and not blocking the port
 ---
+
 In "this screencast":http://railscasts.com/episodes/127-rake-in-background Ryan Bates explains how to execute a rake task in background on run time. This will make controller return the response to the user fast. In the meantime email will be sent through the background job.
 
 In short this is the solution he proposes.

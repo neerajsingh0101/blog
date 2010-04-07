@@ -2,6 +2,7 @@
 layout: post
 title: hash method in ruby
 ---
+
 I did not know about "hash method in ruby object":http://apidock.com/ruby/Object/hash and I paid a heavy price. While developing "admin_data plugin":http://github.com/neerajdotname/admin_data I proposed to pass certain values in configuration like this.
 
 <pre>

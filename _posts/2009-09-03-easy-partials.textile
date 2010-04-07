@@ -2,6 +2,7 @@
 layout: post
 title: Easy partials
 ---
+
 __Following code has been tested with Rails 2.3 .__
 
 Traditional way of rendering partials.

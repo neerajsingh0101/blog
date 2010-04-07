@@ -2,6 +2,7 @@
 layout: post
 title: Simplest jQuery slideshow code explanation
 ---
+
 "Jonathan Snook":http://snook.ca wrote a blog titled "Simplest jQuery SlideShow":http://snook.ca/archives/javascript/simplest-jquery-slideshow .  Checkout the "demo page":http://snook.ca/technical/fade/fade.html . 
 
 The full JavaScript code in its entirety is given below. If you understand this code  then you don't need to read rest of the article. 

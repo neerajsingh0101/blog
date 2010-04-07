@@ -2,6 +2,7 @@
 layout: post
 title: jQuery recommends including stylesheets before including javascripts
 ---
+
 I was going through jQuery documentation and came across this.
 
 <blockquote>

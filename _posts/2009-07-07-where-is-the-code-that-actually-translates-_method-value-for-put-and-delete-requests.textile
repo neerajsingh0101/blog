@@ -2,6 +2,7 @@
 layout: post
 title: Where is the code that actually translates _method value for put and delete requests
 ---
+
 If you have developed RESTful application then you know that for update and delete method <tt>PUT</tt> and <tt>DELETE</tt> is used. Since current browsers do not support method 'put' and 'delete', Rails puts a hiddent variable called <tt>_method</tt>. That's all good.
 
 In the action_controller Rails checks if the method is 'put' or 'delete'.

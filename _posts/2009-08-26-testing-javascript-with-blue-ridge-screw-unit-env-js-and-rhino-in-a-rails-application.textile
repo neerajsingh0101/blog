@@ -2,6 +2,7 @@
 layout: post
 title: Testing JavaScript with blue-ridge, Screw.Unit, env.js and Rhino in a rails application
 ---
+
 __Following code is tested with Rails 2.3 .__
 
 Testing Javascript without browser is not easy. However, others have a done a lot of hard work which makes it possible to test JavaScript using command line.

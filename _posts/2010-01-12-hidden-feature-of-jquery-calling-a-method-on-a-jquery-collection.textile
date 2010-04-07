@@ -2,6 +2,7 @@
 layout: post
 title: Hidden feature of jQuery  Calling a method on a jQuery collection
 ---
+
 I was going through the "Adding keyboard navigation":http://jqueryfordesigners.com/adding-keyboard-navigation and noticed that Remi replaced this code 
 
 <pre>

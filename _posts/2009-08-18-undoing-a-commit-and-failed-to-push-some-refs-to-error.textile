@@ -2,6 +2,7 @@
 layout: post
 title: Undoing a commit and "failed to push some refs to .." error
 ---
+
 *UPDATE*: This article has been updated as per comments from Alexey Borzenkov 
 
 I committed a changeset and pushed the change to github. Now I want to revert the changes in such a way that log has no trace of it.

@@ -2,6 +2,7 @@
 layout: post
 title: jQuery edge  delegate method has arrived
 ---
+
 One of the issues with live method is that live method first searches through all the elements then throws away the result.
 
 <pre>

@@ -2,6 +2,7 @@
 layout: post
 title: jQuery.Data for inspecting jQuery internals and for storing information
 ---
+
 __Following code has been tested with jQuery 1.3 .__
 
 Let's say that I have bound all the links to display an alert.

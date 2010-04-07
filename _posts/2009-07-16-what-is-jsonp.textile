@@ -2,6 +2,7 @@
 layout: post
 title: What is JSONP?
 ---
+
 <i>This is part II of "How to create dynamic javascript widget":http://www.neeraj.name/blog/articles/846-how-to-create-a-dynamic-javascript-widget</i>
 
 h2. What problem JSONP solves?
