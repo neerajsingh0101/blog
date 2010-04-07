@@ -3,7 +3,7 @@ layout: post
 title: Configuring the ubuntu box on slicehost
 ---
 
-This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/2008/09/30/installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost.html .
 
 <h2>Ubuntu 8.04.1</h2>
 I am running Ubuntu 8.04.1 on my slice that I got from slicehost.com . The instructions mentioned here might or might not work for other linux flavor.

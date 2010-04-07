@@ -2,7 +2,8 @@
 layout: post
 title: Marking the slicehost slice secure
 ---
-This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/2008/09/30/installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost.html .
 
 <h2> Securing ssh </h2>
 

@@ -2,7 +2,8 @@
 layout: post
 title: Using Capistrano to deploy an application from github to slicehost slice
 ---
-This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/2008/09/30/installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost.html .
 
 Log into github.com and create a public repository. In this case the project name is gitlearn.
 

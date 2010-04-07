@@ -1,0 +1,92 @@
+<pre>
+var Logger = function(path) {
+	this.path = path;
+};
+
+l1 = new Logger('/home');
+console.log(l1);
+
+l2 = new Logger('/dev');
+console.log(l2);
+
+console.log(l1 === l2);
+</pre>
+
+
+<pre>
+window.global_logger = null;
+var Logger = function(path) {
+	if (global_logger) {
+		console.log('global logger already present');
+	} else {
+		this.path = path;
+		window.global_logger = this;
+	}
+	return window.global_logger;
+
+};
+
+l1 = new Logger('/home');
+console.log(l1);
+
+l2 = new Logger('/dev');
+console.log(l2);
+
+console.log(l1 === l2);
+
+</pre>
+
+<pre>
+var Logger = function(path) {
+
+  var instance;
+
+	if (Logger.instance) {
+		console.log('global logger already present');
+	} else {
+		this.path = path;
+		Logger.instance = this;
+	}
+	return Logger.instance;
+
+};
+
+l1 = new Logger('/home');
+console.log(l1);
+
+l2 = new Logger('/dev');
+console.log(l2);
+
+console.log(l1 === l2);
+
+</pre>
+
+
+<pre>
+var Logger = function() {
+
+	var _instance;
+
+	return function(path) {
+
+		if (_instance) {
+			console.log('alread present');
+		} else {
+			this.path = path;
+			_instance = this;
+		}
+
+		return _instance;
+	}
+} (); //note that it is self invoking function
+
+
+var l1 = new Logger('/root');
+console.log(l1);
+
+var l2 = new Logger('/dev');
+console.log(l2);
+
+console.log(l1 === l2);
+
+</pre>

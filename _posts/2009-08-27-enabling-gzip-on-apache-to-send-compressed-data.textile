@@ -3,7 +3,7 @@ layout: post
 title: Enabling gzip on apache to send compressed data
 ---
 
-This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/blog/articles/736-installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost .
+This article is part of a series on "Installing a ruby on rails application using phusion passenger on ubuntu on slicehost":http://neeraj.name/2008/09/30/installing-a-ruby-on-rails-application-using-phusion-passenger-on-ubuntu-on-slicehost.html .
 
 Browser should receive compressed data from server. I have been running my blog for years and ,all this while, I had not configured apache to send compressed data. Let's fix it.
 
