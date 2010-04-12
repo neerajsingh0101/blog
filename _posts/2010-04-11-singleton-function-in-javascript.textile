@@ -1,3 +1,14 @@
+---
+layout: post
+title: Singleton function in JavaScript
+---
+
+Recently I was discussed with a friend how to create a singleton function in JavaScript. I am putting the same information here in case it might help someone understand JavaScript better.
+
+h1. Creating an Object
+
+Simplest solution is creating an instance of the object.
+
 <pre>
 var Logger = function(path) {
 	this.path = path;
@@ -12,6 +23,9 @@ console.log(l2);
 console.log(l1 === l2);
 </pre>
 
+Above solution works. However <tt>l2</tt> is a new instance of <tt>Logger</tt> .
+
+h1. Singleton solution using a global variable
 
 <pre>
 window.global_logger = null;
@@ -23,7 +37,6 @@ var Logger = function(path) {
 		window.global_logger = this;
 	}
 	return window.global_logger;
-
 };
 
 l1 = new Logger('/home');
@@ -33,34 +46,11 @@ l2 = new Logger('/dev');
 console.log(l2);
 
 console.log(l1 === l2);
-
 </pre>
 
-<pre>
-var Logger = function(path) {
+Above solution works. However this solution relies on creating a global variable. To the extent possible it is best to avoid polluting global namespace.
 
-  var instance;
-
-	if (Logger.instance) {
-		console.log('global logger already present');
-	} else {
-		this.path = path;
-		Logger.instance = this;
-	}
-	return Logger.instance;
-
-};
-
-l1 = new Logger('/home');
-console.log(l1);
-
-l2 = new Logger('/dev');
-console.log(l2);
-
-console.log(l1 === l2);
-
-</pre>
-
+h1. Single solution without polluting global namespace
 
 <pre>
 var Logger = function() {
@@ -70,7 +60,7 @@ var Logger = function() {
 	return function(path) {
 
 		if (_instance) {
-			console.log('alread present');
+			console.log('an instance is already present');
 		} else {
 			this.path = path;
 			_instance = this;
@@ -88,5 +78,6 @@ var l2 = new Logger('/dev');
 console.log(l2);
 
 console.log(l1 === l2);
-
 </pre>
+
+This solution does not pollute global namespace.

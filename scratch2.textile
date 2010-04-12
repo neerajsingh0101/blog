@@ -1,0 +1,9 @@
+var num = 1;
+
+(function () {
+    // try to set a default
+    var num = num || 0;
+    console.log(num);
+})();
+
+
