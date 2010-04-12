@@ -103,9 +103,10 @@ tt {
 }
 
 #content h2 {
-  margin: 0 0 0.5em 0;
+  margin: 1em 0 0.5em 0;
   color: black;
-  font-size: 1.3em;
+  font-size: 1.4em;
+  text-decoration: underline;
 }
 
 #content p {
@@ -304,4 +305,3 @@ font-size:15px;
 margin:20px;
 padding:10px;
 }
-

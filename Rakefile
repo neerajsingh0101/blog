@@ -19,5 +19,5 @@ mv ../_#{branch} ../#{branch}
 rm -rf _old
 EOF
   commands = commands.gsub(/\n/, "; ")
-  system("ssh www.eventsinindia.com '#{commands}'")
+  system("ssh www.eventsinindia.com -p 30000 '#{commands}'")
 end

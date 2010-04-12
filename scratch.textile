@@ -1,0 +1,60 @@
+---
+layout: post
+title: List of only the element that contains 
+---
+
+I was toying with the "simple list filter plugin":http://kilianvalkhof.com/2010/javascript/how-to-build-a-fast-simple-list-filter-with-jquery/ and ended up with this markup.
+
+<pre>
+<div id="lab">
+  <ul id="list">
+    <li><a href="">USA</a></li>
+  <ul>
+  <p>
+    <a href=''>USA</a>
+  </p>
+</div>
+</pre>
+
+I want to get all links that contains the word <tt>USA</tt>. Simple enough. jQuery supports <tt>contains</tt> selector.
+
+<pre>
+$(":contains('USA')");
+</pre>
+
+Above query results in following items. 
+
+<pre>
+[html, body#body, div#lab, ul#list, li, a, ul, p, a]
+</pre>
+
+That is because "contains":http://api.jquery.com/contains-selector looks for given string under all the descendants.
+
+h2. has method to rescue
+
+jQuery has "has":http://api.jquery.com/has method which returns the list of elements which have a descendant which has the given string.
+
+<pre>
+b = $('*').has(":contains('USA')");
+</pre> 
+
+Above query results in following items.
+
+<pre>
+[html, body#body, div#lab, ul#list, li, ul, p]
+</pre>
+
+h2. Final result
+
+<pre>
+a = $(":contains('USA')");
+b = $('*').has(":contains('USA')");
+c = a.not(b) ;
+console.log(c);
+</pre>
+
+Above query results in following items.
+
+<pre>
+ [a, a]
+</pre>

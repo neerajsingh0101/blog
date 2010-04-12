@@ -5,7 +5,7 @@ title: Singleton function in JavaScript
 
 Recently I was discussed with a friend how to create a singleton function in JavaScript. I am putting the same information here in case it might help someone understand JavaScript better.
 
-h1. Creating an Object
+h2. Creating an Object
 
 Simplest solution is creating an instance of the object.
 
@@ -25,7 +25,7 @@ console.log(l1 === l2);
 
 Above solution works. However <tt>l2</tt> is a new instance of <tt>Logger</tt> .
 
-h1. Singleton solution using a global variable
+h2. Singleton solution using a global variable
 
 <pre>
 window.global_logger = null;
@@ -50,7 +50,7 @@ console.log(l1 === l2);
 
 Above solution works. However this solution relies on creating a global variable. To the extent possible it is best to avoid polluting global namespace.
 
-h1. Single solution without polluting global namespace
+h2. Single solution without polluting global namespace
 
 <pre>
 var Logger = function() {
