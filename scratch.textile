@@ -1,60 +1,57 @@
 ---
 layout: post
-title: List of only the element that contains 
+title:  JavaScript - How it works and how to make your JavaScript code work 
 ---
 
-I was toying with the "simple list filter plugin":http://kilianvalkhof.com/2010/javascript/how-to-build-a-fast-simple-list-filter-with-jquery/ and ended up with this markup.
+h1. Variable hoisting
+
+h1. Execution Context
+
+h1. Closure
+
+If the variable x referenced at run time why the result is not 20 in this case.
+...example
+
+Also mention that two closures can possibly change the data .
+
+
+
+
+
+h1. If you do not declare var then you create a global variable. Not true.
+
+Most of the JavaScript book would say that if you forget to declare <tt>var</tt> then you accidentally you have created a global varialbe. Well that is not entirely true. What you are creating is a  property on a global object which is <tt>window</tt> in the case of browser.
+
+Here is how you an find out by skipping a variable you are not creating a variable. I discussed previously that all variable declaration are get hoisted. Notice what happens in this case.
 
 <pre>
-<div id="lab">
-  <ul id="list">
-    <li><a href="">USA</a></li>
-  <ul>
-  <p>
-    <a href=''>USA</a>
-  </p>
-</div>
+alert(a); // undefined
+alert(b); // 'b' is not defined
+
+var a = 'hello world';
+b = 'I am global';
 </pre>
 
-I want to get all links that contains the word <tt>USA</tt>. Simple enough. jQuery supports <tt>contains</tt> selector.
+The reason why <tt>alert(b)</tt> failed is because as far as ECMAScript is concerned <tt>b</tt> is not a variable.
+
+h1. Alawys declare global properties using window .
+
+If you really want to create a global variable called foo the don't do this.
 
 <pre>
-$(":contains('USA')");
+foo = 'I am global';
 </pre>
 
-Above query results in following items. 
+When I look at that code, I'm never sure if the developer accidentally missed adding a <tt>var</tt> . To make it clear to the users that you meant to delcare a global variable do this.
 
 <pre>
-[html, body#body, div#lab, ul#list, li, a, ul, p, a]
+window.foo = 'I am global';
 </pre>
 
-That is because "contains":http://api.jquery.com/contains-selector looks for given string under all the descendants.
 
-h2. has method to rescue
 
-jQuery has "has":http://api.jquery.com/has method which returns the list of elements which have a descendant which has the given string.
 
-<pre>
-b = $('*').has(":contains('USA')");
-</pre> 
 
-Above query results in following items.
+Reference:
 
-<pre>
-[html, body#body, div#lab, ul#list, li, ul, p]
-</pre>
-
-h2. Final result
-
-<pre>
-a = $(":contains('USA')");
-b = $('*').has(":contains('USA')");
-c = a.not(b) ;
-console.log(c);
-</pre>
-
-Above query results in following items.
-
-<pre>
- [a, a]
-</pre>
+http://dmitrysoshnikov.com/ecmascript/chapter-2-variable-object/
