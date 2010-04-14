@@ -160,7 +160,7 @@ for(var i=1; i < 5; i++){
 }
 </pre>
 
-In the above case when do you expect to see values printed on console: immediately or each number getting printed after after an interval of 2 seconds.
+In the above case do you expect to see values printed on console immediately or each number will get printed after an interval of 2 seconds.
 
 
 h2. Answer next week
