@@ -1,0 +1,168 @@
+---
+layout: post
+title: JavaScript fundamentals quiz
+---
+
+JavaScript has many quirks and one can create a number of quizzes based on those quirks. Following sets of quizzes will not test your understanding of those quirks. Rather these questions will test your understanding of fundamental JavaScript. Here we go.
+
+h2. Question 1
+
+<pre>
+var x = 10;
+ 
+function foo() {
+  var x = 30;
+  console.log(x);
+}
+ 
+(function () {
+  var x = 20;
+  foo(); 
+})();
+</pre>
+
+h2. Question 2
+
+<pre>
+function foo() {
+
+  var x = 10;
+  var y = 20;
+ 
+  return function () {
+    console.log([x, y]);
+  };
+ 
+}
+ 
+var x = 30;
+
+var bar = foo(); 
+
+bar(); 
+</pre>
+
+h2. Question3
+
+<pre>
+console.log(a); 
+console.log(b); 
+
+var a = 'hello world';
+b = 'I am global';
+</pre>
+
+h2. Question 4
+
+<pre>
+var data = [];
+ 
+for (var k = 0; k < 3; k++) {
+  data[k] = function () {
+    console.log(k);
+  };
+}
+
+data[0]();
+data[1]();
+data[2]();
+</pre>
+
+h2. Question 5
+
+Is JavaScript pass by reference or pass by value?
+
+<pre>
+function funky(o) {
+  o = null;
+}
+
+var x = 10;
+funky(x);
+console.log(x);
+</pre>
+
+h2. Question 6
+
+Same as question 6 except that this time x is not an integer but an object.
+
+<pre>
+function funky(o) {
+  o = null;
+}
+
+var x = {hello: 'world'};
+funky(x);
+console.log(x);
+</pre>
+
+
+h2. Question 7
+
+Is JavaScript pass by reference or pass by value?
+
+<pre>
+function swap(a,b) {
+  var t = a;
+  a = b;
+  b = t;
+}
+
+var x=1, y=2;
+
+swap(x,y)
+
+console.log(x)
+</pre>
+
+h2. Question 8
+
+<pre>
+var x = "test";
+console.log( x.foo );
+
+x.foo = 12;
+console.log( x.foo );
+</pre>
+
+h2. Question 9
+
+Notice that function bar is defined after the return statement.
+
+<pre>
+function foo(){
+  console.log(z);
+  console.log(bar());
+  console.log(bazz());
+  return true;
+
+  function bar(){
+    return 'this is bar';
+  };
+
+  var bazz = function(){
+     return 'this is bazz';
+  };
+
+  var z = 'zzz';
+};
+
+foo();
+</pre>
+
+h2. Question 10
+
+<pre>
+for(var i=1; i < 5; i++){
+ setInterval(function(){
+    console.log(i);
+  }, 2000);
+}
+</pre>
+
+In the above case when do you expect to see values printed on console: immediately or each number getting printed after after an interval of 2 seconds.
+
+
+h2. Answer next week
+
+I will write a long blog next week explaining the answers.
