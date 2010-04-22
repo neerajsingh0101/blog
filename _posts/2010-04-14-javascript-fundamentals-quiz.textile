@@ -73,6 +73,27 @@ h2. Question 5
 Is JavaScript pass by reference or pass by value?
 
 <pre>
+var x = 10;
+var y = x;
+x = 20;
+console.log(y);
+</pre>
+
+h2. Question 6
+
+Is JavaScript pass by reference or pass by value?
+
+<pre>
+var x = {hello: 'world'};
+var y = x;
+x = {good: 'bye'};
+console.log(y);
+</pre>
+
+
+h2. Question 7
+
+<pre>
 function funky(o) {
   o = null;
 }
@@ -82,7 +103,7 @@ funky(x);
 console.log(x);
 </pre>
 
-h2. Question 6
+h2. Question 8
 
 Same as question 6 except that this time x is not an integer but an object.
 
@@ -97,7 +118,7 @@ console.log(x);
 </pre>
 
 
-h2. Question 7
+h2. Question 9
 
 Is JavaScript pass by reference or pass by value?
 
@@ -115,7 +136,7 @@ swap(x,y)
 console.log(x)
 </pre>
 
-h2. Question 8
+h2. Question 10
 
 <pre>
 var x = "test";
@@ -125,7 +146,7 @@ x.foo = 12;
 console.log( x.foo );
 </pre>
 
-h2. Question 9
+h2. Question 11
 
 Notice that function bar is defined after the return statement.
 
@@ -150,7 +171,7 @@ function foo(){
 foo();
 </pre>
 
-h2. Question 10
+h2. Question 12
 
 <pre>
 for(var i=1; i < 5; i++){
@@ -162,6 +183,23 @@ for(var i=1; i < 5; i++){
 
 In the above case do you expect to see values printed on console immediately or each number will get printed after an interval of 2 seconds.
 
+h2. Question 13
+
+<pre>
+var foo = { 
+    toString: function () { 
+        return "foo"; 
+    }, 
+    valueOf: function () { 
+        return 5; 
+    } 
+}; 
+ 
+alert(foo + "bar"); // 5bar 
+alert([foo, "bar"].join("")); // foobar
+</pre>
+
+"Ref":http://www.adequatelygood.com/2010/3/Object-to-Primitive-Conversions-in-JavaScript
 
 h2. Answer next week
 

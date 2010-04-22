@@ -1,0 +1,61 @@
+---
+layout: post
+title: Logging from initializers and plugings
+---
+
+_Following code has been tested with Rails 2.3.5 ._
+
+If you put log messages in rails initializers then they do not show up in console.
+
+<pre>
+# ~/config/initializers/session_store.rb
+Rails.logger.info "I am within initializer" 
+</pre>
+
+Start the server and you won't see the message that was put in initializer.
+
+<pre>
+ruby script/server
+</pre>
+
+The weird thing is that log message did not show up but the code did not blow up either. Some would say that using <tt>RAILS_DEFAULT_LOGGER.info</tt> would solve the problem. That is not true.
+
+This problem is not restricted to initializers only. If you put in some log messages in <tt>init.rb</tt> of a plugin then also you will find that those log message do not appear on console.
+
+h2. logs are going to development.log
+
+When rails starts server then it calls <tt>initialize_logger</tt> . This is where <tt>Rails.logger</tt> is mapped to <tt>RAILS_DEFAULT_LOGGER</tt>. Since rails loads gems, plugins and initializers after invoking <tt>initialize_logger</tt>, one can use <tt>Rails.logger</tt> in gems, plugins and in initializers.
+
+Since rails is rack compliant application, while initializing rails <tt>script/server</tt> introduces a rack middleware called <tt>LogTailer</tt>
+
+<pre>
+use Rails::Rack::LogTailer unless options[:detach]
+</pre>
+
+As the name suggests, the job of this middleware is to tail the log of <tt>development.log</tt> .
+
+If you put in log messages in plugin or in initializers then those log messages go to <tt>development.log</tt> . After the initialization is done then <tt>script/server</tt> starts tailing the log file. 
+
+However tail only reports the new log messages. Log messages already written to <tt>development.log</tt> are not reported to console. This explains why you did not see log messages on console.
+
+Also note that log messages are always written to <tt>development.log</tt> . On console we see the tail of that log.
+
+
+h2. A quick solution
+
+One solution to this problem is to use <tt>puts</tt> but if you are debugging something on server then those messages would not appear on log. If you use <tt>Rails.logger</tt> then those messages would not appear on your console. A quick solution is to show all the existing messages from the log file at the end of initialization process.
+
+I added following file as a initializer and its working fine.
+
+<pre>
+# ~/config/initializers/zzz_log_output_to_console.rb
+if Rails.env.development?
+  File.open(Rails.root.join('log', 'development.log'), "r") do |logfile|
+    while (line = logfile.gets)
+      puts line
+    end
+  end
+end
+</pre>
+
+Rails loads all initializers file in alphabetical order. Since I want all the accumulated messages on the console, I want my initializer to be last one to execute. Hence the name starts with *z*.

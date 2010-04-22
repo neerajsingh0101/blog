@@ -90,4 +90,54 @@ test();
 
 In the above code not only variable declaration for <tt>bar</tt> got hoisted but also the variable assignment was hoisted. Remember that for <tt>var fn = function(){}</tt> only variable declaration will get hoisted. However for <tt>function fn(){}</tt> both variable declaration and variable assignment will get hoisted.
 
+h1. If you do not declare var then you create a global variable. Not true.
+
+Most of the JavaScript book would say that if you forget to declare <tt>var</tt> then you create a global varialbe. Well that is not entirely true. What you are creating is a  property on a global object which is <tt>window</tt> in the case of browser.
+
+I discussed previously that all variable declarations get hoisted. Notice what happens in this case.
+
+<pre>
+console.log(a); // undefined
+console.log(b); // 'b' is not defined
+
+var a = 'hello world';
+b = 'I am global';
+</pre>
+
+In that above case variable <tt>b</tt> did not get hoisted because technically , as far as JavaScript is concerned, <tt>b</tt> is not a variable rather it is a property of a window.
+
+
+h2. Is JavaScript pass-by-reference or pass-by-value
+
+For Numeric and Boolean values JavaScript passes variables by value.
+
+<pre>
+var x = 10;
+var y = x;
+y = 20;
+console.log(x);
+</pre>
+
+In the above case when <tt>var y=x</tt> control is executed then <tt>y</tt> is holding a new value 10 which is a copy of the value of x.
+
+For Array and Objects JavaScript passes by reference.
+
+<pre>
+var x = ['a']
+var y = x;
+x.push('b');
+console.log(x);
+console.log(y);
+</pre>
+
+In the above case <tt>x</tt> is holding a reference to the object. variable <tt>y</tt> is holding same reference which is pointing to the same object. Now when the object itself is changed, then that change is reflected in both <tt>x</tt> and <tt>y</tt> .
+ 
+
+
+
+When an object is passed to a function, it is a reference to the object that is passed, not a copy of the object's actual value.
+The function is passed a copy of the reference to the object (in a sense, the reference itself is "passed by value").
+
+If the function changes its copy of the reference, that change does not affect the object value nor the original reference to the object, 
+
 

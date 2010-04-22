@@ -1,11 +1,3 @@
----
-layout: post
-title:  JavaScript - How it works and how to make your JavaScript code work 
----
-
-
-h1. Variable hoisting
-
 h1. Execution Context
 
 h1. Closure
@@ -16,51 +8,6 @@ If the variable x referenced at run time why the result is not 20 in this case.
 Also mention that two closures can possibly change the data .
 
 
-
-
-
-h1. If you do not declare var then you create a global variable. Not true.
-
-Most of the JavaScript book would say that if you forget to declare <tt>var</tt> then you accidentally you have created a global varialbe. Well that is not entirely true. What you are creating is a  property on a global object which is <tt>window</tt> in the case of browser.
-
-Here is how you an find out by skipping a variable you are not creating a variable. I discussed previously that all variable declaration are get hoisted. Notice what happens in this case.
-
-<pre>
-alert(a); // undefined
-alert(b); // 'b' is not defined
-
-
-var a = 'hello world';
-b = 'I am global';
-</pre>
-
-
- 
-data[0](); // 3, but not 0
-data[1](); // 3, but not 1
-data[2](); // 3, but not 2
-
-
-
-The reason why <tt>alert(b)</tt> failed is because as far as ECMAScript is concerned <tt>b</tt> is not a variable.
-
-h1. Alawys declare global properties using window .
-
-If you really want to create a global variable called foo the don't do this.
-
-<pre>
-foo = 'I am global';
-</pre>
-
-When I look at that code, I'm never sure if the developer accidentally missed adding a <tt>var</tt> . To make it clear to the users that you meant to delcare a global variable do this.
-
-<pre>
-window.foo = 'I am global';
-</pre>
-
-
-
-<pre>
 function funky(o) {
   o = null;
 }
