@@ -1,6 +1,7 @@
 ---
 layout: post
 title: JavaScript fundamentals quiz answer
+published: false
 ---
 
 Last week I posted a "JavaScript fundamentals quiz":http:// . In this blog I will answer those questions. However first lets go through some JavaScript fundamentals.

@@ -45,15 +45,13 @@ h2. A quick solution
 
 One solution to this problem is to use <tt>puts</tt> but if you are debugging something on server then those messages would not appear on log. If you use <tt>Rails.logger</tt> then those messages would not appear on your console. A quick solution is to show all the existing messages from the log file at the end of initialization process.
 
-I added following file as a initializer and its working fine.
+Add following code in an initializer and you will see log messages from initializers and plugins.
 
 <pre>
 # ~/config/initializers/zzz_log_output_to_console.rb
-if Rails.env.development?
-  File.open(Rails.root.join('log', 'development.log'), "r") do |logfile|
-    while (line = logfile.gets)
-      puts line
-    end
+File.open(Rails.root.join('log', 'development.log'), "r") do |logfile|
+  while (line = logfile.gets)
+    puts line
   end
 end
 </pre>

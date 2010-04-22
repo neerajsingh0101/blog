@@ -1,6 +1,7 @@
 ---
 layout: post
 title: JavaScript fundamentals quiz
+published: false
 ---
 
 JavaScript has many quirks and one can create a number of quizzes based on those quirks. Following sets of quizzes will not test your understanding of those quirks. Rather these questions will test your understanding of fundamental JavaScript. Here we go.
