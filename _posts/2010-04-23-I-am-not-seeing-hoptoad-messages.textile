@@ -1,0 +1,123 @@
+---
+layout: post
+title: I am not seeing hoptoad messages. Now I know why.
+---
+
+_Following code has been tested with Rails 2.3.5 ._
+
+Every one knows for sure that hoptoad notifier sends exception messages to server in *production* environment. Between 'development' and 'production' there could be a number of environments. Some of these would have settings closer to 'development' environment and some would have setting closely matching the settings of 'production' environment.
+
+When you have many environments and when an exception occurrs, one is not really sure if that message is getting logged at hoptoad or not. Here is a run down of which messages will get logged and why.
+
+h2. It alls starts with rails
+
+When an exception occurs while rendering a page then <tt>action_controller</tt> catches the exception.  Following logic is evaluated to decide if user should see an error page with full stack trace or 'we are sorry something went wrong' message. 
+
+<pre>
+if consider_all_requests_local || local_request?
+  rescue_action_locally(exception)
+else
+  rescue_action_in_public(exception)
+end
+</pre>
+
+Let's look at first part <tt>consider_all_requests_local</tt> . Open <tt>~/config/environments/development.rb</tt> and <tt>~/config/environemtns/production.rb</tt> .
+
+<pre>
+# ~/config/environments/development.rb
+config.action_controller.consider_all_requests_local = true
+
+# ~/config/environments/production.rb
+config.action_controller.consider_all_requests_local = false
+</pre>
+
+As you can see in development mode all requests are local. Be careful with what you put in your intermediary environments. 
+
+If you want to override that value then you can do like this.
+
+<pre>
+#~/app/contollers/application_controller.rb
+ActionController::Base.consider_all_requests_local = true
+</pre>
+
+The second part of the equation was <tt>local_request?</tt> . 
+
+Rails has following code for that method.
+
+<pre>
+LOCALHOST = '127.0.0.1'.freeze
+
+def local_request?
+  request.remote_addr == LOCALHOST && request.remote_ip == LOCALHOST
+end
+</pre>
+
+As you can see all requests coming from <tt>127.0.0.1</tt> are considered local even if RAILS_ENV is 'production'. For testing purpose you can override this value like this.
+
+<pre>
+#~/app/contollers/application_controller.rb
+def local_request?
+ false
+end
+</pre>
+
+h2. Hoptoad has access to exception now what
+
+If <tt>consider_all_request_local</tt> is false and if request is not local then hoptoad will get access to exception thanks to <tt>alias_method_chain</tt>.
+
+<pre>
+def self.included(base)
+  base.send(:alias_method, :rescue_action_in_public_without_hoptoad, :rescue_action_in_public)
+  base.send(:alias_method, :rescue_action_in_public, :rescue_action_in_public_with_hoptoad)
+end
+</pre>
+
+In <tt>rescue_action_in_public_with_hoptoad</tt> there is a call to <tt>notify_or_ignore</tt> like this.
+
+<pre>
+unless hoptoad_ignore_user_agent?
+  HoptoadNotifier.notify_or_ignore(exception, hoptoad_request_data)
+end
+</pre>
+
+For majority of us there is no special handling for a particular <tt>user_agent</tt> . 
+
+<pre>
+def notify_or_ignore(exception, opts = {})
+  notice = build_notice_for(exception, opts)
+  send_notice(notice) unless notice.ignore?
+end
+</pre>
+
+Hoptoad defines following methods as ignorable by default and you won't get notifications for following types of exceptions.
+
+<pre>
+IGNORE_DEFAULT = ['ActiveRecord::RecordNotFound',
+                   'ActionController::RoutingError',
+                   'ActionController::InvalidAuthenticityToken',
+                   'CGI::Session::CookieStore::TamperedWithCookie',
+                   'ActionController::UnknownAction']
+
+</pre>
+
+Next hop is method <tt>send_notice</tt> .
+
+<pre>
+def send_notice(notice)
+  if configuration.public?
+    sender.send_to_hoptoad(notice.to_xml)
+  end
+end
+</pre>
+
+<tt>configuration.public?</tt> is defined like this.
+
+<pre>
+@development_environments = %w(development test cucumber)
+def public?
+  !development_environments.include?(environment_name)
+end
+</pre>
+
+As you can see if the <tt>Rails.env</tt> is <tt>development</tt> or <tt>test</tt> or <tt>cucumber</tt> the exception will not be reported to hoptoad server.
+
