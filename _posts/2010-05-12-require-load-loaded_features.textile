@@ -1,0 +1,87 @@
+---
+layout: post
+title: $LOADED_FEATURES and require, load, require_dependency 
+---
+
+Rails developers know that in development mode classes are loaded on demand. In production mode all the classes are loaded as part of bootstrapping the system. Also in development mode classes are reloaded every single time page is refreshed.
+
+In order to reload the class, Rails first has to <tt>unload</tt> . That unloading is done something like this.
+
+<pre>
+# unload User class
+Objet.send(:remove_const, :User)
+</pre>
+
+However a class might have other constants and they need to be unloaded too. Before you unload those constants you need to know all the constants that are defined in the class that is being loaded. Long story short rails keep track of every single constant that is loaded when it loads <tt>User</tt> or <tt>UserController</tt>.
+
+h2. Dependecy mechanism is not perfect
+
+Sometimes dependecy mechanism by rails lets a few things fall through the crack. Try following case.
+
+<pre>
+require 'open-uri'
+class UsersController < ApplicationController
+  def index
+    open("http://www.ruby-lang.org/") {|f| }
+    render :text => 'hello'
+  end
+end
+</pre>
+
+Start the server in development mode and visit <tt>http://localhost:3000/users</tt> . First time every thing will come up fine. Now refresh the page. This time you should get an exception <tt>uninitialized constant OpenURI</tt> .
+
+So what's going on. 
+
+After the page is served the very first time then at the end of response rails will unload all the constants that were autoloaded including <tt>UsersController</tt>. However while unloading <tt>UsersContorller</tt> rails will also unload <tt>OpenURI</tt>. 
+
+When the page is refreshed then <tt>UsersController</tt> will be loaded and <tt>require 'open-uri'</tt> will be called. However that require will return <tt>false</tt>. 
+
+h2. Why require returns false
+
+Try the following test case in irb.
+
+<pre>
+# step 1
+irb(main):002:0> require 'ostruct'
+=> true
+
+#step 2
+irb(main):005:0* Object.send(:remove_const, :OpenStruct)
+=> OpenStruct
+
+# step 3
+# ensure that OpenStruct is truly removed
+irb(main):006:0> Object.send(:remove_const, :OpenStruct)
+NameError: constant Object::OpenStruct not defined
+        from (irb):6:in `remove_const'
+        from (irb):6:in `send'
+        from (irb):6
+
+# step 4
+irb(main):007:0> require 'ostruct'
+=> false
+
+# step 5
+irb(main):009:0> OpenStruct.new
+NameError: uninitialized constant OpenStruct
+        from (irb):9
+
+</pre>
+
+Notice that in the above case in step 4 require returns <tt>false</tt>. 'require' checks against <tt>$LOADED_FEATURES</tt>. When <tt>OpenStruct</tt> was removed then it was not removed from <tt>$LOADED_FEATURES</tt> and hence ruby thought <tt>ostruct</tt> is already loaded.
+
+How to get around to this issue.
+
+<tt>require</tt> loads only once. However <tt>load</tt> loads every single time. In stead of 'require', 'load' could be used in this case.
+
+<pre>
+irb(main):001:0> load 'ostruct.rb'
+=> true
+
+irb(main):002:0> OpenStruct.new
+=> #<OpenStruct>
+</pre>
+
+h2. Back to the original problem
+
+In our rails application refresh of the page is failing. To get around to that issue use <tt>require_dependency</tt> instead of <tt>require</tt>. <tt>require_dependency</tt> is a rails thing. Under the hood rails does the same trick we did in the previous step. Rails calls <tt>kernel.load</tt> to load the constants that would fail if require were used.
