@@ -1,0 +1,56 @@
+---
+layout: post
+title: Multi level STI in development mode
+---
+
+If you are in development mode and if you have multi level STI then you might get unexpected result.
+
+<pre>
+class CreateUser < ActiveRecord::Migration
+  def self.up
+    create_table :users do |t|
+      t.string :name
+      t.string :type
+    end
+  end
+  def self.down
+    drop_table :users
+  end
+end
+
+class User < ActiveRecord::Base
+end
+
+class Agent < User
+end
+
+class SuperAgent < Agent
+end
+</pre>
+
+Now in console try this.
+
+<pre>
+> Agent.find_by_name 'agent'
+SELECT "users".* FROM "users" WHERE ("users"."type" = 'Agent') 
+AND ("users"."name" = 'agent') LIMIT 1
+
+> SuperAgent # just load this class
+> Agent.find_by_name 'agent'
+SELECT "users".* FROM "users" WHERE (("users"."type" = 'Agent' OR 
+"users"."type" = 'SuperAgent')) AND ("users"."name" = 'agent') LIMIT 1
+</pre>
+
+Notice that when SuperAgent is loaded then the generated sql query is different from the query generated when SuperAgent was not loaded. Since in development all the classes are loaded lazily you might get the first sql query. For the same code in production you will get second sql query.
+
+h1. Solution
+
+There are many solutions. However I think it is best to let others know that if first level of STI is loaded then load all subclassess too. That can be done like this.
+
+<pre>
+class Agent < User
+end
+require_dependecy 'super_agent'
+</pre>
+
+Source: "rails core discussion posted by me":http://groups.google.com/group/rubyonrails-core/browse_thread/thread/465c6e08ec3a78f3/7bc32b7430cef10f?show_docid=7bc32b7430cef10f
