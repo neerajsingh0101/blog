@@ -1,0 +1,118 @@
+---
+layout: post
+title: instance_exec , changing self and params
+---
+
+Following code will print <tt>99</tt> as the output.
+
+<pre>
+class Klass
+  def initialize
+    @secret = 99
+  end
+end
+puts Klass.new.instance_eval { @secret }
+</pre>
+
+Nothing great there. However try passing a paramter to <tt>instance_eval</tt> .
+
+<pre>
+puts Klass.new.instance_eval(self) { @secret }
+</pre>
+
+You will get following error.
+
+<pre>
+wrong number of arguments (1 for 0)
+</pre>
+
+So <tt>instance_eval</tt> does not allow you to pass parameters to a block. 
+
+h2. How to get around to the restriction that instance_eval does not accept parameters
+
+<tt>instance_exec</tt> was added to ruby 1.9 and it allows you to pass parameters to a proc. This feature has been backported to ruby 1.8.7 so we don't really need ruby 1.9 to test this feature. Try this.
+
+<pre>
+class Klass
+  def initialize
+    @secret = 99
+  end
+end
+puts Klass.new.instance_exec('secret') { |t| eval"@#{t}" }
+</pre>
+
+Above code works. So now we can pass parameters to block. Good.
+
+h2. Changing value of self
+
+Another feature of <tt>instance_exec</tt> is that it changes the value of <tt>self</tt>. To illustrate that I need to give a longer example. 
+
+<pre>
+module Kernel
+  def singleton_class
+    class << self
+      self
+    end
+  end
+end
+
+class Human
+  proc = lambda { puts 'proc says my class is ' + self.name.to_s }
+
+  singleton_class.instance_eval do
+    define_method(:lab)  do 
+      proc.call
+    end
+  end
+end
+
+class Developer < Human
+end
+
+Human.lab # class is Human
+Developer.lab # class is Human ; oops
+</pre>
+
+Notice that in that above case <tt>Developer.lab</tt> says "Human". And that is the right answer from ruby perspective. However that is not what I intended. ruby stores the binding of the proc in the context it was created and hence it rightly reports that self is "Human" even though it is being called by <tt>Developer</tt>.
+
+Go to "http://facets.rubyforge.org/apidoc/api/core/index.html":http://facets.rubyforge.org/apidoc/api/core/index.html and look for <tt>instance_exec</tt> method. The doc says 
+
+<blockquote>
+Evaluate the block with the given arguments within the context of this object, so self is set to the method receiver.
+</blockquote>
+
+It means that <tt>instance_exec</tt> evaluates self in a new context. Now try the same code with <tt>instance_exec</tt> .
+
+<pre>
+module Kernel
+  def singleton_class
+    class << self
+      self
+    end
+  end
+end
+
+class Human
+  proc = lambda { puts 'proc says my class is ' + self.name.to_s }
+
+  singleton_class.instance_eval do
+    define_method(:lab)  do 
+      self.instance_exec &proc
+    end
+  end
+end
+
+class Developer < Human
+end
+
+Human.lab # class is Human
+Developer.lab # class is Developer
+</pre>
+
+In this case <tt>Developer.lab</tt> says <tt>Developer</tt> and not <tt>Human</tt>. 
+
+You can also checkout "this page":http://eigenclass.org/hiki.rb?instance_exec#f01 which has much more detailed explanation of <tt>instance_exec</tt> and also emphasizes that <tt>instance_exec</tt> does pass a new value of <tt>self</tt> .
+
+<tt>instance_exec</tt> is so useful that <tt>ActiveSupport</tt> needs it. And since ruby 1.8.6 does not have it <tt>ActiveSupport</tt> has code to support it.
+
+I came across <tt>instance_exec</tt> issue while resolving "#4507 rails ticket":https://rails.lighthouseapp.com/projects/8994/tickets/4507 . The final solution did not need <tt>instance_exec</tt> but I learned a bit about it.
