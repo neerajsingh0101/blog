@@ -1,0 +1,404 @@
+---
+layout: post
+title: instance_exec , changing self and params
+published: false
+---
+
+Sometimes back Yehuda posted "two":http://yehudakatz.com/2009/01/16/status-update-a-fresh-look-at-callbacks/ "articles":http://yehudakatz.com/2009/01/26/callbacks-redux/#comments about how <tt>ActiveSupport::Callbacks</tt> are changing in rails3. I totally ignored those articles because who cared about rails3 in Jan 2009. Well now I do. I want to know what Yehuda means when he says that all the before filters are compiled and yields faster result. Here is what I found.
+
+h3. Simple case
+
+<pre>
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate
+  set_callback :validate, :before, :check_everything
+  def check_everything
+    puts 'checking'
+  end 
+end
+</pre>
+
+Internally the callbacks are compiled and they are stored like this.
+
+<pre>
+value = nil
+halted = false
+              unless halted
+                result = check_everything
+                halted = (false)
+              end
+
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+</pre>
+
+h3. Another example with two callbacks
+
+<pre>
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate
+  set_callback :validate, :before, :check_everything1
+  set_callback :validate, :before, :check_everything2
+  def check_everything1; puts 'checking1'; end
+  def check_everything2; puts 'checking2'; end
+end
+</pre>
+
+The compiled method looks like
+
+<pre>
+value = nil
+halted = false
+              unless halted
+                result = check_everything1
+                halted = (false)
+              end
+
+              unless halted
+                result = check_everything2
+                halted = (false)
+              end
+
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+</pre>
+
+h3. Use prepend option to put your callback at the top
+
+<pre>
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate
+  set_callback :validate, :before, :check_everything1
+  set_callback :validate, :before, :check_everything2, :prepend => true
+  def check_everything1; puts 'checking1'; end
+  def check_everything2; puts 'checking2'; end
+end
+</pre>
+
+The compiled method looks like
+
+<pre>
+value = nil
+halted = false
+              unless halted
+                result = check_everything2
+                halted = (false)
+              end
+
+              unless halted
+                result = check_everything1
+                halted = (false)
+              end
+
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+</pre>
+
+h3. Use terminator option if you want callbacks to halt if one of them returns false
+
+<pre>
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate, :terminator => "result == false"
+  set_callback :validate, :before, :check_everything1
+  set_callback :validate, :before, :check_everything2, :prepend => true
+  def check_everything1; puts 'checking1'; end
+  def check_everything2; puts 'checking2'; end
+end
+</pre>
+
+The compiled method looks like
+
+<pre>
+value = nil
+halted = false
+              unless halted
+                result = check_everything2
+                halted = (result == false)
+              end
+
+              unless halted
+                result = check_everything1
+                halted = (result == false)
+              end
+
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+</pre>
+
+As you can see the expression that is being evaluated is <tt>result == false</tt>. It means a callback must return false to halt the chain. If the callback returns nil then chain will not be halted.
+
+h2. Adding condition to the callback
+
+<pre>
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate, :terminator => "result == false"
+  set_callback :validate, :before, :check_everything1, :if => " 10 > 6"
+  set_callback :validate, :before, :check_everything2, :prepend => true
+  def check_everything1; puts 'checking1'; end
+  def check_everything2; puts 'checking2'; end
+end
+</pre>
+
+The compiled method looks like
+
+<pre>
+value = nil
+halted = false
+              unless halted
+                result = check_everything2
+                halted = (result == false)
+              end
+
+if ( 10 > 6)
+              unless halted
+                result = check_everything1
+                halted = (result == false)
+              end
+
+end
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+</pre>
+
+h2. Callbacks are also applied on subclasses. If a subclass wants to skip_callback then use skip_callback
+
+<pre>
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate, :terminator => "result == false"
+  set_callback :validate, :before, :check_everything1, :if => " 10 > 6"
+  set_callback :validate, :before, :check_everything2, :prepend => true
+
+  def check_everything1; puts 'checking1'; end
+  def check_everything2; puts 'checking2'; end
+end
+
+class Person < User
+  skip_callback :validate, :before, :check_everything1
+end
+</pre>
+
+The compiled method for Person looks like
+
+<pre>
+value = nil
+halted = false
+              unless halted
+                result = check_everything2
+                halted = (result == false)
+              end
+
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+</pre>
+
+Notice that method <tt>check_everything1</tt> is not present in the compiled version.
+
+h2. Condition supplied to subclass skip_callback is also used
+
+<pre>
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate, :terminator => "result == false"
+  set_callback :validate, :before, :check_everything1, :if => " 10 > 6"
+  set_callback :validate, :before, :check_everything2, :prepend => true
+
+  def check_everything1; puts 'checking1'; end
+  def check_everything2; puts 'checking2'; end
+end
+
+class Person < User
+  skip_callback :validate, :before, :check_everything1, :if => '100 > 60'
+end
+</pre>
+
+<pre>
+value = nil
+halted = false
+              unless halted
+                result = check_everything2
+                halted = (result == false)
+              end
+
+if ( 10 > 6) && !(100 > 60)
+              unless halted
+                result = check_everything1
+                halted = (result == false)
+              end
+
+end
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+</pre>
+
+h2. If a proc is used as target then compiled method has a reference to method call
+
+<pre>
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate, :terminator => "result == false"
+  set_callback :validate, :before, lambda {puts 'done'}
+end
+</pre>
+
+Compiled method
+
+<pre>
+value = nil
+halted = false
+              unless halted
+                result = _callback_before_7
+                halted = (result == false)
+              end
+
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+</pre>
+
+_callback_before_7 is a dynamically created method that does nothing else
+but invokes the proc.
+
+
+h2. more stuff
+
+
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate, :terminator => "result == false"
+  
+  set_callback :validate, :before, :index , :per_key => { :if =>  lambda {self.class.name == 'User'} }
+  set_callback :validate, :before, :edit , :per_key => { :if =>  lambda {self.class.name != 'User'} }
+
+  def self.lab
+    User.new.send(:_run_validate_callbacks, :index)
+  end
+
+  def is_current_method_index
+    self.current_method == 'index'
+  end
+
+  def is_current_method_edit
+    self.current_method == 'edit'
+  end
+
+  def index
+    puts 'i_am_index'
+  end
+  def edit
+    puts 'i_am_edit'
+  end
+
+  def self.lab
+    u = User.new
+    #u.send(:_run_validate_callbacks)
+    u.send(:_run_validate_callbacks, :index)
+  end
+
+  def self.lab2
+    u = User.new
+    u.send(:_run_validate_callbacks, :edit)
+  end
+
+end
+
+=begin
+
+In this case after User.lab is executed a new method is created . 
+_run__1457018200__validate__91068__callbacks. loosely translated the method name is something like
+_run__user__validate__index_callbacks. And the content of this method is
+value = nil
+halted = false
+              unless halted
+                result = index
+                halted = (result == false)
+              end
+
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+
+As you can see this new method just calles index. That's it. No check for is_current_method_index or edit. 
+
+Similaryly the output for User.lab2 is
+value = nil
+halted = false
+              unless halted
+                result = edit
+                halted = (result == false)
+              end
+
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)&&&&&
+i_am_edit
+name is _run__1457018200__validate__437148__callbacks
+
+
+
+
+  
+
+********************************************************************
+class User
+  include ActiveSupport::Callbacks
+  define_callbacks :validate, :terminator => "result == false"
+  attr_accessor :current_method
+  
+  set_callback :validate, :before, :index , :if => :is_current_method_index
+  set_callback :validate, :before, :edit , :if => :is_current_method_edit
+
+  def self.lab
+    User.new.send(:_run_validate_callbacks, :index)
+  end
+
+  def is_current_method_index
+    self.current_method == 'index'
+  end
+
+  def is_current_method_edit
+    self.current_method == 'edit'
+  end
+
+  def index
+    puts 'i_am_index'
+  end
+  def edit
+    puts 'i_am_edit'
+  end
+
+  def self.lab
+    u = User.new
+    u.current_method = 'index'
+    u.send(:_run_validate_callbacks)
+  end
+
+  def self.lab2
+    u = User.new
+    u.current_method = 'edit'
+    u.send(:_run_validate_callbacks)
+  end
+
+end
+value = nil
+halted = false
+if is_current_method_index
+              unless halted
+                result = index
+                halted = (result == false)
+              end
+
+end
+if is_current_method_edit
+              unless halted
+                result = edit
+                halted = (result == false)
+              end
+
+end
+value = yield if block_given? && !halted
+halted ? false : (block_given? ? value : true)
+
+
