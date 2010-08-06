@@ -402,3 +402,5 @@ value = yield if block_given? && !halted
 halted ? false : (block_given? ? value : true)
 
 
+
+if key is passed then only the very first time options (:if/unless) is evaluated. After that evaluation a compiled method is created and that method is invoked every single time henceforth. The options(:if) is not evaluated after that. So be sure that you conditions do not change over time or your conditions are not function of things that might change in future.
