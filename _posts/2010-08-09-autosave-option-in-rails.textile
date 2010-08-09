@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Do not forget autosave
+title: autosave option in rails
 ---
 
 The documentation for <tt>has_many</tt> for <tt>autosave</tt> option says:
