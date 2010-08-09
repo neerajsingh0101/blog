@@ -77,7 +77,8 @@ tt {
 
 #menu {
   float: right;
-  margin-left: 300px;
+  margin-left: 250px;
+  width: 400px;
 }
 
 #menu ul {
