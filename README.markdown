@@ -3,3 +3,5 @@
 * jekyll --server
 
 * rake deploy to push new content to server 
+
+* published: false to not to publish an article instantly
