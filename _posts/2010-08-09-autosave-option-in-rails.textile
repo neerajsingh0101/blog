@@ -1,0 +1,232 @@
+---
+layout: post
+title: Do not forget autosave
+---
+
+The documentation for <tt>has_many</tt> for <tt>autosave</tt> option says:
+
+<blockquote>
+ [:autosave]
+      #   If true, always save the associated objects or destroy them if marked for destruction, 
+      #   when saving the parent object.
+      #   If false, never save or destroy the associated objects.
+      #   By default, only save associated objects that are new records.
+</blockquote>
+
+That's not very clear. Let's jump into code to see where <tt>autosave</tt> makes a difference.
+
+h3. has_many association
+
+I have a simple <tt>has_many</tt> association.
+
+<pre>
+create_table :cars, :force => true do |t|
+  t.string :name
+end
+create_table :brakes, :force => true do |t|
+  t.string :name
+  t.integer :car_id
+end
+
+class Car < ActiveRecord::Base
+  has_many :brakes
+end
+</pre>
+
+h3. with no autosave
+
+Given below are x cases where <tt>autosave</tt> is not declared.
+
+<pre>
+class Car < ActiveRecord::Base
+  has_many :brakes
+
+  def self.lab
+    car = Car.new(:name => 'honda')
+    car.brakes.build(:name => 'b1')
+    car.save
+    car.reload
+    puts car.brakes.inspect #=> [#<Brake id: 25, name: "b1", car_id: 23>]
+  end
+end
+</pre>
+
+<pre>
+class Car < ActiveRecord::Base
+  has_many :brakes#, :autosave => true
+
+  def self.lab
+    car = Car.create(:name => 'honda')
+    car.brakes.build(:name => 'b1')
+    car.save
+    car.reload
+    puts car.brakes.inspect #=> [#<Brake id: 26, name: "b1", car_id: 24>] 
+  end
+end
+</pre>
+
+<pre>
+class Car < ActiveRecord::Base
+  has_many :brakes#, :autosave => true
+
+  def self.lab
+    car = Car.create(:name => 'honda')
+    car.brakes.create(:name => 'b1')
+    car.save
+    car.reload
+    puts car.brakes.inspect #=> [#<Brake id: 27, name: "b1", car_id: 25>]
+  end
+end
+</pre>
+
+I am not sure what new record, the doc was referring to. Here I have three different examples of parent and child combination and in all of three cases everything works as expected without <tt>autosave</tt> option declaration.
+
+h3. with_autosave option
+
+If I try to manipulate an in memory association object then that works only with autosave option. Here is an example.
+
+<pre>
+class Car < ActiveRecord::Base
+  has_many :brakes, :autosave => true
+
+  def self.lab
+    car = Car.create(:name => 'honda')
+    car.brakes.create(:name => 'b1')
+    car.save
+    car.reload
+    car.brakes[0].name = 'b2'
+    car.save
+    car.reload
+    puts car.brakes.inspect #=> [#<Brake id: 27, name: "b2", car_id: 25>]
+  end
+end
+</pre>
+
+In the above code I am manipulating the in-memory instance of brakes. And that works only with <tt>autosave</tt> turned on. In the above code if I do not declare <tt>autosave</tt> option then the final result will have <tt>b1</tt> instead of <tt>b2</tt>.
+
+So it is clear that if you are manipulating in-memory instance of associated record then use <tt>autosave</tt> option.
+
+h3. Wait there is more fun with validation
+
+Now I am going to add validation that brake must have name. First let's try with <tt>autosave</tt> turned on.
+
+<pre>
+class Brake < ActiveRecord::Base
+  belongs_to :car
+  validates_presence_of :name
+end
+
+class Car < ActiveRecord::Base
+  has_many :brakes, :autosave => true
+
+  def self.lab
+    car = Car.create(:name => 'honda')
+    car.brakes.create(:name => nil)
+    car.save
+    car.reload
+    puts car.brakes.inspect #=> []
+  end
+end
+</pre>
+
+Final result is empty because I did not pass <tt>name</tt> for brake. All is good. Let's check if I get any error message.
+
+<pre>
+class Brake < ActiveRecord::Base
+  belongs_to :car
+  validates_presence_of :name
+end
+
+class Car < ActiveRecord::Base
+  has_many :brakes, :autosave => true
+
+  def self.lab
+    car = Car.create(:name => 'honda')
+    car.brakes.create(:name => nil)
+    car.save
+    car.reload
+    puts car.brakes.inspect #=> []
+    puts car.errors.full_messages.inspect #=> ["Brakes name can't be blank"]
+  end
+end
+</pre>
+
+We got the error message. Everything looks great.
+
+h3. Now let's try validation without any autosave declaration
+
+<pre>
+class Brake < ActiveRecord::Base
+  belongs_to :car
+  validates_presence_of :name
+end
+
+class Car < ActiveRecord::Base
+  has_many :brakes
+
+  def self.lab
+    car = Car.create(:name => 'honda')
+    car.brakes.create(:name => nil)
+    car.save
+    car.reload
+    puts car.brakes.inspect #=> 
+    puts car.errors.full_messages.inspect #=> ["Brakes is invalid"]
+  end
+end
+</pre>
+
+The error message is slightly different but other than that everything else looks good.
+
+When I introduce validation error then in both the cases (with autosave and without autosave) the full transaction is rolledback. It mean no change occurrs in parent if any child has validation error. So far so good.
+
+h3. In has_one association things are not consistent
+
+I have a <tt>has_one</tt> association here.
+
+<pre>
+class Capital < ActiveRecord::Base
+  belongs_to :state
+  validates_presence_of :name
+end
+
+class Country < ActiveRecord::Base
+  has_one :capital
+
+  def self.lab
+    country = Country.new(:name => 'india')
+    country.build_capital(:name => nil)
+    country.save
+    puts country.inspect #=> #<Country id: 41, name: "india">
+    puts country.errors.full_messages.inspect #=> []
+  end
+end
+</pre>
+
+<pre>
+class Capital < ActiveRecord::Base
+  belongs_to :state
+  validates_presence_of :name
+end
+
+
+class Country < ActiveRecord::Base
+  has_one :capital, :autosave => true
+
+  def self.lab
+    country = Country.new(:name => 'india')
+    country.build_capital(:name => nil)
+    country.save
+    puts country.inspect #=> #<Country id: nil, name: "india">
+    puts country.errors.full_messages.inspect #=> ["Capital name can't be blank"]
+  end
+end
+</pre>
+
+Notice that with <tt>has_one</tt> association if the child record fails with validation error then parent record is not saved if <tt>autosave</tt> is used. If <tt>autosave</tt> is not declared then parent record gets saved and child record does not get saved. Also there is no error message.
+
+This is in contradiction with the behavior exhibited with <tt>has_many</tt> association.
+
+h3. autosave option
+
+Before I venture to fix the bug , I guess I will have to ask the core team what it means to have <tt>autosave</tt> option. At time time I am not sure whether <tt>has_one</tt> or <tt>has_many</tt> is exhibiting the right behavior with autosave.
+
