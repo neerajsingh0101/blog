@@ -7,10 +7,10 @@ The documentation for <tt>has_many</tt> for <tt>autosave</tt> option says:
 
 <blockquote>
  [:autosave]
-      #   If true, always save the associated objects or destroy them if marked for destruction, 
-      #   when saving the parent object.
-      #   If false, never save or destroy the associated objects.
-      #   By default, only save associated objects that are new records.
+         If true, always save the associated objects or destroy them if marked for destruction, 
+         when saving the parent object.
+         If false, never save or destroy the associated objects.
+         By default, only save associated objects that are new records.
 </blockquote>
 
 That's not very clear. Let's jump into code to see where <tt>autosave</tt> makes a difference.
