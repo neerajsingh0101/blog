@@ -226,6 +226,8 @@ Notice that with <tt>has_one</tt> association if the child record fails with val
 
 This is in contradiction with the behavior exhibited with <tt>has_many</tt> association.
 
+Besides this issue I found that even in <tt>has_one</tt> association <tt>autosave</tt> helps save in-memory association change. Otherwise if there are no validation issue then <tt>autosave</tt> declaration and not declaration of <tt>autosave</tt> behave same.
+
 h3. autosave option
 
 Before I venture to fix the bug , I guess I will have to ask the core team what it means to have <tt>autosave</tt> option. At time time I am not sure whether <tt>has_one</tt> or <tt>has_many</tt> is exhibiting the right behavior with autosave.
