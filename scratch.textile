@@ -51,3 +51,11 @@ h2. Answer 1
 
 Scope is saved at function creation time. Scope property is already written and stored in function object.
 
+var num = 1;
+
+(function () {
+    // try to set a default
+    var num = num || 0;
+    console.log(num);
+})();
+
