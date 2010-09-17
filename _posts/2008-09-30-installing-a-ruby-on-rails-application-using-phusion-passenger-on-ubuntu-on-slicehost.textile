@@ -12,7 +12,6 @@ There are a number of automated scripts out there which will make it easier to s
 * "Install apache and MySQL on slicehost":http://neeraj.name/2008/12/30/installing-apache-and-mysql-on-slicehost.html
 * "Setup DNS":http://neeraj.name/2008/12/30/dns-settings-on-slicehost.html
 * "Make the slice secure":http://neeraj.name/2008/12/30/marking-the-slicehost-slice-secure.html
-* "Install phusion passenger":
 * "Setup up FTP server":http://neeraj.name/2008/12/30/setting-up-ftp-server-on-slicehost.html
 * "Setup capistrano to deploy application on slice":http://neeraj.name/2008/12/30/using-capistrano-to-deploy-an-application-from-github-to-slicehost-slice.html
 * "send compressed data":http://www.neeraj.name/2009/08/27/enabling-gzip-on-apache-to-send-compressed-data.html
