@@ -309,3 +309,7 @@ font-size:15px;
 margin:20px;
 padding:10px;
 }
+
+#open_source_work h2 {
+  text-decoration: none;
+}
