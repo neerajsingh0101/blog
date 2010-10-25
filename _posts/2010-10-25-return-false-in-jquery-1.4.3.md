@@ -91,3 +91,35 @@ So in jquery 1.4.3 <tt>e.stopImmediatePropagation</tt> is not called. Checkout t
     }
 
 As you can see when <tt>return false</tt> is invoked then <tt>e.stopImmediatePropagation</tt> is <strong>not</strong> called.
+
+I tried to find which commit made this change but I could not go far because of [this issue](http://github.com/jeresig/sizzle/commit/852d3d0a60de709e83b65ddb54e6a095498ad1a8#commitcomment-174932).
+
+
+#It gets complicated with live and a bug in jQuery 1.4.3#
+
+To make the case complicated, jQuery 1.4.3 has a bug in which <tt>e.preventStopImmediatePropagation</tt> doest not work. Here is [a link to this bug](http://forum.jquery.com/topic/e-stopimmedidatepropagation-does-not-work-with-live-or-with-delegate) I reported.
+
+To understand the bug take a look at following code:
+
+    <a href='' class='first'>click me</a>
+
+    $('a.first').live('click', function(e){
+        alert('hello');
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    });
+      
+    $('a.first').live('click', function(){
+        alert('world');
+    });
+     
+
+Since I am invoking <tt>e.stopImmediatePropagation</tt> I should never see <tt>alert world</tt>. However you will see that alert. You can play with it [here](http://jsbin.com/ujipi4/3#html) .
+
+This bug has been fixed as per [this commit](http://github.com/jquery/jquery/commit/974b5aeab7a3788ff5fb9db87b9567784e0249fc) . Note that the commit mentioned was done after the release of jQuery 1.4.3. To get the fix you will have to wait for jQuery 1.4.4 release or use jQuery edge.
+
+#I am using rails.js (jquery-ujs)#
+
+As I have shown "return false" does not work in jQuery 1.4.3 . However I would have to like have as much backward compatibility in <tt>jquery-ujs</tt> as much possible so that the same code base works with jQuery 1.4 through 1.4.3 since not every one upgrades immediately.
+
+[This commit](http://github.com/rails/jquery-ujs/commit/f991faf0074487b43a061168cdbfd102ee0c182c) should make <tt>jquery-ujs</tt> jquery 1.4.3 compatible. [Many issues](http://github.com/rails/jquery-ujs/issues) have been logged at jquery-ujs and I will take a look at all of them one by one. Pleaes do provide your feedback.
