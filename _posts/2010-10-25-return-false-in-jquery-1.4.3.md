@@ -1,11 +1,11 @@
 ---
 layout: post
-title: return false has changed in jquery 1.4.3
+title: Return false has changed in jquery 1.4.3
 ---
 
 jQuery 1.4.3 was recently [released](http://blog.jquery.com/2010/10/16/jquery-143-released/). If you upgrade to jQuery 1.4.3 you will notice that the behavior of "return false" has changed in this version. First let's see what "return false" does.
 
-# return false #
+## return false ##
 
     $('a').click(function(){
       console.log('clicked'); 
@@ -17,7 +17,7 @@ I will ensure that above code is executed on domready. Now if I click on any lin
 * e.preventDefault() will be called .
 * e.stopPropagation() will be called .
 
-# e.preventDefault() #
+## e.preventDefault() ##
 
 As the name suggets, calling <tt>e.preventDefault()</tt> will make sure that the default beahvior is not executed.
 
@@ -25,7 +25,7 @@ As the name suggets, calling <tt>e.preventDefault()</tt> will make sure that the
 
 If above link is clicked then the default behavior of the browser is to take you to <tt>www.google.com</tt>. However by invoking <tt>e.preventDefault()</tt> browser will not go ahead with default behavior and I will <strong>not</strong> be taken to <tt>www.google.com</tt>.
 
-# e.stopPropagation #
+## e.stopPropagation ##
 
 When a link is clicked then a "click event" is created. And this event bubbles all the way up to the top. By invoking <tt>e.stopPropagation</tt> I am asking browser to not propagate the event. In other words the event will stop bubbling.
 
@@ -37,7 +37,7 @@ When a link is clicked then a "click event" is created. And this event bubbles a
 
 If I click on "click me" then "click event" will start bubbling. Now let's say that I catch this event at <tt>.two</tt> and if I call <tt>e.stopPropagation()</tt> then this event will never reach to <tt>.first</tt> .
 
-# e.stopImmediatePropagation #
+## e.stopImmediatePropagation ##
 
 First note that you can bind more than one event to an element. Take a look at following case.
 
@@ -68,7 +68,7 @@ Once again calling <tt>stopPropagation</tt> means stop this event going to paren
 
 If you are interested [here is link to ](http://www.w3.org/TR/2006/WD-DOM-Level-3-Events-20060413/events.html#Events-Event-stopImmediatePropagation) DOM Level 3 Events sepc.
 
-#Back to original problem#
+##Back to original problem##
 
 Now that I have described what <tt>preventDefault</tt>, <tt>stopPropagation</tt> and <tt>stopImmeidatePropagation</tt> does what changed in jQuery 1.4.3.
 
@@ -97,7 +97,7 @@ As you can see when <tt>return false</tt> is invoked then <tt>e.stopImmediatePro
 I tried to find which commit made this change but I could not go far because of [this issue](http://github.com/jeresig/sizzle/commit/852d3d0a60de709e83b65ddb54e6a095498ad1a8#commitcomment-174932).
 
 
-#It gets complicated with live and a bug in jQuery 1.4.3#
+##It gets complicated with live and a bug in jQuery 1.4.3##
 
 To make the case complicated, jQuery 1.4.3 has a bug in which <tt>e.preventStopImmediatePropagation</tt> doest not work. Here is [a link to this bug](http://forum.jquery.com/topic/e-stopimmedidatepropagation-does-not-work-with-live-or-with-delegate) I reported.
 
@@ -120,7 +120,7 @@ Since I am invoking <tt>e.stopImmediatePropagation</tt> I should never see <tt>a
 
 This bug has been fixed as per [this commit](http://github.com/jquery/jquery/commit/974b5aeab7a3788ff5fb9db87b9567784e0249fc) . Note that the commit mentioned was done after the release of jQuery 1.4.3. To get the fix you will have to wait for jQuery 1.4.4 release or use jQuery edge.
 
-#I am using rails.js (jquery-ujs). What do I do?#
+##I am using rails.js (jquery-ujs). What do I do?##
 
 As I have shown "return false" does not work in jQuery 1.4.3 . However I would have to like have as much backward compatibility in <tt>jquery-ujs</tt> as much possible so that the same code base works with jQuery 1.4 through 1.4.3 since not every one upgrades immediately.
 
