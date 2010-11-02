@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: #FBFBFB;
+  background: #e4e4e4;
   color: #353B40;
 }
 
@@ -36,6 +36,7 @@ tt {
   -moz-border-radius: 1em;
   -webkit-border-radius: 1em;
   border-radius: 1.5em;
+  background: #fff;
 }
 
 #header {
@@ -46,21 +47,17 @@ tt {
 
 #header h1 {
   color: #080000;
+  font-family:'Yanone Kaffeesatz';
   font-size: 2.9em;
-  display: inline;
-  font-weight: bold;
-  font-family: HeaderFont, Arial, Georgia;
-  margin: 1px;
+  margin: 1px ;
   padding: 1px;
   width: 400px;
-  float: left;
 
   letter-spacing: 1px;
-  font-family:'Yanone Kaffeesatz';
   font-size: 3.6em;
   font-weight: bold;
-  margin-bottom:0;
   text-align:left;
+  float: left;
     
 }
 
@@ -323,4 +320,44 @@ padding:10px;
 
 #open_source_work h2 {
   text-decoration: none;
+}
+
+#about {
+  font-size: 110%;
+}
+
+#about ul li {
+  list-style: square;
+  margin: 3px 0;
+  padding: 2px 0;
+}
+
+ul#navigation {
+  list-style-type:none;
+  margin-right: 20px;
+  color: #080000;
+  font-family:'Yanone Kaffeesatz';
+}
+
+ul#navigation .first {
+}
+ul#navigation li {
+  display:block;
+  float: right;
+}
+ul#navigation li a {
+  border-bottom:medium none;
+  color:#ea908a;
+  color:#000;
+  display:block;
+  font-size: 1.4em;
+  letter-spacing:0.1em;
+  padding:0.6em;
+  text-decoration:none;
+  float: right;
+  font-weight: bold;
+}
+
+ul#navigation li a:hover {
+  text-decoration: underline;
 }
