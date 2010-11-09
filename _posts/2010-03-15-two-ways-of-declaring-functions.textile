@@ -14,7 +14,7 @@ function foo(){};
 Thanks to "Ben":http://www.adequatelygood.com today I learned that "there is a difference":http://www.adequatelygood.com/2010/2/JavaScript-Scoping-and-Hoisting .
 
 
-h2. When a var is used to declare a function then only the definition gets hoisted up
+h2. When a var is used to declare a function then only the variable declaration gets hoisted up
 
 <pre>
 function test(){
@@ -35,7 +35,7 @@ function test(){
 test();
 </pre> 
 
-h2. When a function variable is declared without var then both definition and body gets hoisted up
+h2. When a function variable is declared without var then both variable declaration and body gets hoisted up
 
 <pre>
 function test(){
