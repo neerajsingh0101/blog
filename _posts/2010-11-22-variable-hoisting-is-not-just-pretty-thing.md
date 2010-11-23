@@ -3,7 +3,7 @@ layout: post
 title: Variable declaration at the top is not just pretty thing
 ---
 
-I was discussing JavaScript code with a friend and he noticed that I had declared all the variable at the top. 
+I was discussing JavaScript code with a friend and he noticed that I had declared all the variables at the top. 
 
 He likes to declare the variable where they are used to be sure that the variable being used is declared with var otherwise that variable will become global variable. This fear of accidentally creating a global variables wants him to see variable declaration next to where it is being used.
 
@@ -14,7 +14,7 @@ He likes to declare the variable where they are used to be sure that the variabl
     payment = soldPrice + shippingCost;
     .....
 
-In the above case user has declared payment variable in the middle so that he is sure that payment is declared. However if there is a typo as given below then he has accidentally created a global variable. 
+In the above case user has declared payment variable in the middle so that he is sure that payment is declared. However if there is a typo as given below then he has accidentally created a global variable "payment". 
 
     .....
     var paymnet; //there is a typo
@@ -27,7 +27,7 @@ You can configure such that JSLint validation runs when you check your code into
 
 ## variable declaration are being moved to the top by the browser ##
 
-Even though you have declaration variables next to where they are being used, browsers lift those declarations to the very top. A code like this
+Take a look at following code. One might expect that console.log will print "Neeraj" but the output will be "undefined" . That is because even though you have declaration variables next to where they are being used, browsers lift those declarations to the very top.
 
     name = 'Neeraj';
     function lab(){
@@ -37,7 +37,7 @@ Even though you have declaration variables next to where they are being used, br
     };
     lab();
 
-is converted into this by the browser.
+Browser converts above code into one shown below.
 
     name = 'Neeraj';
     function lab(){
@@ -58,6 +58,7 @@ In order to avoid this kind of mistakes it is preferred to declared variables at
     };
     lab();
 
+Looking at the first set of code a person might think that 
 
 Also remember that scope of variable in JavaScript at the function level.
 

@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Mime type resolution in Rails
+published: false
 ---
 
 It is common to see following type of code in Rails
@@ -36,3 +37,16 @@ If you are reading this blog on a browser then you can find out what kind of "Ac
     IE: application/x-ms-application, image/jpeg, application/xaml+xml, image/gif, 
     image/pjpeg, application/x-ms-xbap, application/x-shockwave-flash, */*
 
+
+Let's take a look at the "Accept" header sent by Safari.
+
+    Safari: application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5
+
+Safari is saying that I like and I can handle documents which are xml (application/xml). I can also handle html (text/html) document. I can also process plain (text/plain) documents. And I can handle images such as image/png. If all else fails then send me whatever you can and I will try to render that document to the best of my ability.
+
+
+
+
+puts request.headers['HTTP_ACCEPT']
+
+Write about if I am submitting a request then how can I tune the Accept in say chrome. https://mail.google.com/mail/#inbox/12c771d05097debc
