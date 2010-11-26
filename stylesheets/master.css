@@ -141,6 +141,7 @@ div.post {
   margin: 0 0 -10px 0;
   padding: 0;
   font-family: 'Neuton', arial, serif;
+  margin-bottom: 20px;
 }
 .post h1 a {
   text-decoration: none;
