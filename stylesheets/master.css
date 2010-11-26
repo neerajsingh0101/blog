@@ -393,6 +393,12 @@ h1#archive_label{
   font-size: 1.4em;
   text-decoration: none;
 }
-#archive h3 a:hover{
+
+#archive h3 a:hover {
   text-decoration: underline;
+}
+
+.header_images {
+  float:right;
+  margin-right:30px;
 }
