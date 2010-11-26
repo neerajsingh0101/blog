@@ -9,10 +9,6 @@ a {
   font-weight: bold;
 }
 
-a:visited {
-  font-weight: normal;
-}
-
 a:hover {
   color: black;
 }
