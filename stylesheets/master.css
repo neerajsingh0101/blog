@@ -144,9 +144,10 @@ div.post {
 .post h1 {
   margin: 0 0 -10px 0;
   padding: 0;
+  font-family: 'Neuton', arial, serif;
 }
 .post h1 a {
-  text-decoration: underline;
+  text-decoration: none;
   clear: left;
   display: block;
   padding: 0;
@@ -154,9 +155,9 @@ div.post {
   font-weight: bold;
   line-height: 1.2em;
   letter-spacing: 0;
-  font-size: 1.1em;
+  font-size: 1.4em;
   color: #333333;
-  font-family: chunk;
+  border-bottom:1px dotted gray;
 }
 .post h1 a:hover {
   text-decoration: none;
@@ -378,5 +379,20 @@ ul#navigation li a {
 }
 
 ul#navigation li a:hover {
+  text-decoration: underline;
+}
+
+h1#archive_label{
+  font-family: 'Neuton', arial, serif;
+  font-size: 3.2em;
+}
+
+#archive h3 a{
+  font-family: 'Neuton', arial, serif;
+  color: black;
+  font-size: 1.4em;
+  text-decoration: none;
+}
+#archive h3 a:hover{
   text-decoration: underline;
 }

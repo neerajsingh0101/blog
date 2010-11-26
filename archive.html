@@ -3,7 +3,8 @@ layout: master
 ---
 
 <div class='home_box' id='home_left'>
-  <div class='post'>
+  <h1 id='archive_label'>Archive</h1>
+  <div class='post' id='archive'>
     {% for post in site.posts  %}
       <h3>
         <a href="{{ post.url }}">{{ post.title }}</a>
