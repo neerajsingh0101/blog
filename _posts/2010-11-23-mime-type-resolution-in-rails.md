@@ -6,7 +6,7 @@ published: false
 
 This is a long blog. If you want a summary then José Valim has provided a [summary in less than 140 characters](http://twitter.com/#!/josevalim/status/7928782685995009).
 
-It is common to see following type of code in Rails
+It is common to see following code in Rails
 
     respond_to do |format|
       format.hml
@@ -60,20 +60,20 @@ The spec is saying is that each document type has a default value of 1. When _q_
 * text/plain (q is 0.8)
 * \*/\* (q is 0.5)
 
-Notice that Safari is nice enough to say to put a lower priority for \*/\*. Chrome and Firefox also puts \*/\* at a lower priority which is a good thing. Not so with IE which doest not declare any q value for \*/\* .
+Notice that Safari is nice enough to say to put a lower priority for \*/\*. Chrome and Firefox also puts \*/\* at a lower priority which is a good thing. Not so with IE which does not declare any q value for \*/\* .
 
 
 Look at the order again and you can see that _application/xml_ has higher priority over _text/html_. What it means is that safari is telling rails that I would prefer _application/xml_ over _text/html_. Send me _text/html_ only if you cannot send _application/xml_. 
 
 And let's say that you have developed a RESTful app which is capable of sending output in both html and xml formats. 
 
-Rails being a good Internet and HTTP citizen should follow the HTTP_ACCEPT protocol and should send an xml document in this case. Again all you did was to hit a website and safari is telling rails that send me xml document over html document. Clearly HTTP_ACCEPT values being sent by Safari is broken.
+Rails being a good HTTP citizen should follow the HTTP_ACCEPT protocol and should send an xml document in this case. Again all you did was visit a website and safari is telling rails that send me xml document over html document. Clearly HTTP_ACCEPT values being sent by Safari is broken.
 
 ##HTTP_ACCEPT is broken##
 
 HTTP_ACCEPT attribute concept is neat. It defines the order and the priority. However the implementation is broken by all the browser vendors. Given the case that browsers do not send proper HTTP_ACCEPT what can rails do. One solution is to ignore it completely. If you want _xml_ output then request _http://localhost:3000/users.xml_ . Solely relying on formats make life easy and less buggy. This is what Rails did for a long time. 
 
-Starting [this commit](https://github.com/rails/rails/commit/2f4aaed7b3feb3be787a316fab3144c06bb21a27) ,by default, rails will ignore HTTP_ACCEPT attribute. Same is true for [Twitter API](http://dev.twitter.com/doc/get/search) where HTTP_ACCEPT attribute is ignored and it solely relies on format to find out what kind of document should be returned.
+Starting [this commit](https://github.com/rails/rails/commit/2f4aaed7b3feb3be787a316fab3144c06bb21a27) ,by default, rails did ignore HTTP_ACCEPT attribute. Same is true for [Twitter API](http://dev.twitter.com/doc/get/search) where HTTP_ACCEPT attribute is ignored and twitter solely relies on format to find out what kind of document should be returned.
 
 Unfortunately it is not a practical solution. Web has been there for a long time and there are a lot of applications who expect the response type to be RSS feed if they are sending _application/rss+xml_ in their HTTP_ACCEPT attribute. It is not nice to take a hard stand and ask all of them to request with extension _.rss_ .
 
@@ -90,7 +90,7 @@ At the beginning of the blog I showed respond_to code.
 
 Above code says that if the requested format is _html_ then send _html_ response. If the requested format is _xml_ then send _xml_ response. However it also says one more very important thing and that has to do with the order in which two formats are declared.
 
-To come to a common sense solution rails said that it will parse the HTTP_ACCEPT and will build the order in which browser wants the response. That list of order will be matched against the order in which formats are declared inside respond_to block.
+To come to a common sense solution rails decided to parse HTTP_ACCEPT and build the response type browser supports. However when it comes to priority it will look at the order in which formats are declared inside the respond_to block.
 
 The order provided by browser is
 
@@ -107,9 +107,9 @@ The order in which formats are delcared is
 
 Rails goes through each format declared in respond_to and tries to see if browser can handle that format. In this case format.html is declared first so rails tries to find a match for _text/html_ and in this case safari can handle _text/html_ and _text/html_ response is sent.
 
-But you will say this is not the order in which browser requested documents to be sent. Yes I know. But if I obey browser then I will send xml and that is not what user wants to see.
+But you will say this is not the order in which browser requested documents to be sent. Yes I know. But if rails obeys browser then it will send xml and that is not what user wants to see even though that is what browser requested.
 
-Also note that if you request a url in rails with .format option like _http://localhost:3000/users.xml_ then HTTP_ACCEPT is totally ignored. It is strongly recommended to use _.format_ option because that is guaranteed to work.
+Also note that if you request a url in rails with .format option like _http://localhost:3000/users.xml_ then HTTP_ACCEPT is totally ignored. It is strongly recommended to use _.format_ option because this is guaranteed to work.
 
 Now let's add twist to this use case by not declaring respond_to block. Now my controller looks like
 
@@ -128,20 +128,20 @@ In this case if safari request comes through then user will get xml output and u
 
 Remember the order in which browser wants document is
 
-   xml
-   html
-   plain
-   anything
+    xml
+    html
+    plain
+    anything
 
-Since no respond_to block was provided rails has no way to find what is the order in which user wants document to be send. So rails will obey whatever HTTP_ACCEPT says. And rails will try to see if there is a _users.xml.builder_ file. If a file is found then rails will render that one.
+Since no respond_to block was provided rails has no way to find what is the order in which user wants document to be sent. So rails will obey whatever HTTP_ACCEPT says. And rails will try to see if there is a _users.xml.builder_ file. If a file is found then rails will render that one.
 
 ##More twists with Ajax request##
 
-When an AJAX request is made the Safari, Firefox and Chrome send only one item in HTTP_ACCEPT and that is */*. So if you are making an AJAX request then HTTP_ACCEPT for these three browsers will look like
+When an AJAX request is made the Safari, Firefox and Chrome send only one item in HTTP_ACCEPT and that is \*/\*. So if you are making an AJAX request then HTTP_ACCEPT for these three browsers will look like
 
-    Chrome: \*/\*
-    Firefox: \*/\*
-    Safari: \*/\*
+    Chrome: */*
+    Firefox: */*
+    Safari: */*
 
 and if your respond_to block looks like this 
 
