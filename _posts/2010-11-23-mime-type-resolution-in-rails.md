@@ -77,18 +77,37 @@ Starting [this commit](https://github.com/rails/rails/commit/2f4aaed7b3feb3be787
 
 Unfortunately it is not a practical solution. Web has been there for a long time and there are a lot of applications who expect the response type to be RSS feed if they are sending _application/rss+xml_ in their HTTP_ACCEPT attribute. It is not nice to take a hard stand and ask all of them to request with extension _.rss_ .
 
-##How to make sense of HTTP_ACCEPT##
+##HTTP_ACCEPT is */*##
 
 Now that we have decided to obey HTTP_ACCEPT how to go about handling the order in which the browser wants requests to be handled and what common sense dictates us.
 
 At the beginning of the blog I showed respond_to code.
 
     respond_to do |format|
-      format.hml
-      format.xml  { render :xml => @users }
+      format.hml { render :text => 'this is html' }
+      format.js  { render :text => 'this is js' }
     end
 
-Above code says that if the requested format is _html_ then send _html_ response. If the requested format is _xml_ then send _xml_ response. However it also says one more very important thing and that has to do with the order in which two formats are declared.
+Above code says that if the requested format is _html_ then send _html_ response. If the requested format is _js_ then send _js_ response. However it also says one more very important thing and that has to do with the order in which two formats are declared.
+
+I am assuming that _HTTP_ACCEPT_ value is \*/\* . In this case browser is saying that send me whatever you got. Since browser is not dictating the order rails will look at the order in which repsond_to formats are delcared. Rails will use the first format specified in the respond_to block.
+
+So if the respond_to block is declared like the one given below then user will get html output.
+
+    respond_to do |format|
+      format.hml { render :text => 'this is html' }
+      format.js  { render :text => 'this is js' }
+    end
+
+However if the respond_to block is declared like the one given below then user will get js output.
+
+    respond_to do |format|
+      format.hml { render :text => 'this is html' }
+      format.js  { render :text => 'this is js' }
+    end
+
+The order in which formats are declared can be real issue. Checkout these [two](http://www.danielcadenas.com/2008/10/internet-explorer-7-accept-header-and.html) [cases](http://www.brentmc79.com/posts/ie7-accept-header-and-rails-respon-to-bug) where the author ran into issue because of the order in which formats are declared.
+
 
 To come to a common sense solution rails decided to parse HTTP_ACCEPT and build the response type browser supports. However when it comes to priority it will look at the order in which formats are declared inside the respond_to block.
 
@@ -183,6 +202,7 @@ I used following rake task to set custom HTTP_ACCEPT attribute.
       request["Accept"] = "text/html, application/xml, */*"
 
       response = http.request(request)
+      puts response.body
     end
 
 
