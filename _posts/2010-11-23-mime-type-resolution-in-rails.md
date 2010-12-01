@@ -128,7 +128,7 @@ What it's saying is that if Mime::ALL is sent then pick the first one declared i
 
 The order in which formats are declared can be real issue. Checkout these [two](http://www.danielcadenas.com/2008/10/internet-explorer-7-accept-header-and.html) [cases](http://www.brentmc79.com/posts/ie7-accept-header-and-rails-respon-to-bug) where the author ran into issue because of the order in which formats are declared.
 
-So far so good. However what if there is no respond_to block. If I don't have respond_to block and if I have _index.html.erb_, _index.js.erb_ and _index.xml.builder_ files in my view directory then which one will be picked up. In this case Rails will go over all the registered formats in the order in which they are delcared and will try to find a match . So in this case it matters in what order Mime types are registerd. Here is the code that registers Mime types.
+So far so good. However what if there is no respond_to block. If I don't have respond_to block and if I have _index.html.erb_, _index.js.erb_ and _index.xml.builder_ files in my view directory then which one will be picked up. In this case Rails will go over all the registered formats in the order in which they are delcared and will try to find a match . So in this case it matters in what order Mime types are registered. Here is the code that registers Mime types.
 
     Mime::Type.register "text/html", :html, %w( application/xhtml+xml ), %w( xhtml )
     Mime::Type.register "text/plain", :text, [], %w(txt)
@@ -152,7 +152,7 @@ So far so good. However what if there is no respond_to block. If I don't have re
     Mime::ALL = Mime::Type.new("*/*", :all, [])
 
 
-As you can see _text/html_ is first in the list, _text/javascript_ next and then _application/xml_. So Rails will look for view file in the following order: _index.html.erb_ , _index.js.erb and _index.xml.builder .
+As you can see _text/html_ is first in the list, _text/javascript_ next and then _application/xml_. So Rails will look for view file in the following order: _index.html.erb_ , _index.js.erb_ and _index.xml.builder_ .
 
 ##Case 2: HTTP_ACCEPT with no \*/\*##
 
