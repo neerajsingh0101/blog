@@ -7,6 +7,7 @@ title: Archive
   <h1 id='archive_label'>Archive</h1>
   <div class='post' id='archive'>
     {% for post in site.posts  %}
+      <span class='date'>{{post.date | date_to_string}}</span>
       <h3>
         <a href="{{ post.url }}">{{ post.title }}</a>
       </h3>

@@ -13,7 +13,7 @@ a:hover {
   color: black;
 }
 
-ol li, ul li { 
+ol li, ul li {
   line-height: 170%;
 }
 
@@ -21,7 +21,7 @@ tt {
   background-color: #F8F8FF;
   color: #444;
   padding: 0 0.2em;
-  font-size: 16px; 
+  font-size: 16px;
 }
 
 #wrapper {
@@ -59,7 +59,7 @@ tt {
   font-weight: bold;
   text-align:left;
   float: left;
-    
+
 }
 
 #header h1 a {
@@ -104,7 +104,7 @@ tt {
   color: black;
   font-size: 1.0em;
   padding: 0 0.5em;
-  line-height: 2.5em;  
+  line-height: 2.5em;
   font-weight: normal;
 }
 
@@ -123,6 +123,16 @@ span.date {
   color: white;
   color: dimgray;
   font-size: 80%;
+}
+
+#archive span.date {
+  padding: 0;
+}
+
+#archive h3 {
+  padding-top:0;
+  margin-top:0;
+  margin-bottom: 30px;
 }
 
 
