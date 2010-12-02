@@ -9,7 +9,7 @@ This is a long blog. If you want a summary then José Valim has provided a [summ
 It is common to see following code in Rails
 
     respond_to do |format|
-      format.hml
+      format.html
       format.xml  { render :xml => @users }
     end
 
@@ -106,7 +106,7 @@ Next I am going to discuss some of the cases in greater detail which should brin
 I have following code.
 
     respond_to do |format|
-      format.hml { render :text => 'this is html' }
+      format.html { render :text => 'this is html' }
       format.js  { render :text => 'this is js' }
     end
 
@@ -163,7 +163,7 @@ I am going to assume that in this case HTTP_ACCEPT sent by browser looks really 
 I am also assuming that my respond_to block looks like this
 
     respond_to do |format|
-      format.hml { render :text => 'this is html' }
+      format.html { render :text => 'this is html' }
       format.js  { render :text => 'this is js' }
     end
 
@@ -192,7 +192,7 @@ When an AJAX request is made the Safari, Firefox and Chrome send only one item i
 and if your respond_to block looks like this
 
     respond_to do |format|
-      format.hml { render :text => 'this is html' }
+      format.html { render :text => 'this is html' }
       format.js  { render :text => 'this is js' }
     end
 
