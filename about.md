@@ -3,45 +3,32 @@ layout: master
 title: About
 ---
 
-<div id='about'>
+I am a Ruby on Rails [contributor](http://contributors.rubyonrails.org/contributors/neeraj-singh/commits) .
 
-  <table>
-    <tr>
-      <td>
-        <p>I am a Ruby on Rails contributor, jquery-ujs committer, jQuery hacker and a web developer. I live in Herndon, Virginia USA .</p>
-          <ul>
-            <li> <a href='http://twitter.com/neerajdotname'>Twitter</a> </li>
-            <li> <a href='http://github.com/neerajdotname'>Github</a> </li>
-            <li> Email: neerajdotname@gmail.com </li>
-          </ul>
-      </td>
-      <td width='20%'>
-        &nbsp;
-      </td>
-      <td>
-        <img src='http://profile.ak.fbcdn.net/hprofile-ak-snc4/hs358.snc4/41764_516984459_6138_n.jpg' width='200' height='150' alt='Neeraj Singh'/>
+I am a jquery-ujs [committer](http://github.com/rails/jquery-ujs/commits/master?author=neerajdotname). I wrote the [test suite](http://twitter.com/josevalim/status/15171367066) for JavaScript. Yes writing tests for JavaScript could be fun too.
 
-      </td>
-      <td>
-      </td>
-    </tr>
-  </table>
+[admin_data](http://github.com/neerajdotname/admin_data) is a Rails engine ,I wrote, that allows to quickly browse, search and manage database using simple web interface. Live Demo is available [here](http://admin-data-test.heroku.com/admin_data).
 
 
-  <h2>Open Source Contribution</h2>
 
-  <ul>
-    <li>
-      I <a href='http://contributors.rubyonrails.org/contributors/neeraj-singh/commits'> contribute</a> to Ruby on Rails.
-    </li>
-    <li>
-      I <a href='http://github.com/rails/jquery-ujs/commits/master?author=neerajdotname'>contribute to jquery-ujs</a>
-      of Rails. I wrote the <A href='http://twitter.com/josevalim/status/15171367066'>test suite</a> for jquery-ujs.
-    </li>
-    <li>
-      I created <a href='http://github.com/neerajdotname/admin_data'>admin_data</a> which allows one to browse, search, edit and manage datbase backed data using simple web interface. Live demo is available <a href=''>here</a> .
-    </li>
-    <li>
+
+#Say Hi to me#
+
+* [Twitter](http://twitter.com/neerajdotname)
+* [github](http://github.com/neerajdotname)
+* Email: neerajdotname AT gmail.com
+
+I live in Herndon, Virginia USA .
+
+##This is me##
+
+<img src='http://profile.ak.fbcdn.net/hprofile-ak-snc4/hs358.snc4/41764_516984459_6138_n.jpg' width='200' height='150' alt='Neeraj Singh'/>
+
+
+
+
+
+
       I created <a href="http://github.com/neerajdotname/iconfirm">iconfirm</a>, an inline confirmation utility powered by jQuery. Live demo is available <a href='http://neerajdotname.github.com/iconfirm/'>here</a>
     </li>
     <li>
