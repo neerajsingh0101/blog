@@ -10,9 +10,10 @@ I am a jquery-ujs [committer](http://github.com/rails/jquery-ujs/commits/master?
 [admin_data](http://github.com/neerajdotname/admin_data) is a Rails engine ,I wrote, that allows to quickly browse, search and manage database using simple web interface. Live Demo is available [here](http://admin-data-test.heroku.com/admin_data).
 
 
+In some cases confirmation dialog box maekse sense if they are inline. [iconfirm](http://github.com/neerajdotname/iconfirm) is an inline confirmation plugin poweredy by jQuery.  [Live demo]( http://neerajdotname.github.com/iconfirm) is available .
 
 
-#Say Hi to me#
+##Contact Info##
 
 * [Twitter](http://twitter.com/neerajdotname)
 * [github](http://github.com/neerajdotname)
@@ -20,27 +21,19 @@ I am a jquery-ujs [committer](http://github.com/rails/jquery-ujs/commits/master?
 
 I live in Herndon, Virginia USA .
 
-##This is me##
-
 <img src='http://profile.ak.fbcdn.net/hprofile-ak-snc4/hs358.snc4/41764_516984459_6138_n.jpg' width='200' height='150' alt='Neeraj Singh'/>
 
 
+I love hoptoad. I was working on a Goverment project where the application did not have access to hoptoad. Since I was already used to hoptoad API, I developed [exception2db](http://github.com/neerajdotname/exception2db) which uses hoptoad API except that exception information is sent to a local database and not to hoptoad service. Developers continue to use hoptoad API without caring about where the exception info is stored.
+
+[handy](http://github.com/neerajdotname/handy) is a gem that helps me populate local database with production data to help debug an issue. It also regularly backups data on s3.
 
 
 
+[active_record_no_table](http://github.com/neerajdotname/active_record_no_table) is a Rails plugin which allows a model to have ActiveRecord validation features even though the model does not have a corresponding table in the database. Now that Rails3 has been released this plugin is not that useful.
 
-      I created <a href="http://github.com/neerajdotname/iconfirm">iconfirm</a>, an inline confirmation utility powered by jQuery. Live demo is available <a href='http://neerajdotname.github.com/iconfirm/'>here</a>
-    </li>
-    <li>
-      I created <a href='http://github.com/neerajdotname/handy'>handy</a>, a rails gem with useful rake tasks and capistrano tasks.
-    </li>
-    <li>
-      I created <a href='http://github.com/neerajdotname/exception2db'>exception2db</a> gem which logs rails exceptions to a personal database using hoptoad API.
-    </li>
-    <li>
-      I created <a href='http://github.com/neerajdotname/active_record_no_table'>active_record_no_table</a> . It is a Rails plugin which allows a model to have ActiveRecord validation features even though the model does not have a corresponding table in the database. Now that Rails3 has been released this plugin is not that useful.
-    </li>
-    <li>
+
+
       I created <a href='http://github.com/neerajdotname/node-chat-in-steps'>node-chat-in-steps</a> whichs helps to get started with developing a chat system using <a href=''>nodejs</a>
     </li>
     <li>
