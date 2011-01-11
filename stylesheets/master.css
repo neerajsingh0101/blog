@@ -360,7 +360,7 @@ padding:10px;
 }
 
 ul#navigation {
-  list-style-type:none;
+  list-style-type: none;
   margin-right: 20px;
   color: #080000;
   font-family:'Yanone Kaffeesatz';
@@ -368,13 +368,13 @@ ul#navigation {
 
 ul#navigation .first {
 }
+
 ul#navigation li {
   display:block;
-  float: right;
+  float: left;
 }
 ul#navigation li a {
   border-bottom:medium none;
-  color:#ea908a;
   color:#000;
   display:block;
   font-size: 1.4em;
@@ -406,6 +406,15 @@ h1#archive_label{
 }
 
 .header_images {
-  float:right;
+  float: left;
   margin-right:30px;
+}
+
+.header_images a {
+  color:#000;
+  font-size: 1.2em;
+  letter-spacing:0.1em;
+  padding:0.1em;
+  text-decoration:none;
+  font-weight: bold;
 }
