@@ -11,7 +11,7 @@ I am a jquery-ujs [committer](http://github.com/rails/jquery-ujs/commits/master?
 
 [admin_data](http://github.com/neerajdotname/admin_data) is a Rails engine to quickly browse, search and manage database using web. Live demo is available [here](http://admin-data-test.heroku.com/admin_data).
 
-In some cases confirmation dialog box makes more sense if they are inline. [iconfirm](http://github.com/neerajdotname/iconfirm) is an inline confirmation plugin poweredy by jQuery.  [Live demo]( http://neerajdotname.github.com/iconfirm) is available .
+Inline confirmation makes more sense in many cases. [iconfirm](http://github.com/neerajdotname/iconfirm) is an inline confirmation plugin poweredy by jQuery.  [Live demo]( http://neerajdotname.github.com/iconfirm) is available .
 
 I love hoptoad. I was working on a Goverment project where the application did not have access to hoptoad. Since I was already used to hoptoad API, I developed [exception2db](http://github.com/neerajdotname/exception2db) which uses hoptoad API except that exception information is sent to a local database and not to hoptoad service. Developers continue to use hoptoad API without caring about where the exception info is stored.
 
