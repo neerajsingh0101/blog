@@ -7,9 +7,9 @@ title: About
 
 I [contribute](http://contributors.rubyonrails.org/contributors/neeraj-singh/commits) to Ruby on Rails.
 
-I am a jquery-ujs [committer](http://github.com/rails/jquery-ujs/commits/master?author=neerajdotname). I wrote the [test suite](http://twitter.com/josevalim/status/15171367066) for rails.js. Yes writing tests for JavaScript could be fun too.
+I am a jquery-ujs [committer](http://github.com/rails/jquery-ujs/commits/master?author=neerajdotname). Besides code fixes I also wrote the [test suite](http://twitter.com/josevalim/status/15171367066) for rails.js. Yes writing tests for JavaScript could be fun too.
 
-[admin_data](http://github.com/neerajdotname/admin_data) is a Rails engine ,I wrote, that allows to quickly browse, search and manage database using web. Live demo is available [here](http://admin-data-test.heroku.com/admin_data).
+[admin_data](http://github.com/neerajdotname/admin_data) is a Rails engine to quickly browse, search and manage database using web. Live demo is available [here](http://admin-data-test.heroku.com/admin_data).
 
 In some cases confirmation dialog box makes more sense if they are inline. [iconfirm](http://github.com/neerajdotname/iconfirm) is an inline confirmation plugin poweredy by jQuery.  [Live demo]( http://neerajdotname.github.com/iconfirm) is available .
 
